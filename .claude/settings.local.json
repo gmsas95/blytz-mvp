@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/sas/**)",
+      "Bash(tree:*)",
+      "Bash(chmod:*)",
+      "Bash(./scaffold.sh:*)",
+      "Bash(pkill:*)",
+      "Bash(./create-microservices.sh:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(sudo rm:*)",
+      "Bash(sudo tar:*)",
+      "Bash(~/go/go/bin/go mod tidy:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

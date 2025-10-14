@@ -1,0 +1,31 @@
+server {
+  listen 80;
+
+  location /auth/ {
+    proxy_pass http://auth-service:8081/;
+  }
+
+  location /products/ {
+    proxy_pass http://product-service:8082/;
+  }
+
+  location /auction/ {
+    proxy_pass http://auction-service:8083/;
+  }
+
+  location /chat/ {
+    proxy_pass http://chat-service:8084/;
+  }
+
+  location /order/ {
+    proxy_pass http://order-service:8085/;
+  }
+
+  location /logistics/ {
+    proxy_pass http://logistics-service:8086/;
+  }
+
+  location /payment/ {
+    proxy_pass http://payment-service:8087/;
+  }
+}

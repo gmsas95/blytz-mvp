@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: Blytz Product Service
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      summary: Get all products
+      responses:
+        "200": { description: List of products }
+
+    post:
+      summary: Create a new product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                price: { type: number }
+                imageUrl: { type: string }
+                sellerId: { type: string }
+      responses:
+        "201": { description: Product created }
+
+  /products/{id}:
+    get:
+      summary: Get single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Product details }

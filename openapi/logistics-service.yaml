@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  title: Blytz Logistics Service
+  version: 1.0.0
+paths:
+  /logistics/track/{orderId}:
+    get:
+      summary: Track shipment
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Shipment status }
+
+  /logistics/create-shipment:
+    post:
+      summary: Create Ninja Van shipment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId: { type: string }
+                address: { type: string }
+      responses:
+        "201": { description: Shipment created }

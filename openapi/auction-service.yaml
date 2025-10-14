@@ -1,0 +1,45 @@
+openapi: 3.1.0
+info:
+  title: Blytz Auction Engine
+  version: 1.0.0
+paths:
+  /auction/start:
+    post:
+      summary: Start auction for a product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                streamId: { type: string }
+                productId: { type: string }
+                startingPrice: { type: number }
+      responses:
+        "201": { description: Auction started }
+
+  /auction/bid:
+    post:
+      summary: Place bid on an active auction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auctionId: { type: string }
+                bidderId: { type: string }
+                amount: { type: number }
+      responses:
+        "200": { description: Bid accepted }
+
+  /auction/{id}/status:
+    get:
+      summary: Get auction current price and highest bidder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Auction status }

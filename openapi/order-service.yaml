@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  title: Blytz Order Service
+  version: 1.0.0
+paths:
+  /cart/add:
+    post:
+      summary: Add item to user cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId: { type: string }
+                userId: { type: string }
+      responses:
+        "200": { description: Added to cart }
+
+  /cart/{userId}:
+    get:
+      summary: Get user cart
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Cart details }
+
+  /checkout:
+    post:
+      summary: Checkout and create order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: string }
+                paymentMethod: { type: string }
+      responses:
+        "201": { description: Order created }

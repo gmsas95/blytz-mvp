@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Blytz Live — API Specification
+  version: 1.0.0
+  description: |
+    This is the master OpenAPI specification for the **Blytz Live** ecosystem — 
+    a livestream auction and e-commerce platform built with Golang microservices, 
+    Redis, Firebase, and Nginx API Gateway.
+
+servers:
+  - url: https://api.blytz.app
+    description: Production API Gateway
+  - url: http://localhost
+    description: Local development environment
+
+tags:
+  - name: Auth
+    description: User authentication and identity
+  - name: Products
+    description: Product listings and inventory
+  - name: Auctions
+    description: Real-time bidding microservice
+  - name: Chat
+    description: Live chat and stream messaging
+  - name: Orders
+    description: Cart and checkout service
+  - name: Payments
+    description: Payment gateway integration
+  - name: Logistics
+    description: Shipping and Ninja Van integration
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+x-service-imports:
+  # The following references link to your individual OpenAPI files.
+  # Claude or other OpenAPI-based scaffolding tools will use these
+  # to scaffold the directory structure and generate service stubs.
+  - $ref: "./auth-service.yaml"
+  - $ref: "./product-service.yaml"
+  - $ref: "./auction-service.yaml"
+  - $ref: "./chat-service.yaml"
+  - $ref: "./order-service.yaml"
+  - $ref: "./payment-service.yaml"
+  - $ref: "./logistics-service.yaml"
+
+paths: {}

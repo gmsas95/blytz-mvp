@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: Blytz Auth Service
+  version: 1.0.0
+  description: Handles authentication and user identity for Blytz Live.
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [buyer, seller] }
+      responses:
+        "201": { description: User registered }
+
+  /auth/login:
+    post:
+      summary: Authenticate and get Firebase JWT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: Authenticated }
+
+  /auth/verify:
+    get:
+      summary: Verify Firebase JWT
+      security:
+        - bearerAuth: []
+      responses:
+        "200": { description: Token valid }
