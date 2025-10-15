@@ -15,8 +15,8 @@ go.sum
 *.dylib
 *.test
 *.out
-auction
-auction-service
+/auction
+/auction-service
 
 # IDE files
 .vscode/

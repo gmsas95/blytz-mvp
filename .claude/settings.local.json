@@ -38,7 +38,14 @@
       "Bash(for service in auth-service product-service auction-service gateway order-service payment-service chat-service logistics-service)",
       "Bash(do echo \"=== $service ===\")",
       "Bash(ls:*)",
-      "Bash(go get:*)"
+      "Bash(go get:*)",
+      "Bash(gh run watch:*)",
+      "Bash(do echo \"=== Testing $service ===\")",
+      "Bash(services=\"auth-service product-service auction-service gateway order-service payment-service chat-service logistics-service\")",
+      "Bash(for service in $services)",
+      "Bash(awk:*)",
+      "Bash(for:*)",
+      "Bash(/dev/null)"
     ],
     "deny": [],
     "ask": []
