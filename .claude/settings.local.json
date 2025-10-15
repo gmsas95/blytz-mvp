@@ -32,7 +32,13 @@
       "Bash(make:*)",
       "Bash(./scripts/local-ci.sh:*)",
       "Bash(go build:*)",
-      "Bash(for port in 8081 8082 8083 8084 8085 8086 8087)"
+      "Bash(for port in 8081 8082 8083 8084 8085 8086 8087)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(for service in auth-service product-service auction-service gateway order-service payment-service chat-service logistics-service)",
+      "Bash(do echo \"=== $service ===\")",
+      "Bash(ls:*)",
+      "Bash(go get:*)"
     ],
     "deny": [],
     "ask": []
