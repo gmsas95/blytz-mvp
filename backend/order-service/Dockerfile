@@ -1,3 +1,4 @@
+# Build stage
 FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
@@ -8,11 +9,12 @@ RUN apk add --no-cache git
 # Copy all backend files
 COPY . .
 
-# Go to product service and build
-WORKDIR /app/product-service
+# Go to order service and build
+WORKDIR /app/order-service
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o order-service ./cmd/main.go
 
+# Final stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates curl
@@ -20,14 +22,14 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/product-service/product-service .
+COPY --from=builder /app/order-service/order-service .
 
 # Expose port
-EXPOSE 8082
+EXPOSE 8085
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8082/health || exit 1
+  CMD curl -f http://localhost:8085/health || exit 1
 
 # Run the application
-CMD ["./product-service"]
+CMD ["./order-service"]

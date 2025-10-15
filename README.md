@@ -1,180 +1,215 @@
-# 🌀 Blytz Live Auction MVP – Docker Deployment
+# Blytz Live Auction Platform
 
-## Overview
+A comprehensive microservices-based live auction platform built with Go, featuring real-time bidding, chat, and payment processing.
 
-This repository hosts the **Blytz Live Auction MVP**, a real-time livestream commerce platform powered by **Go**, **Redis**, and **Nginx**.  
-The architecture is designed for **speed**, **scalability**, and **microservice flexibility** using a containerized setup suitable for a **1vCore / 4GB Hostinger KVM**.
+## Architecture
 
----
+The platform consists of 8 microservices:
 
-## 🧩 Architecture Summary
+- **Auth Service** (Port 8081) - User authentication and authorization
+- **Product Service** (Port 8082) - Product catalog management
+- **Auction Service** (Port 8083) - Auction management and bidding
+- **Chat Service** (Port 8084) - Real-time chat functionality
+- **Order Service** (Port 8085) - Order processing and management
+- **Payment Service** (Port 8086) - Payment processing
+- **Logistics Service** (Port 8087) - Shipping and delivery management
+- **API Gateway** (Port 8080) - Central API gateway and routing
 
-### Core Services
-| Service | Stack | Role |
-|----------|--------|------|
-| **Auction Engine** | Go + Redis | Core bidding logic, anti-snipe, atomic Lua scripts |
-| **Redis** | In-memory cache | Real-time bid state, session cache, product data |
-| **Nginx API Gateway** | Nginx | Reverse proxy, load balancer, HTTPS routing |
-| **Frontend (React Native)** | Expo | Live auction UI and stream display |
-| **Firebase (External)** | Cloud Functions | Payments, authentication, notifications |
+## Quick Start
 
-### Directory Layout
-```
+### Prerequisites
 
-/srv/blytz/
-├── docker-compose.yml
-├── README.md
-├── nginx/
-│    └── default.conf
-├── services/
-│    ├── auction-engine/
-│    │    ├── main.go
-│    │    ├── go.mod
-│    │    ├── internal/
-│    │    └── Dockerfile
-│    ├── redis/
-│    └── gateway/ (optional future services)
-└── logs/
+- Docker and Docker Compose
+- Go 1.21+ (for local development)
+- PostgreSQL 15+
+- Redis 7+
 
-````
+### Deployment
 
----
+1. **Start the entire stack:**
+   ```bash
+   docker-compose up -d
+   ```
 
-## ⚙️ Quick Setup (Hostinger KVM / Ubuntu 22.04)
+2. **Check service health:**
+   ```bash
+   # Check all services
+   docker-compose ps
 
-### 1️⃣ Install System Dependencies
+   # Check individual service health
+   curl http://localhost:8081/health  # Auth service
+   curl http://localhost:8082/health  # Product service
+   curl http://localhost:8083/health  # Auction service
+   # ... and so on for all services
+
+   # Check gateway
+   curl http://localhost:8080/health
+   ```
+
+3. **Access the services:**
+   - API Gateway: http://localhost:8080
+   - Auth Service: http://localhost:8081
+   - Product Service: http://localhost:8082
+   - Auction Service: http://localhost:8083
+   - Chat Service: http://localhost:8084
+   - Order Service: http://localhost:8085
+   - Payment Service: http://localhost:8086
+   - Logistics Service: http://localhost:8087
+
+4. **Monitoring:**
+   - Prometheus: http://localhost:9090
+   - Grafana: http://localhost:3000 (admin/admin)
+
+### API Documentation
+
+The API documentation is available through the OpenAPI specification in the `/openapi` directory. You can view it using Swagger UI or any OpenAPI viewer.
+
+### Database
+
+- **PostgreSQL**: Main database running on port 5432
+- **Redis**: Cache and session storage on port 6379
+
+Each service has its own database:
+- `auth_db` - Authentication data
+- `products_db` - Product catalog
+- `auction_db` - Auction and bidding data
+- `chat_db` - Chat messages
+- `orders_db` - Order information
+- `payments_db` - Payment transactions
+- `logistics_db` - Shipping and delivery data
+
+### Development
+
+For local development without Docker:
+
+1. **Install dependencies:**
+   ```bash
+   # Install Go dependencies for each service
+   cd backend/auth-service && go mod download
+   cd backend/product-service && go mod download
+   # ... repeat for all services
+   ```
+
+2. **Set up local databases:**
+   ```bash
+   # Start PostgreSQL and Redis (using Docker for convenience)
+   docker-compose up -d postgres redis
+   ```
+
+3. **Run individual services:**
+   ```bash
+   cd backend/auth-service
+   go run cmd/main.go
+   ```
+
+### Environment Variables
+
+Each service supports the following environment variables:
+
+- `PORT` - Service port (default: service-specific)
+- `ENVIRONMENT` - Environment (development/production)
+- `LOG_LEVEL` - Logging level (debug/info/warn/error)
+- `DATABASE_URL` - PostgreSQL connection string
+- `REDIS_URL` - Redis connection string
+- `JWT_SECRET` - JWT signing secret (auth service)
+
+### Monitoring
+
+The platform includes comprehensive monitoring:
+
+- **Prometheus**: Metrics collection
+- **Grafana**: Metrics visualization and dashboards
+- **Health checks**: Built-in health endpoints for all services
+
+### Scaling
+
+To scale individual services:
+
 ```bash
-sudo apt update && sudo apt install -y docker.io docker-compose git
-````
-
-### 2️⃣ Clone the Repository
-
-```bash
-sudo mkdir -p /srv/blytz
-cd /srv/blytz
-git clone https://github.com/gmsas95/blytz-redis.git .
+# Scale auction service to 3 instances
+docker-compose up -d --scale auction-service=3
 ```
 
-### 3️⃣ Launch Containers
+### Troubleshooting
 
-```bash
-sudo docker-compose up -d --build
-```
+1. **Service won't start:**
+   - Check Docker logs: `docker-compose logs <service-name>`
+   - Verify database connectivity
+   - Check environment variables
 
-### 4️⃣ Verify Everything
+2. **Database connection issues:**
+   - Ensure PostgreSQL is running and accessible
+   - Check database initialization script
+   - Verify connection strings
 
-```bash
-sudo docker ps
-curl http://localhost:8080/health
-```
+3. **Build failures:**
+   - Ensure Go 1.21+ is installed
+   - Check for missing dependencies: `go mod tidy`
+   - Verify shared module is accessible
 
-If you see `{ "status": "ok" }`, your auction engine is running ✅
+### Production Deployment
 
----
+For production deployment:
 
-## 🧱 Docker Compose Overview
+1. Update environment variables for production
+2. Configure SSL/TLS certificates
+3. Set up proper database backups
+4. Configure monitoring and alerting
+5. Set up log aggregation
+6. Configure rate limiting and security policies
 
-### `docker-compose.yml`
+## API Endpoints
 
-```yaml
-version: "3.8"
+### Authentication
+- `POST /api/v1/auth/signup` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/refresh` - Token refresh
+- `GET /api/v1/auth/verify` - Token verification
+- `POST /api/v1/auth/logout` - User logout
 
-services:
-  redis:
-    image: redis:7-alpine
-    container_name: blytz-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+### Products
+- `GET /api/v1/products` - List products
+- `POST /api/v1/products` - Create product
+- `GET /api/v1/products/:id` - Get product details
+- `PUT /api/v1/products/:id` - Update product
+- `DELETE /api/v1/products/:id` - Delete product
 
-  auction-engine:
-    build: ./services/auction-engine
-    container_name: blytz-auction
-    restart: always
-    environment:
-      - REDIS_HOST=redis:6379
-      - PORT=8080
-    depends_on:
-      - redis
-    ports:
-      - "8080:8080"
+### Auctions
+- `GET /api/v1/auctions` - List auctions
+- `POST /api/v1/auctions` - Create auction
+- `GET /api/v1/auctions/:id` - Get auction details
+- `PUT /api/v1/auctions/:id` - Update auction
+- `DELETE /api/v1/auctions/:id` - Delete auction
+- `POST /api/v1/auctions/:id/bids` - Place bid
+- `GET /api/v1/auctions/:id/bids` - Get bids
 
-  nginx:
-    image: nginx:alpine
-    container_name: blytz-nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - auction-engine
+### Chat
+- `GET /api/v1/chat/rooms` - List chat rooms
+- `POST /api/v1/chat/rooms` - Create chat room
+- `GET /api/v1/chat/rooms/:id/messages` - Get messages
+- `POST /api/v1/chat/rooms/:id/messages` - Send message
 
-volumes:
-  redis_data:
-```
+### Orders
+- `GET /api/v1/orders` - List orders
+- `POST /api/v1/orders` - Create order
+- `GET /api/v1/orders/:id` - Get order details
+- `PUT /api/v1/orders/:id` - Update order
 
----
+### Payments
+- `POST /api/v1/payments` - Process payment
+- `GET /api/v1/payments/:id` - Get payment details
+- `POST /api/v1/payments/:id/refund` - Process refund
 
-## 🌐 API Gateway (Nginx)
+### Logistics
+- `GET /api/v1/logistics/shipments` - List shipments
+- `POST /api/v1/logistics/shipments` - Create shipment
+- `GET /api/v1/logistics/shipments/:id` - Get shipment details
+- `PUT /api/v1/logistics/shipments/:id` - Update shipment
 
-### `nginx/default.conf`
+## Contributing
 
-```nginx
-server {
-    listen 80;
+Please see CONTRIBUTING.md for development guidelines and contribution process.
 
-    server_name _;
+## License
 
-    location /api/auction/ {
-        proxy_pass http://auction-engine:8080/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    location / {
-        return 200 'Blytz API Gateway Active';
-        add_header Content-Type text/plain;
-    }
-}
-```
-
-This routes all requests to:
-
-```
-http://<your-server-ip>/api/auction/
-```
-
-which forwards to your Go Auction Engine microservice.
-
----
-
-## 🧠 Useful Commands
-
-| Action                 | Command                                      |
-| ---------------------- | -------------------------------------------- |
-| Rebuild all containers | `sudo docker-compose up -d --build`          |
-| Stop all containers    | `sudo docker-compose down`                   |
-| View logs              | `sudo docker-compose logs -f`                |
-| Restart auction engine | `sudo docker restart blytz-auction`          |
-| Connect to Redis shell | `sudo docker exec -it blytz-redis redis-cli` |
-
----
-
-## 📡 Next Steps
-
-* [ ] Add **API Gateway SSL** via Nginx + Let’s Encrypt
-* [ ] Deploy Firebase Cloud Functions (for payments, user sync)
-* [ ] Integrate LiveKit for livestreams
-* [ ] Connect frontend mobile app to `/api/auction`
-* [ ] Add Prometheus metrics endpoint for auction engine
-
----
-
-## 🧾 License
-
-© 2025 Blytz Ventures. All rights reserved.
-Internal use only — not for public redistribution.
+This project is licensed under the MIT License - see the LICENSE file for details.

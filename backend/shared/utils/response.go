@@ -12,7 +12,7 @@ type Response struct {
 	Meta    interface{} `json:"meta,omitempty"`
 }
 
-type ErrorResponse struct {
+type APIError struct {
 	Type    string                 `json:"type"`
 	Code    string                 `json:"code"`
 	Message string                 `json:"message"`
@@ -30,7 +30,7 @@ func ErrorResponse(c *gin.Context, err error) {
 	if appErr, ok := errors.IsAppError(err); ok {
 		c.JSON(appErr.StatusCode, Response{
 			Success: false,
-			Error: ErrorResponse{
+			Error: APIError{
 				Type:    appErr.Type,
 				Code:    appErr.Code,
 				Message: appErr.Message,
@@ -43,7 +43,7 @@ func ErrorResponse(c *gin.Context, err error) {
 	// Handle generic errors
 	c.JSON(500, Response{
 		Success: false,
-		Error: ErrorResponse{
+		Error: APIError{
 			Type:    "INTERNAL_ERROR",
 			Code:    "INTERNAL_ERROR",
 			Message: err.Error(),
@@ -54,7 +54,7 @@ func ErrorResponse(c *gin.Context, err error) {
 func ValidationError(c *gin.Context, message string, details map[string]interface{}) {
 	c.JSON(400, Response{
 		Success: false,
-		Error: ErrorResponse{
+		Error: APIError{
 			Type:    "VALIDATION_ERROR",
 			Code:    "VALIDATION_ERROR",
 			Message: message,

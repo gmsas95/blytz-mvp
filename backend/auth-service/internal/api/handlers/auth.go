@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/blytz/auth-service/internal/models"
 	"github.com/blytz/auth-service/internal/services"
@@ -55,7 +54,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Verify(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.ErrorResponse(c, errors.Unauthorized("NO_USER_ID", "User ID not found"))
+		utils.ErrorResponse(c, errors.AuthenticationError("NO_USER_ID", "User ID not found"))
 		return
 	}
 
@@ -86,4 +85,60 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	utils.SuccessResponse(c, response)
+}
+
+// Logout handles user logout
+func (h *AuthHandler) Logout(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.ErrorResponse(c, errors.AuthenticationError("NO_USER_ID", "User ID not found"))
+		return
+	}
+
+	if err := h.authService.Logout(c.Request.Context(), userID.(string)); err != nil {
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, gin.H{"message": "Logout successful"})
+}
+
+// UpdateProfile handles user profile updates
+func (h *AuthHandler) UpdateProfile(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.ErrorResponse(c, errors.AuthenticationError("NO_USER_ID", "User ID not found"))
+		return
+	}
+
+	var req models.UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.ValidationError(c, "Invalid request data", gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.authService.UpdateProfile(c.Request.Context(), userID.(string), &req)
+	if err != nil {
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, user)
+}
+
+// GetProfile retrieves user profile
+func (h *AuthHandler) GetProfile(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.ErrorResponse(c, errors.AuthenticationError("NO_USER_ID", "User ID not found"))
+		return
+	}
+
+	user, err := h.authService.GetUserByID(c.Request.Context(), userID.(string))
+	if err != nil {
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, user)
 }

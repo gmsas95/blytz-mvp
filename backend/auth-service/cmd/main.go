@@ -27,10 +27,6 @@ func main() {
 	// Load configuration
 	cfg := config.Load()
 
-	// Create context with cancellation
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
 	// Initialize auth service
 	authService := services.NewAuthService(logger, cfg)
 

@@ -1,0 +1,331 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: blytz-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: blytz_main
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: blytz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: auth-service/Dockerfile
+    container_name: blytz-auth-service
+    environment:
+      - PORT=8081
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/auth_db?sslmode=disable
+      - REDIS_URL=redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_ISSUER=blytz.auth
+      - JWT_AUDIENCE=blytz.app
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Product Service
+  product-service:
+    build:
+      context: ./backend
+      dockerfile: product-service/Dockerfile
+    container_name: blytz-product-service
+    environment:
+      - PORT=8082
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/products_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Auction Service
+  auction-service:
+    build:
+      context: ./backend
+      dockerfile: auction-service/Dockerfile
+    container_name: blytz-auction-service
+    environment:
+      - PORT=8083
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/auction_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Chat Service
+  chat-service:
+    build:
+      context: ./backend
+      dockerfile: chat-service/Dockerfile
+    container_name: blytz-chat-service
+    environment:
+      - PORT=8084
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/chat_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Order Service
+  order-service:
+    build:
+      context: ./backend
+      dockerfile: order-service/Dockerfile
+    container_name: blytz-order-service
+    environment:
+      - PORT=8085
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/orders_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./backend
+      dockerfile: payment-service/Dockerfile
+    container_name: blytz-payment-service
+    environment:
+      - PORT=8086
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/payments_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8086:8086"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Logistics Service
+  logistics-service:
+    build:
+      context: ./backend
+      dockerfile: logistics-service/Dockerfile
+    container_name: blytz-logistics-service
+    environment:
+      - PORT=8087
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/logistics_db?sslmode=disable
+      - REDIS_URL=redis:6379
+    ports:
+      - "8087:8087"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: gateway/Dockerfile
+    container_name: blytz-gateway
+    environment:
+      - PORT=8080
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - PRODUCT_SERVICE_URL=http://product-service:8082
+      - AUCTION_SERVICE_URL=http://auction-service:8083
+      - CHAT_SERVICE_URL=http://chat-service:8084
+      - ORDER_SERVICE_URL=http://order-service:8085
+      - PAYMENT_SERVICE_URL=http://payment-service:8086
+      - LOGISTICS_SERVICE_URL=http://logistics-service:8087
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - product-service
+      - auction-service
+      - chat-service
+      - order-service
+      - payment-service
+      - logistics-service
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx (Alternative Gateway)
+  nginx:
+    image: nginx:alpine
+    container_name: blytz-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - gateway
+    networks:
+      - blytz-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: blytz-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - blytz-network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: blytz-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - blytz-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  blytz-network:
+    driver: bridge

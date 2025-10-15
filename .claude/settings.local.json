@@ -11,7 +11,19 @@
       "Bash(sudo rm:*)",
       "Bash(sudo tar:*)",
       "Bash(~/go/go/bin/go mod tidy:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Blytz Live Auction MVP\n\n- Complete project structure with Docker-based microservices\n- Go auction service with Redis backend\n- Nginx API gateway configuration\n- Firebase cloud functions setup\n- Infrastructure and deployment configurations\n- OpenAPI specifications\n- Development documentation and CLAUDE.md\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(find:*)",
+      "Bash(export:*)",
+      "Bash(docker build:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(for port in 8081 8082 8083)",
+      "Bash(do echo -n \"Port $port: \")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

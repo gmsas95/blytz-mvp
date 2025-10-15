@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/blytz/product-service/internal/api"
-	"github.com/blytz/product-service/internal/config"
 	"github.com/blytz/shared/utils"
 	"go.uber.org/zap"
 )
