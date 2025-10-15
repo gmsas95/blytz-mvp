@@ -1,38 +1,35 @@
-FROM golang:1.21-alpine AS builder
+# Build stage
+FROM golang:1.23-alpine AS builder
 
-WORKDIR /src
+WORKDIR /app
 
-# Install build dependencies
+# Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code
+# Copy all backend files
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o payment ./cmd/main.go
+# Go to payment service and build
+WORKDIR /app/payment-service
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o payment-service ./cmd/main.go
 
+# Final stage
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
-# Copy the binary from builder stage
-COPY --from=builder /src/payment .
-
-# Copy any migration files if needed
-COPY --from=builder /src/migrations ./migrations
+# Copy the binary from builder
+COPY --from=builder /app/payment-service/payment-service .
 
 # Expose port
-EXPOSE 8082
+EXPOSE 8086
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8082/health || exit 1
+  CMD curl -f http://localhost:8086/health || exit 1
 
 # Run the application
-CMD ["./payment"]
+CMD ["./payment-service"]

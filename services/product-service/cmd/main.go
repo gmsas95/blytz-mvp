@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/blytz/auction-service/internal/api"
+	"github.com/blytz/product-service/internal/api"
 	"github.com/blytz/shared/utils"
 	"go.uber.org/zap"
 )
@@ -28,7 +28,7 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8083"
+		port = "8082"
 	}
 
 	server := &http.Server{
@@ -51,7 +51,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("Auction service started", zap.String("port", port))
+	logger.Info("Product service started", zap.String("port", port))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Fatal("Server failed to start", zap.Error(err))
 	}

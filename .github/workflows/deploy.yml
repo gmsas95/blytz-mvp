@@ -27,13 +27,13 @@ jobs:
         service:
           - name: auth-service
             port: 8081
-            path: backend/auth-service
+            path: services/auth-service
           - name: product-service
             port: 8082
-            path: backend/product-service
+            path: services/product-service
           - name: auction-service
             port: 8083
-            path: backend/auction-service
+            path: services/auction-service
 
     steps:
       - name: 📥 Checkout Code
@@ -97,14 +97,14 @@ jobs:
       matrix:
         service:
           - name: auth-service
-            dockerfile: backend/auth-service/Dockerfile
-            context: ./backend
+            dockerfile: services/auth-service/Dockerfile
+            context: ./services
           - name: product-service
-            dockerfile: backend/product-service/Dockerfile
-            context: ./backend
+            dockerfile: services/product-service/Dockerfile
+            context: ./services
           - name: auction-service
-            dockerfile: backend/auction-service/Dockerfile
-            context: ./backend
+            dockerfile: services/auction-service/Dockerfile
+            context: ./services
 
     steps:
       - name: 📥 Checkout Code

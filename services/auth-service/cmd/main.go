@@ -9,7 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/blytz/auction-service/internal/api"
+	"github.com/blytz/auth-service/internal/api"
+	"github.com/blytz/auth-service/internal/config"
+	"github.com/blytz/auth-service/internal/services"
 	"github.com/blytz/shared/utils"
 	"go.uber.org/zap"
 )
@@ -22,13 +24,19 @@ func main() {
 	}
 	defer logger.Sync()
 
+	// Load configuration
+	cfg := config.Load()
+
+	// Initialize auth service
+	authService := services.NewAuthService(logger, cfg)
+
 	// Create API router
-	router := api.SetupRouter(logger)
+	router := api.NewRouter(authService, logger, cfg)
 
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8083"
+		port = cfg.Port
 	}
 
 	server := &http.Server{
@@ -51,7 +59,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("Auction service started", zap.String("port", port))
+	logger.Info("Auth service started", zap.String("port", port))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Fatal("Server failed to start", zap.Error(err))
 	}

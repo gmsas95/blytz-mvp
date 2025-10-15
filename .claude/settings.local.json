@@ -45,7 +45,12 @@
       "Bash(for service in $services)",
       "Bash(awk:*)",
       "Bash(for:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(do if [ ! -d \"services/$service\" ])",
+      "Bash(then echo \"  ❌ $service\")",
+      "Bash(fi)",
+      "Bash(do echo:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

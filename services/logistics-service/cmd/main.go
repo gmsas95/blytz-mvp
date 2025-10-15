@@ -6,17 +6,17 @@ import (
 )
 
 func main() {
-	log.Println("📦 Order service stub running on port 8085")
+	log.Println("🚚 Logistics service stub running on port 8087")
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok","service":"order"}`))
+		w.Write([]byte(`{"status":"ok","service":"logistics"}`))
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"message":"Order service - under construction"}`))
+		w.Write([]byte(`{"message":"Logistics service - under construction"}`))
 	})
 
-	log.Fatal(http.ListenAndServe(":8085", nil))
+	log.Fatal(http.ListenAndServe(":8087", nil))
 }

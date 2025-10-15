@@ -1,78 +1,65 @@
 package api
 
 import (
-	"context"
-	"net/http"
+	"time"
 
-	"github.com/blytz/auction-service/internal/config"
-	"github.com/blytz/auction-service/internal/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/blytz/auction-service/internal/services"
+	"github.com/blytz/auction-service/internal/config"
+	"github.com/blytz/auction-service/internal/api/handlers"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
 
-type Router struct {
-	engine *gin.Engine
-	rdb    *redis.Client
-	cfg    *config.Config
-}
+func SetupRouter(logger *zap.Logger) *gin.Engine {
+	// Initialize config
+	cfg, err := config.Load()
+	if err != nil {
+		logger.Fatal("Failed to load config", zap.Error(err))
+	}
 
-func NewRouter(rdb *redis.Client, cfg *config.Config) *Router {
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	r := &Router{
-		engine: gin.New(),
-		rdb:    rdb,
-		cfg:    cfg,
-	}
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
 
-	r.setupMiddleware()
-	r.setupRoutes()
-
-	return r
-}
-
-func (r *Router) setupMiddleware() {
-	r.engine.Use(gin.Logger())
-	r.engine.Use(gin.Recovery())
-	r.engine.Use(corsMiddleware())
-}
-
-func (r *Router) setupRoutes() {
 	// Health check
-	r.engine.GET("/health", r.healthCheck)
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+			"service": "auction",
+			"timestamp": time.Now().Unix(),
+		})
+	})
 
-	// Prometheus metrics
-	r.engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// Metrics
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// Initialize services
+	auctionService := services.NewAuctionService(logger, cfg)
+	auctionHandler := handlers.NewAuctionHandler(auctionService)
 
 	// API routes
-	api := r.engine.Group("/auction")
+	api := router.Group("/api/v1")
 	{
-		api.GET("/auctions/:id", r.getAuction)
-		api.POST("/auctions/:id/bid", r.placeBid)
-		api.POST("/auctions", r.createAuction)
-		api.POST("/auctions/:id/end", r.endAuction)
-		api.GET("/auctions/:id/stream", r.auctionStream)
-	}
-}
+		// Auction routes
+		auctions := api.Group("/auctions")
+		{
+			auctions.GET("", auctionHandler.ListAuctions)
+			auctions.POST("", auctionHandler.CreateAuction)
+			auctions.GET("/:auction_id", auctionHandler.GetAuction)
+			auctions.PUT("/:auction_id", auctionHandler.UpdateAuction)
+			auctions.DELETE("/:auction_id", auctionHandler.DeleteAuction)
+			auctions.GET("/:auction_id/status", auctionHandler.GetAuctionStatus)
 
-func (r *Router) Run(addr string) error {
-	return r.engine.Run(addr)
-}
-
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
+			// Bid routes
+			auctions.POST("/:auction_id/bids", auctionHandler.PlaceBid)
+			auctions.GET("/:auction_id/bids", auctionHandler.GetBids)
 		}
-
-		c.Next()
 	}
+
+	return router
 }

@@ -1,31 +1,35 @@
-FROM golang:1.21-alpine AS builder
+# Build stage
+FROM golang:1.23-alpine AS builder
 
-WORKDIR /src
+WORKDIR /app
 
-# Install build dependencies
+# Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code
+# Copy all backend files
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction ./cmd/main.go
+# Go to auction service and build
+WORKDIR /app/auction-service
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction-service ./cmd/main.go
 
+# Final stage
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
-# Copy the binary from builder stage
-COPY --from=builder /src/auction .
+# Copy the binary from builder
+COPY --from=builder /app/auction-service/auction-service .
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8083
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8083/health || exit 1
 
 # Run the application
-CMD ["./auction"]
+CMD ["./auction-service"]

@@ -1,4 +1,4 @@
-module github.com/blytz/payment-service
+module github.com/blytz/logistics-service
 
 go 1.23.0
 
