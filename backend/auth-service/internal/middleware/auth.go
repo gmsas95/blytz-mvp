@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/shared/errors"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

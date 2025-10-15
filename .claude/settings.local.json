@@ -28,7 +28,11 @@
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "Bash(git ls-tree:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(make:*)",
+      "Bash(./scripts/local-ci.sh:*)",
+      "Bash(go build:*)",
+      "Bash(for port in 8081 8082 8083 8084 8085 8086 8087)"
     ],
     "deny": [],
     "ask": []
