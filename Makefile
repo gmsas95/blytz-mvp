@@ -75,52 +75,24 @@ health-check: ## 🔍 Quick health check of all services
 		fi; \
 	done
 
-load-test: ## ⚡ Run k6 load test locally
-	@echo "$(BLUE)⚡ Installing k6...$(RESET)"
-	@if ! command -v k6 >/dev/null 2>&1; then \
-		echo "$(YELLOW)k6 not found. Installing...$(RESET)"; \
-		sudo gpg -k; \
-		sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69; \
-		echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list; \
-		sudo apt-get update; \
-		sudo apt-get install k6; \
-	fi
-	@echo "$(BLUE)⚡ Running load test...$(RESET)"
-	@cat > /tmp/blytz-load-test.js << 'EOF'
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-
-export let options = {
-  stages: [
-    { duration: '10s', target: 10 },   // Ramp up to 10 users
-    { duration: '20s', target: 25 },   // Stay at 25 users
-    { duration: '10s', target: 0 },    // Ramp down to 0 users
-  ],
-  thresholds: {
-    http_req_duration: ['p(95)<300'],  // 95% of requests under 300ms
-    http_req_failed: ['rate<0.1'],     // Error rate under 10%
-  },
-};
-
-export default function() {
-  // Test auction listing endpoint
-  let response = http.get('http://localhost:8083/api/v1/auctions');
-
-  check(response, {
-    'status is 200': (r) => r.status === 200,
-    'response time < 300ms': (r) => r.timings.duration < 300,
-    'has success field': (r) => JSON.parse(r.body).success === true,
-  });
-
-  sleep(1);
-}
-EOF
-	k6 run /tmp/blytz-load-test.js
+# Simple load test without k6 dependency
+load-test: ## ⚡ Simple load test with curl
+	@echo "$(BLUE)⚡ Running simple load test...$(RESET)"
+	@for i in {1..10}; do \
+		start_time=$$(date +%s%N); \
+		response=$$(curl -s -w "%{http_code}" http://localhost:8083/api/v1/auctions); \
+		end_time=$$(date +%s%N); \
+		duration=$$(( (end_time - start_time) / 1000000 )); \
+		if [ "$$response" = "200" ]; then \
+			echo "Request $$i: ✅ $$duration ms"; \
+		else \
+			echo "Request $$i: ❌ $$response"; \
+		fi; \
+	done
 
 clean: ## 🧹 Clean up Docker containers and images
 	@echo "$(BLUE)🧹 Cleaning up...$(RESET)"
 	docker compose down
-	docker system prune -f
 	echo "$(GREEN)✅ Cleanup completed!$(RESET)"
 
 logs: ## 📋 Show logs for all services
@@ -152,4 +124,4 @@ status: ## 📊 Show system status
 	docker images | grep blytz || echo "No blytz images found"
 	@echo ""
 	@echo "$(BLUE)Resource Usage:$(RESET)"
-	docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" 2>/dev/null || echo "No running containers"
+	docker stats --no-stream --format "table {{.Name}}	{{.CPUPerc}}	{{.MemUsage}}" 2>/dev/null || echo "No running containers""file_path":"/home/sas/blytzmvp-clean/Makefile
