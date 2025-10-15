@@ -1,15 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Fixing and tidying Go modules across all services..."
+echo "🔧 Fixing and tidying Go modules across all microservices..."
 
 # Define services
 SERVICES=(
-  "backend/shared"
-  "backend/auth-service"
-  "backend/product-service"
-  "backend/auction-service"
-  "backend/chat-service"
+  "services/shared"
+  "services/auth-service"
+  "services/product-service"
+  "services/auction-service"
+  "services/chat-service"
+  "services/gateway"
+  "services/order-service"
+  "services/payment-service"
+  "services/logistics-service"
 )
 
 # Ensure Go is installed
