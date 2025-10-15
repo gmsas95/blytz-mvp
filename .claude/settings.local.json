@@ -23,7 +23,12 @@
       "Bash(ss:*)",
       "Bash(for port in 8081 8082 8083)",
       "Bash(do echo -n \"Port $port: \")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
