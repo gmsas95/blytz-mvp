@@ -1,6 +1,8 @@
 module github.com/blytz/auth-service
 
-go 1.21
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/blytz/shared v0.0.0-00010101000000-000000000000
