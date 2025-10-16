@@ -71,7 +71,10 @@
       "Bash(./setup-firebase-local.sh:*)",
       "Bash(firebase emulators:start:*)",
       "Bash(firebase projects:list:*)",
-      "Bash(firebase use:*)"
+      "Bash(firebase use:*)",
+      "Bash(npm install:*)",
+      "Bash(npm audit)",
+      "Bash(npm audit:*)"
     ],
     "deny": [],
     "ask": []
