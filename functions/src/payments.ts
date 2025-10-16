@@ -2,14 +2,27 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
 
+interface PaymentIntentData {
+  amount: number;
+  currency?: string;
+  auctionId: string;
+  bidId: string;
+}
+
+interface ConfirmPaymentData {
+  paymentIntentId: string;
+  auctionId: string;
+  bidId: string;
+}
+
 const stripe = new Stripe(functions.config().stripe.secret_key || 'sk_test_demo', {
-  apiVersion: '2022-11-15'
+  apiVersion: '2024-12-18.acacia'
 });
 
 /**
  * Create a payment intent for auction bidding
  */
-export const createPaymentIntent = functions.https.onCall(async (data, context) => {
+export const createPaymentIntent = functions.https.onCall(async (data: PaymentIntentData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -72,7 +85,7 @@ export const createPaymentIntent = functions.https.onCall(async (data, context) 
 /**
  * Confirm payment and update bid status
  */
-export const confirmPayment = functions.https.onCall(async (data, context) => {
+export const confirmPayment = functions.https.onCall(async (data: ConfirmPaymentData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }

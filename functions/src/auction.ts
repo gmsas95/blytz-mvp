@@ -1,10 +1,28 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
+interface AuctionData {
+  title: string;
+  description: string;
+  startingPrice: number;
+  duration: number;
+  category: string;
+  images?: string[];
+}
+
+interface BidData {
+  auctionId: string;
+  amount: number;
+}
+
+interface AuctionIdData {
+  auctionId: string;
+}
+
 /**
  * Create a new auction
  */
-export const createAuction = functions.https.onCall(async (data, context) => {
+export const createAuction = functions.https.onCall(async (data: AuctionData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -60,7 +78,7 @@ export const createAuction = functions.https.onCall(async (data, context) => {
 /**
  * Place a bid on an auction
  */
-export const placeBid = functions.https.onCall(async (data, context) => {
+export const placeBid = functions.https.onCall(async (data: BidData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -147,7 +165,7 @@ export const placeBid = functions.https.onCall(async (data, context) => {
 /**
  * End an auction and declare winner
  */
-export const endAuction = functions.https.onCall(async (data, context) => {
+export const endAuction = functions.https.onCall(async (data: AuctionIdData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -219,7 +237,7 @@ export const endAuction = functions.https.onCall(async (data, context) => {
 /**
  * Get auction details with bids
  */
-export const getAuctionDetails = functions.https.onCall(async (data, context) => {
+export const getAuctionDetails = functions.https.onCall(async (data: AuctionIdData, context: functions.https.CallableContext) => {
   const { auctionId } = data;
 
   try {

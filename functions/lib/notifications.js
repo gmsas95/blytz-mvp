@@ -56,7 +56,7 @@ exports.sendNotification = functions.https.onCall(async (data, context) => {
                 title,
                 body
             },
-            data: Object.assign(Object.assign({}, data), { timestamp: Date.now().toString() }),
+            data: Object.assign(Object.assign({}, notificationData), { timestamp: Date.now().toString() }),
             token: userData.fcmToken
         };
         const response = await admin.messaging().send(message);

@@ -1,10 +1,23 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
+interface NotificationData {
+  userId: string;
+  title: string;
+  body: string;
+  data?: { [key: string]: string };
+}
+
+interface AuctionUpdateData {
+  auctionId: string;
+  type: string;
+  message: string;
+}
+
 /**
  * Send push notification to user
  */
-export const sendNotification = functions.https.onCall(async (data, context) => {
+export const sendNotification = functions.https.onCall(async (data: NotificationData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -26,7 +39,7 @@ export const sendNotification = functions.https.onCall(async (data, context) => 
         body
       },
       data: {
-        ...data,
+        ...notificationData,
         timestamp: Date.now().toString()
       },
       token: userData.fcmToken
@@ -59,7 +72,7 @@ export const sendNotification = functions.https.onCall(async (data, context) => 
 /**
  * Send auction update notification
  */
-export const sendAuctionUpdate = functions.https.onCall(async (data, context) => {
+export const sendAuctionUpdate = functions.https.onCall(async (data: AuctionUpdateData, context: functions.https.CallableContext) => {
   const { auctionId, type, message } = data;
 
   try {

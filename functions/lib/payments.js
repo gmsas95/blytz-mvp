@@ -41,7 +41,7 @@ const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const stripe_1 = __importDefault(require("stripe"));
 const stripe = new stripe_1.default(functions.config().stripe.secret_key || 'sk_test_demo', {
-    apiVersion: '2022-11-15'
+    apiVersion: '2024-12-18.acacia'
 });
 /**
  * Create a payment intent for auction bidding

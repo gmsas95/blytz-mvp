@@ -1,10 +1,22 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
+interface CreateUserData {
+  email: string;
+  password: string;
+  displayName?: string;
+  phoneNumber?: string;
+}
+
+interface UpdateProfileData {
+  displayName?: string;
+  phoneNumber?: string;
+}
+
 /**
  * Create a new user account with custom claims for auction platform
  */
-export const createUser = functions.https.onCall(async (data, context) => {
+export const createUser = functions.https.onCall(async (data: CreateUserData, context: functions.https.CallableContext) => {
   const { email, password, displayName, phoneNumber } = data;
 
   try {
@@ -51,7 +63,7 @@ export const createUser = functions.https.onCall(async (data, context) => {
 /**
  * Validate Firebase ID token and return user data
  */
-export const validateToken = functions.https.onCall(async (data, context) => {
+export const validateToken = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
@@ -80,7 +92,7 @@ export const validateToken = functions.https.onCall(async (data, context) => {
 /**
  * Update user profile
  */
-export const updateProfile = functions.https.onCall(async (data, context) => {
+export const updateProfile = functions.https.onCall(async (data: UpdateProfileData, context: functions.https.CallableContext) => {
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
