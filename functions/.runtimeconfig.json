@@ -1,0 +1,9 @@
+{
+  "stripe": {
+    "secret_key": "sk_test_demo",
+    "webhook_secret": "whsec_demo"
+  },
+  "jwt": {
+    "secret": "your-jwt-secret-for-development"
+  }
+}

@@ -259,4 +259,4 @@ export const getAuctionDetails = functions.https.onCall(async (data, context) =>
     console.error('Error getting auction details:', error);
     throw new functions.https.HttpsError('internal', 'Failed to get auction details');
   }
-});""","file_path":"/home/sas/blytzmvp-clean/functions/src/auction.ts"}
+});

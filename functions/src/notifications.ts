@@ -9,7 +9,7 @@ export const sendNotification = functions.https.onCall(async (data, context) => 
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { userId, title, body, data = {} } = data;
+  const { userId, title, body, data: notificationData = {} } = data;
 
   try {
     // Get user's FCM token
@@ -39,7 +39,7 @@ export const sendNotification = functions.https.onCall(async (data, context) => 
       userId,
       title,
       body,
-      data,
+      data: notificationData,
       status: 'sent',
       messageId: response,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
@@ -50,7 +50,7 @@ export const sendNotification = functions.https.onCall(async (data, context) => 
       messageId: response,
       message: 'Notification sent successfully'
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending notification:', error);
     throw new functions.https.HttpsError('internal', 'Failed to send notification');
   }
@@ -96,7 +96,7 @@ export const sendAuctionUpdate = functions.https.onCall(async (data, context) =>
             messageId: response,
             status: 'sent'
           });
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to send notification to user:', participant.userId, error);
           notifications.push({
             userId: participant.userId,
@@ -112,8 +112,8 @@ export const sendAuctionUpdate = functions.https.onCall(async (data, context) =>
       notificationsSent: notifications.length,
       notifications: notifications
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending auction update:', error);
     throw new functions.https.HttpsError('internal', 'Failed to send auction update');
   }
-});""","file_path":"/home/sas/blytzmvp-clean/functions/src/notifications.ts"} is not a valid tool call."}
+});

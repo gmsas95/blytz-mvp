@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(functions.config().stripe.secret_key || 'sk_test_demo', {
-  apiVersion: '2023-10-16'
+  apiVersion: '2022-11-15'
 });
 
 /**
@@ -24,6 +24,10 @@ export const createPaymentIntent = functions.https.onCall(async (data, context) 
     }
 
     const userData = userDoc.data();
+
+    if (!userData) {
+      throw new functions.https.HttpsError('not-found', 'User data not found');
+    }
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
@@ -128,22 +132,34 @@ export const stripeWebhook = functions.https.onRequest(async (req, res) => {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    if (!sig) {
+      res.status(400).send('No signature provided');
+      return;
+    }
+
+    const body = req.rawBody;
+    if (!body) {
+      res.status(400).send('No body provided');
+      return;
+    }
+
+    event = stripe.webhooks.constructEvent(body as unknown as string, sig as string, endpointSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
-    return res.status(400).send('Invalid signature');
+    res.status(400).send('Invalid signature');
+    return;
   }
 
   try {
     switch (event.type) {
       case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
+        const paymentIntent = event.data.object as any;
         console.log('PaymentIntent was successful:', paymentIntent.id);
         // Handle successful payment
         break;
 
       case 'payment_intent.payment_failed':
-        const failedPayment = event.data.object;
+        const failedPayment = event.data.object as any;
         console.log('PaymentIntent failed:', failedPayment.id);
         // Handle failed payment
         break;
