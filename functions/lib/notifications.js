@@ -36,14 +36,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendAuctionUpdate = exports.sendNotification = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+const https_1 = require("firebase-functions/v2/https");
 /**
  * Send push notification to user
  */
-exports.sendNotification = functions.https.onCall(async (data, context) => {
-    if (!context.auth) {
+exports.sendNotification = (0, https_1.onCall)({ cors: true }, async (request) => {
+    if (!request.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
-    const { userId, title, body, data: notificationData = {} } = data;
+    const { userId, title, body, data: notificationData = {} } = request.data;
     try {
         // Get user's FCM token
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
@@ -84,8 +85,8 @@ exports.sendNotification = functions.https.onCall(async (data, context) => {
 /**
  * Send auction update notification
  */
-exports.sendAuctionUpdate = functions.https.onCall(async (data, context) => {
-    const { auctionId, type, message } = data;
+exports.sendAuctionUpdate = (0, https_1.onCall)({ cors: true }, async (request) => {
+    const { auctionId, type, message } = request.data;
     try {
         // Get auction participants
         const participantsSnapshot = await admin.firestore()

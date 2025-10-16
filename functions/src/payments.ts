@@ -1,37 +1,25 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
-
-interface PaymentIntentData {
-  amount: number;
-  currency?: string;
-  auctionId: string;
-  bidId: string;
-}
-
-interface ConfirmPaymentData {
-  paymentIntentId: string;
-  auctionId: string;
-  bidId: string;
-}
+import { onCall } from 'firebase-functions/v2/https';
 
 const stripe = new Stripe(functions.config().stripe.secret_key || 'sk_test_demo', {
-  apiVersion: '2024-12-18.acacia'
+  apiVersion: '2025-09-30.clover'
 });
 
 /**
  * Create a payment intent for auction bidding
  */
-export const createPaymentIntent = functions.https.onCall(async (data: PaymentIntentData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const createPaymentIntent = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { amount, currency = 'usd', auctionId, bidId } = data;
+  const { amount, currency = 'usd', auctionId, bidId } = request.data;
 
   try {
     // Get user data
-    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    const userDoc = await admin.firestore().collection('users').doc(request.auth.uid).get();
     if (!userDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'User not found');
     }
@@ -48,7 +36,7 @@ export const createPaymentIntent = functions.https.onCall(async (data: PaymentIn
       currency,
       customer: userData.stripeCustomerId,
       metadata: {
-        userId: context.auth.uid,
+        userId: request.auth.uid,
         auctionId,
         bidId,
         type: 'auction_bid'
@@ -60,7 +48,7 @@ export const createPaymentIntent = functions.https.onCall(async (data: PaymentIn
 
     // Store payment intent in Firestore
     await admin.firestore().collection('payments').doc(paymentIntent.id).set({
-      userId: context.auth.uid,
+      userId: request.auth.uid,
       auctionId,
       bidId,
       amount,
@@ -85,12 +73,12 @@ export const createPaymentIntent = functions.https.onCall(async (data: PaymentIn
 /**
  * Confirm payment and update bid status
  */
-export const confirmPayment = functions.https.onCall(async (data: ConfirmPaymentData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const confirmPayment = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { paymentIntentId, auctionId, bidId } = data;
+  const { paymentIntentId, auctionId, bidId } = request.data;
 
   try {
     // Retrieve payment intent
@@ -118,7 +106,7 @@ export const confirmPayment = functions.https.onCall(async (data: ConfirmPayment
       }
 
       // Update user wallet balance
-      await admin.firestore().collection('users').doc(context.auth.uid).update({
+      await admin.firestore().collection('users').doc(request.auth.uid).update({
         walletBalance: admin.firestore.FieldValue.increment(paymentIntent.amount / 100),
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
       });

@@ -1,28 +1,16 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-
-interface NotificationData {
-  userId: string;
-  title: string;
-  body: string;
-  data?: { [key: string]: string };
-}
-
-interface AuctionUpdateData {
-  auctionId: string;
-  type: string;
-  message: string;
-}
+import { onCall } from 'firebase-functions/v2/https';
 
 /**
  * Send push notification to user
  */
-export const sendNotification = functions.https.onCall(async (data: NotificationData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const sendNotification = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { userId, title, body, data: notificationData = {} } = data;
+  const { userId, title, body, data: notificationData = {} } = request.data;
 
   try {
     // Get user's FCM token
@@ -72,8 +60,8 @@ export const sendNotification = functions.https.onCall(async (data: Notification
 /**
  * Send auction update notification
  */
-export const sendAuctionUpdate = functions.https.onCall(async (data: AuctionUpdateData, context: functions.https.CallableContext) => {
-  const { auctionId, type, message } = data;
+export const sendAuctionUpdate = onCall({cors: true}, async (request) => {
+  const { auctionId, type, message } = request.data;
 
   try {
     // Get auction participants

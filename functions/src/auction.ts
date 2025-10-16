@@ -1,37 +1,20 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-
-interface AuctionData {
-  title: string;
-  description: string;
-  startingPrice: number;
-  duration: number;
-  category: string;
-  images?: string[];
-}
-
-interface BidData {
-  auctionId: string;
-  amount: number;
-}
-
-interface AuctionIdData {
-  auctionId: string;
-}
+import { onCall } from 'firebase-functions/v2/https';
 
 /**
  * Create a new auction
  */
-export const createAuction = functions.https.onCall(async (data: AuctionData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const createAuction = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { title, description, startingPrice, duration, category, images } = data;
+  const { title, description, startingPrice, duration, category, images } = request.data;
 
   try {
     // Validate user can create auctions
-    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    const userDoc = await admin.firestore().collection('users').doc(request.auth.uid).get();
     const userData = userDoc.data();
 
     if (!userData?.canHost) {
@@ -50,7 +33,7 @@ export const createAuction = functions.https.onCall(async (data: AuctionData, co
       duration,
       category,
       images: images || [],
-      hostId: context.auth.uid,
+      hostId: request.auth.uid,
       hostName: userData.displayName,
       status: 'active',
       startTime: admin.firestore.FieldValue.serverTimestamp(),
@@ -78,12 +61,12 @@ export const createAuction = functions.https.onCall(async (data: AuctionData, co
 /**
  * Place a bid on an auction
  */
-export const placeBid = functions.https.onCall(async (data: BidData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const placeBid = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { auctionId, amount } = data;
+  const { auctionId, amount } = request.data;
 
   try {
     const auctionRef = admin.firestore().collection('auctions').doc(auctionId);
@@ -111,7 +94,7 @@ export const placeBid = functions.https.onCall(async (data: BidData, context: fu
     }
 
     // Check user's wallet balance
-    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    const userDoc = await admin.firestore().collection('users').doc(request.auth.uid).get();
     const userData = userDoc.data();
 
     if (userData?.walletBalance < amount) {
@@ -122,7 +105,7 @@ export const placeBid = functions.https.onCall(async (data: BidData, context: fu
     const bidData = {
       id: bidId,
       auctionId,
-      userId: context.auth.uid,
+      userId: request.auth.uid,
       userName: userData?.displayName,
       amount,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -146,7 +129,7 @@ export const placeBid = functions.https.onCall(async (data: BidData, context: fu
     });
 
     // Update user bid count
-    await admin.firestore().collection('users').doc(context.auth.uid).update({
+    await admin.firestore().collection('users').doc(request.auth.uid).update({
       totalBids: admin.firestore.FieldValue.increment(1),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
@@ -165,12 +148,12 @@ export const placeBid = functions.https.onCall(async (data: BidData, context: fu
 /**
  * End an auction and declare winner
  */
-export const endAuction = functions.https.onCall(async (data: AuctionIdData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const endAuction = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { auctionId } = data;
+  const { auctionId } = request.data;
 
   try {
     const auctionRef = admin.firestore().collection('auctions').doc(auctionId);
@@ -183,7 +166,7 @@ export const endAuction = functions.https.onCall(async (data: AuctionIdData, con
     const auction = auctionDoc.data();
 
     // Verify user is the host
-    if (auction?.hostId !== context.auth.uid) {
+    if (auction?.hostId !== request.auth.uid) {
       throw new functions.https.HttpsError('permission-denied', 'Only auction host can end the auction');
     }
 
@@ -237,8 +220,8 @@ export const endAuction = functions.https.onCall(async (data: AuctionIdData, con
 /**
  * Get auction details with bids
  */
-export const getAuctionDetails = functions.https.onCall(async (data: AuctionIdData, context: functions.https.CallableContext) => {
-  const { auctionId } = data;
+export const getAuctionDetails = onCall({cors: true}, async (request) => {
+  const { auctionId } = request.data;
 
   try {
     const auctionRef = admin.firestore().collection('auctions').doc(auctionId);

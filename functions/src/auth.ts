@@ -1,23 +1,12 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-
-interface CreateUserData {
-  email: string;
-  password: string;
-  displayName?: string;
-  phoneNumber?: string;
-}
-
-interface UpdateProfileData {
-  displayName?: string;
-  phoneNumber?: string;
-}
+import { onCall } from 'firebase-functions/v2/https';
 
 /**
  * Create a new user account with custom claims for auction platform
  */
-export const createUser = functions.https.onCall(async (data: CreateUserData, context: functions.https.CallableContext) => {
-  const { email, password, displayName, phoneNumber } = data;
+export const createUser = onCall({cors: true}, async (request) => {
+  const { email, password, displayName, phoneNumber } = request.data;
 
   try {
     // Create user in Firebase Auth
@@ -63,13 +52,13 @@ export const createUser = functions.https.onCall(async (data: CreateUserData, co
 /**
  * Validate Firebase ID token and return user data
  */
-export const validateToken = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const validateToken = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
   try {
-    const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+    const userDoc = await admin.firestore().collection('users').doc(request.auth.uid).get();
 
     if (!userDoc.exists) {
       throw new functions.https.HttpsError('not-found', 'User not found');
@@ -78,9 +67,9 @@ export const validateToken = functions.https.onCall(async (data: any, context: f
     return {
       success: true,
       user: {
-        uid: context.auth.uid,
+        uid: request.auth.uid,
         ...userDoc.data(),
-        customClaims: context.auth.token
+        customClaims: request.auth.token
       }
     };
   } catch (error) {
@@ -92,22 +81,22 @@ export const validateToken = functions.https.onCall(async (data: any, context: f
 /**
  * Update user profile
  */
-export const updateProfile = functions.https.onCall(async (data: UpdateProfileData, context: functions.https.CallableContext) => {
-  if (!context.auth) {
+export const updateProfile = onCall({cors: true}, async (request) => {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { displayName, phoneNumber } = data;
+  const { displayName, phoneNumber } = request.data;
 
   try {
     // Update Firebase Auth
-    await admin.auth().updateUser(context.auth.uid, {
+    await admin.auth().updateUser(request.auth.uid, {
       displayName,
       phoneNumber
     });
 
     // Update Firestore
-    await admin.firestore().collection('users').doc(context.auth.uid).update({
+    await admin.firestore().collection('users').doc(request.auth.uid).update({
       displayName,
       phoneNumber,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
