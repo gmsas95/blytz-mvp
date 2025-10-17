@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin
@@ -11,11 +10,13 @@ export * from './notifications';
 export * from './auction';
 
 // Health check function
-export const health = functions.https.onCall(async (data, context) => {
+import { onCall } from 'firebase-functions/v2/https';
+
+export const health = onCall({cors: true}, async (request) => {
   return {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'blytz-firebase-functions',
-    version: '1.0.0'
+    version: '2.0.0'
   };
 });

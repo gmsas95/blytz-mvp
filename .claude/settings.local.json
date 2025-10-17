@@ -74,7 +74,10 @@
       "Bash(firebase use:*)",
       "Bash(npm install:*)",
       "Bash(npm audit)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(./tests/integration/test-auction-flow.sh:*)",
+      "Bash(timeout:*)",
+      "Bash(firebase functions:list:*)"
     ],
     "deny": [],
     "ask": []

@@ -37,7 +37,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.health = void 0;
-const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -47,12 +46,13 @@ __exportStar(require("./payments"), exports);
 __exportStar(require("./notifications"), exports);
 __exportStar(require("./auction"), exports);
 // Health check function
-exports.health = functions.https.onCall(async (data, context) => {
+const https_1 = require("firebase-functions/v2/https");
+exports.health = (0, https_1.onCall)({ cors: true }, async (request) => {
     return {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         service: 'blytz-firebase-functions',
-        version: '1.0.0'
+        version: '2.0.0'
     };
 });
 //# sourceMappingURL=index.js.map
