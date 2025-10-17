@@ -7,7 +7,7 @@ import (
 
 	"github.com/blytz/auction-service/internal/models"
 	"github.com/blytz/auction-service/internal/config"
-	"github.com/blytz/shared/errors"
+	"github.com/blytz/shared/pkg/errors"
 	"go.uber.org/zap"
 )
 

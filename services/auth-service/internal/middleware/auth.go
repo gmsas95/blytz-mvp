@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/blytz/auth-service/internal/services"
-	"github.com/blytz/shared/errors"
-	"github.com/blytz/shared/utils"
+	"github.com/blytz/shared/pkg/errors"
+	"github.com/blytz/shared/pkg/utils"
 	"go.uber.org/zap"
 )
 

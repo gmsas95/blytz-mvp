@@ -67,8 +67,8 @@ services:
   # Product Service
   product-service:
     build:
-      context: ./backend
-      dockerfile: product-service/Dockerfile
+      context: ./services/product-service
+      dockerfile: Dockerfile
     container_name: blytz-product-service
     environment:
       - PORT=8082
@@ -94,8 +94,8 @@ services:
   # Auction Service
   auction-service:
     build:
-      context: ./backend
-      dockerfile: auction-service/Dockerfile
+      context: ./services/auction-service
+      dockerfile: Dockerfile
     container_name: blytz-auction-service
     environment:
       - PORT=8083
@@ -121,8 +121,8 @@ services:
   # Chat Service
   chat-service:
     build:
-      context: ./backend
-      dockerfile: chat-service/Dockerfile
+      context: ./services/chat-service
+      dockerfile: Dockerfile
     container_name: blytz-chat-service
     environment:
       - PORT=8088
@@ -148,8 +148,8 @@ services:
   # Order Service
   order-service:
     build:
-      context: ./backend
-      dockerfile: order-service/Dockerfile
+      context: ./services/order-service
+      dockerfile: Dockerfile
     container_name: blytz-order-service
     environment:
       - PORT=8085
@@ -175,8 +175,8 @@ services:
   # Payment Service
   payment-service:
     build:
-      context: ./backend
-      dockerfile: payment-service/Dockerfile
+      context: ./services/payment-service
+      dockerfile: Dockerfile
     container_name: blytz-payment-service
     environment:
       - PORT=8086
@@ -202,8 +202,8 @@ services:
   # Logistics Service
   logistics-service:
     build:
-      context: ./backend
-      dockerfile: logistics-service/Dockerfile
+      context: ./services/logistics-service
+      dockerfile: Dockerfile
     container_name: blytz-logistics-service
     environment:
       - PORT=8087
@@ -229,8 +229,8 @@ services:
   # API Gateway
   gateway:
     build:
-      context: ./backend
-      dockerfile: gateway/Dockerfile
+      context: ./services/gateway
+      dockerfile: Dockerfile
     container_name: blytz-gateway
     environment:
       - PORT=8080

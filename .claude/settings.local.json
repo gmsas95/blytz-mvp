@@ -80,7 +80,8 @@
       "Bash(firebase functions:list:*)",
       "Bash(./tests/integration/final_test.sh)",
       "Bash(./tests/integration/simple_test.sh)",
-      "Bash(go mod init:*)"
+      "Bash(go mod init:*)",
+      "Bash(/home/sas/blytzmvp-clean/verify-shared-migration.sh)"
     ],
     "deny": [],
     "ask": []

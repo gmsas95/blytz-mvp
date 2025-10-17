@@ -9,8 +9,8 @@ import (
 	"github.com/blytz/auction-service/internal/models"
 	"github.com/blytz/auction-service/internal/services"
 	"github.com/blytz/auction-service/pkg/firebase"
-	"github.com/blytz/shared/utils"
-	"github.com/blytz/shared/errors"
+	"github.com/blytz/shared/pkg/utils"
+	"github.com/blytz/shared/pkg/errors"
 	"go.uber.org/zap"
 )
 
