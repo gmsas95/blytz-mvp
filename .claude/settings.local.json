@@ -81,7 +81,9 @@
       "Bash(./tests/integration/final_test.sh)",
       "Bash(./tests/integration/simple_test.sh)",
       "Bash(go mod init:*)",
-      "Bash(/home/sas/blytzmvp-clean/verify-shared-migration.sh)"
+      "Bash(/home/sas/blytzmvp-clean/verify-shared-migration.sh)",
+      "Bash(./tests/integration/mvp-final-test.sh:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

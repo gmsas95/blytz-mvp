@@ -14,6 +14,10 @@ import (
 )
 
 func SetupRouter(logger *zap.Logger) *gin.Engine {
+	return SetupRouterWithServices(logger, nil)
+}
+
+func SetupRouterWithServices(logger *zap.Logger, auctionService *services.AuctionService) *gin.Engine {
 	// Initialize config
 	cfg, err := config.Load()
 	if err != nil {
@@ -44,7 +48,12 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	authClient := auth.NewAuthClient("http://auth-service:8084")
 
 	// Initialize services
-	auctionService := services.NewAuctionService(logger, cfg)
+	var auctionService *services.AuctionService
+	if existingService != nil {
+		auctionService = existingService
+	} else {
+		auctionService = services.NewAuctionService(logger, cfg)
+	}
 
 	// Initialize Firebase client
 	firebaseClient := firebase.NewClient(logger)

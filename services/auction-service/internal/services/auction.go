@@ -2,30 +2,66 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/blytz/auction-service/internal/models"
 	"github.com/blytz/auction-service/internal/config"
+	"github.com/blytz/auction-service/internal/repository"
 	"github.com/blytz/shared/pkg/errors"
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
 type AuctionService struct {
 	logger *zap.Logger
 	config *config.Config
+	repo   repository.AuctionRepository
 }
 
 func NewAuctionService(logger *zap.Logger, config *config.Config) *AuctionService {
 	return &AuctionService{
 		logger: logger,
 		config: config,
+		repo:   nil, // Will be set after database connection
+	}
+}
+
+func NewAuctionServiceWithRepo(logger *zap.Logger, config *config.Config, repo repository.AuctionRepository) *AuctionService {
+	return &AuctionService{
+		logger: logger,
+		config: config,
+		repo:   repo,
 	}
 }
 
 // CreateAuction creates a new auction
 func (s *AuctionService) CreateAuction(ctx context.Context, sellerID string, req *models.CreateAuctionRequest) (*models.Auction, error) {
 	s.logger.Info("CreateAuction called", zap.String("seller_id", sellerID))
+
+	if s.repo == nil {
+		// Fallback to mock data for now
+		auction := &models.Auction{
+			AuctionID:       generateAuctionID(),
+			ProductID:       req.ProductID,
+			SellerID:        sellerID,
+			Title:           req.Title,
+			Description:     req.Description,
+			StartingPrice:   req.StartingPrice,
+			CurrentPrice:    req.StartingPrice,
+			ReservePrice:    req.ReservePrice,
+			MinBidIncrement: req.MinBidIncrement,
+			StartTime:       req.StartTime,
+			EndTime:         req.EndTime,
+			Status:          "scheduled",
+			Type:            req.Type,
+			IsActive:        true,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
+		}
+		return auction, nil
+	}
 
 	auction := &models.Auction{
 		AuctionID:       generateAuctionID(),
@@ -46,6 +82,11 @@ func (s *AuctionService) CreateAuction(ctx context.Context, sellerID string, req
 		UpdatedAt:       time.Now(),
 	}
 
+	if err := s.repo.CreateAuction(ctx, auction); err != nil {
+		s.logger.Error("Failed to create auction", zap.Error(err))
+		return nil, err
+	}
+
 	return auction, nil
 }
 
@@ -53,38 +94,13 @@ func (s *AuctionService) CreateAuction(ctx context.Context, sellerID string, req
 func (s *AuctionService) GetAuction(ctx context.Context, auctionID string) (*models.Auction, error) {
 	s.logger.Info("GetAuction called", zap.String("auction_id", auctionID))
 
-	// Mock auction data
-	return &models.Auction{
-		AuctionID:       auctionID,
-		ProductID:       "product123",
-		SellerID:        "seller123",
-		Title:           "Sample Auction",
-		Description:     "This is a sample auction",
-		StartingPrice:   100.00,
-		CurrentPrice:    150.00,
-		ReservePrice:    200.00,
-		MinBidIncrement: 10.00,
-		StartTime:       time.Now().Add(-1 * time.Hour),
-		EndTime:         time.Now().Add(1 * time.Hour),
-		Status:          "active",
-		Type:            "live",
-		IsActive:        true,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
-	}, nil
-}
-
-// ListAuctions retrieves a list of auctions
-func (s *AuctionService) ListAuctions(ctx context.Context, status string, page, limit int) (*models.AuctionsResponse, error) {
-	s.logger.Info("ListAuctions called", zap.String("status", status), zap.Int("page", page), zap.Int("limit", limit))
-
-	// Mock data
-	auctions := []models.Auction{
-		{
-			AuctionID:       "auction123",
+	if s.repo == nil {
+		// Fallback to mock data for now
+		return &models.Auction{
+			AuctionID:       auctionID,
 			ProductID:       "product123",
 			SellerID:        "seller123",
-			Title:           "Sample Auction 1",
+			Title:           "Sample Auction",
 			Description:     "This is a sample auction",
 			StartingPrice:   100.00,
 			CurrentPrice:    150.00,
@@ -97,15 +113,60 @@ func (s *AuctionService) ListAuctions(ctx context.Context, status string, page, 
 			IsActive:        true,
 			CreatedAt:       time.Now(),
 			UpdatedAt:       time.Now(),
-		},
+		}, nil
 	}
 
-	return &models.AuctionsResponse{
-		Auctions: auctions,
-		Total:    1,
-		Page:     page,
-		Limit:    limit,
-	}, nil
+	auction, err := s.repo.GetAuction(ctx, auctionID)
+	if err != nil {
+		s.logger.Error("Failed to get auction", zap.Error(err))
+		return nil, err
+	}
+
+	return auction, nil
+}
+
+// ListAuctions retrieves a list of auctions
+func (s *AuctionService) ListAuctions(ctx context.Context, status string, page, limit int) (*models.AuctionsResponse, error) {
+	s.logger.Info("ListAuctions called", zap.String("status", status), zap.Int("page", page), zap.Int("limit", limit))
+
+	if s.repo == nil {
+		// Fallback to mock data for now
+		auctions := []models.Auction{
+			{
+				AuctionID:       "auction123",
+				ProductID:       "product123",
+				SellerID:        "seller123",
+				Title:           "Sample Auction 1",
+				Description:     "This is a sample auction",
+				StartingPrice:   100.00,
+				CurrentPrice:    150.00,
+				ReservePrice:    200.00,
+				MinBidIncrement: 10.00,
+				StartTime:       time.Now().Add(-1 * time.Hour),
+				EndTime:         time.Now().Add(1 * time.Hour),
+				Status:          "active",
+				Type:            "live",
+				IsActive:        true,
+				CreatedAt:       time.Now(),
+				UpdatedAt:       time.Now(),
+			},
+		}
+
+		return &models.AuctionsResponse{
+			Auctions: auctions,
+			Total:    1,
+			Page:     page,
+			Limit:    limit,
+		}, nil
+	}
+
+	response, err := s.repo.GetAuctions(ctx, status, page, limit)
+	if err != nil {
+		s.logger.Error("Failed to list auctions", zap.Error(err))
+		return nil, err
+	}
+
+	return response, nil
 }
 
 // UpdateAuction updates an auction
@@ -154,9 +215,48 @@ func (s *AuctionService) DeleteAuction(ctx context.Context, auctionID string, se
 func (s *AuctionService) PlaceBid(ctx context.Context, auctionID string, bidderID string, amount float64) (*models.Bid, error) {
 	s.logger.Info("PlaceBid called", zap.String("auction_id", auctionID), zap.String("bidder_id", bidderID), zap.Float64("amount", amount))
 
-	// Get auction
-	auction, err := s.GetAuction(ctx, auctionID)
+	if s.repo == nil {
+		// Fallback to mock data for now
+		// Get auction
+		auction, err := s.GetAuction(ctx, auctionID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Validate bid
+		if auction.Status != "active" {
+			return nil, errors.ValidationError("AUCTION_NOT_ACTIVE", "Auction is not active")
+		}
+
+		if time.Now().After(auction.EndTime) {
+			return nil, errors.ValidationError("AUCTION_ENDED", "Auction has ended")
+		}
+
+		if amount < auction.CurrentPrice+auction.MinBidIncrement {
+			return nil, errors.ValidationError("BID_TOO_LOW", fmt.Sprintf("Bid must be at least $%.2f", auction.CurrentPrice+auction.MinBidIncrement))
+		}
+
+		bid := &models.Bid{
+			BidID:     generateBidID(),
+			AuctionID: auctionID,
+			BidderID:  bidderID,
+			Amount:    amount,
+			IsWinning: true,
+			BidTime:   time.Now(),
+			CreatedAt: time.Now(),
+		}
+
+		// Update auction current price
+		auction.CurrentPrice = amount
+		auction.UpdatedAt = time.Now()
+
+		return bid, nil
+	}
+
+	// Get auction to validate
+	auction, err := s.repo.GetAuction(ctx, auctionID)
 	if err != nil {
+		s.logger.Error("Failed to get auction for bid validation", zap.Error(err))
 		return nil, err
 	}
 
@@ -173,6 +273,7 @@ func (s *AuctionService) PlaceBid(ctx context.Context, auctionID string, bidderI
 		return nil, errors.ValidationError("BID_TOO_LOW", fmt.Sprintf("Bid must be at least $%.2f", auction.CurrentPrice+auction.MinBidIncrement))
 	}
 
+	// Create bid
 	bid := &models.Bid{
 		BidID:     generateBidID(),
 		AuctionID: auctionID,
@@ -183,9 +284,18 @@ func (s *AuctionService) PlaceBid(ctx context.Context, auctionID string, bidderI
 		CreatedAt: time.Now(),
 	}
 
+	if err := s.repo.CreateBid(ctx, bid); err != nil {
+		s.logger.Error("Failed to create bid", zap.Error(err))
+		return nil, err
+	}
+
 	// Update auction current price
 	auction.CurrentPrice = amount
 	auction.UpdatedAt = time.Now()
+	if err := s.repo.UpdateAuction(ctx, auction); err != nil {
+		s.logger.Error("Failed to update auction after bid", zap.Error(err))
+		return nil, err
+	}
 
 	return bid, nil
 }
@@ -194,20 +304,30 @@ func (s *AuctionService) PlaceBid(ctx context.Context, auctionID string, bidderI
 func (s *AuctionService) GetBids(ctx context.Context, auctionID string) (*models.BidsResponse, error) {
 	s.logger.Info("GetBids called", zap.String("auction_id", auctionID))
 
-	// Mock bids data
-	bids := []models.Bid{
-		{
-			BidID:     "bid123",
-			AuctionID: auctionID,
-			BidderID:  "bidder123",
-			Amount:    150.00,
-			IsWinning: true,
-			BidTime:   time.Now(),
-			CreatedAt: time.Now(),
-		},
+	if s.repo == nil {
+		// Fallback to mock data for now
+		bids := []models.Bid{
+			{
+				BidID:     "bid123",
+				AuctionID: auctionID,
+				BidderID:  "bidder123",
+				Amount:    150.00,
+				IsWinning: true,
+				BidTime:   time.Now(),
+				CreatedAt: time.Now(),
+			},
+		}
+
+		return &models.BidsResponse{Bids: bids}, nil
 	}
 
-	return &models.BidsResponse{Bids: bids}, nil
+	response, err := s.repo.GetBids(ctx, auctionID)
+	if err != nil {
+		s.logger.Error("Failed to get bids", zap.Error(err))
+		return nil, err
+	}
+
+	return response, nil
 }
 
 // GetAuctionStatus retrieves the current status of an auction
