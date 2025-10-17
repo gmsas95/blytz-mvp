@@ -77,7 +77,10 @@
       "Bash(npm audit:*)",
       "Bash(./tests/integration/test-auction-flow.sh:*)",
       "Bash(timeout:*)",
-      "Bash(firebase functions:list:*)"
+      "Bash(firebase functions:list:*)",
+      "Bash(./tests/integration/final_test.sh)",
+      "Bash(./tests/integration/simple_test.sh)",
+      "Bash(go mod init:*)"
     ],
     "deny": [],
     "ask": []

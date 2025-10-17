@@ -2,166 +2,168 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/blytz/auth-service/internal/config"
 	"github.com/blytz/auth-service/internal/models"
-	"github.com/blytz/shared/utils"
+	"github.com/blytz/auth-service/pkg/betterauth"
 	"go.uber.org/zap"
 )
 
+// AuthService handles authentication business logic
 type AuthService struct {
-	logger *zap.Logger
-	config *config.Config
+	config        *config.Config
+	betterAuth    *betterauth.Client
+	db            *Database  // Database interface
+	logger        *zap.Logger
 }
 
-func NewAuthService(logger *zap.Logger, config *config.Config) *AuthService {
+// NewAuthService creates a new authentication service
+func NewAuthService(cfg *config.Config, logger *zap.Logger) (*AuthService, error) {
+	// Initialize Better Auth client
+	betterAuthClient, err := betterauth.NewClient(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize Better Auth client: %w", err)
+	}
+
+	// Initialize database
+	db, err := NewDatabase(cfg.GetDatabaseURL(), logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
+	}
+
 	return &AuthService{
-		logger: logger,
-		config: config,
-	}
+		config:     cfg,
+		betterAuth: betterAuthClient,
+		db:         db,
+		logger:     logger,
+	}, nil
 }
 
-// SignUp creates a new user account
-func (s *AuthService) SignUp(ctx context.Context, req *models.AuthRequest) (*models.User, error) {
-	s.logger.Info("SignUp called", zap.String("email", req.Email))
+// CreateUser creates a new user with Better Auth
+func (s *AuthService) CreateUser(ctx context.Context, req *models.RegisterRequest) (*models.User, error) {
+	s.logger.Info("Creating new user", zap.String("email", req.Email))
 
-	// Create user (simplified for now)
-	user := &models.User{
-		UserID:    generateUserID(),
-		Email:     req.Email,
-		Username:  req.Username,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Role:      req.Role,
-		IsActive:  true,
-		IsVerified: false,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+	// Use Better Auth to create user
+	betterUser, err := s.betterAuth.CreateUser(ctx, req.Email, req.Password, req.DisplayName)
+	if err != nil {
+		s.logger.Error("Failed to create user with Better Auth", zap.Error(err))
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
+	// Create user in our database
+	user := &models.User{
+		ID:          betterUser.ID,
+		Email:       betterUser.Email,
+		DisplayName: betterUser.DisplayName,
+		PhoneNumber: req.PhoneNumber,
+		Role:        "user",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := s.db.CreateUser(ctx, user); err != nil {
+		s.logger.Error("Failed to create user in database", zap.Error(err))
+		return nil, fmt.Errorf("failed to create user in database: %w", err)
+	}
+
+	s.logger.Info("User created successfully", zap.String("user_id", user.ID))
 	return user, nil
 }
 
-// Login authenticates a user
-func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest) (*models.AuthResponse, error) {
-	s.logger.Info("Login called", zap.String("email", req.Email))
+// AuthenticateUser authenticates a user with Better Auth
+func (s *AuthService) AuthenticateUser(ctx context.Context, req *models.LoginRequest) (*models.User, string, error) {
+	s.logger.Info("Authenticating user", zap.String("email", req.Email))
 
-	// Simplified login logic
-	user := &models.User{
-		UserID:    "user123",
-		Email:     req.Email,
-		Username:  "testuser",
-		FirstName: "Test",
-		LastName:  "User",
-		Role:      "buyer",
-		IsActive:  true,
-		IsVerified: true,
-	}
-
-	// Generate JWT token
-	accessToken, err := utils.GenerateJWT(user.UserID, user.Email, user.Role, s.config.JWTSecret, s.config.JWTExpiry)
+	// Use Better Auth to authenticate
+	betterUser, token, err := s.betterAuth.AuthenticateUser(ctx, req.Email, req.Password)
 	if err != nil {
-		return nil, err
+		s.logger.Error("Authentication failed", zap.Error(err))
+		return nil, "", fmt.Errorf("authentication failed: %w", err)
 	}
 
-	refreshToken, err := utils.GenerateJWT(user.UserID, user.Email, user.Role, s.config.JWTSecret, 7*24*time.Hour)
+	// Get user from database
+	user, err := s.db.GetUserByID(ctx, betterUser.ID)
 	if err != nil {
-		return nil, err
+		s.logger.Error("Failed to get user from database", zap.Error(err))
+		return nil, "", fmt.Errorf("failed to get user: %w", err)
 	}
 
-	return &models.AuthResponse{
-		User:         *user,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		ExpiresIn:    int64(s.config.JWTExpiry.Seconds()),
+	s.logger.Info("User authenticated successfully", zap.String("user_id", user.ID))
+	return user, token, nil
+}
+
+// ValidateToken validates a JWT token
+func (s *AuthService) ValidateToken(ctx context.Context, token string) (*models.ValidateTokenResponse, error) {
+	// Use Better Auth to validate token
+	userID, email, err := s.betterAuth.ValidateToken(ctx, token)
+	if err != nil {
+		return &models.ValidateTokenResponse{
+			Valid:   false,
+			Message: "Invalid or expired token",
+		}, nil
+	}
+
+	return &models.ValidateTokenResponse{
+		Valid:  true,
+		UserID: userID,
+		Email:  email,
 	}, nil
 }
 
-// GetUserByID retrieves a user by ID
-func (s *AuthService) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
-	s.logger.Info("GetUserByID called", zap.String("userID", userID))
-
-	// Simplified user retrieval
-	return &models.User{
-		UserID:    userID,
-		Email:     "user@example.com",
-		Username:  "testuser",
-		FirstName: "Test",
-		LastName:  "User",
-		Role:      "buyer",
-		IsActive:  true,
-		IsVerified: true,
-	}, nil
-}
-
-// Logout handles user logout
-func (s *AuthService) Logout(ctx context.Context, userID string) error {
-	s.logger.Info("Logout called", zap.String("userID", userID))
-	// Simplified logout - in real implementation, you'd invalidate tokens
-	return nil
-}
-
-// RefreshToken handles token refresh
-func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*models.AuthResponse, error) {
-	s.logger.Info("RefreshToken called")
-
-	// Validate refresh token and generate new access token
-	claims, err := utils.ValidateJWT(refreshToken, s.config.JWTSecret)
+// RefreshToken refreshes a JWT token
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (string, error) {
+	// Use Better Auth to refresh token
+	newToken, err := s.betterAuth.RefreshToken(ctx, refreshToken)
 	if err != nil {
-		return nil, err
+		s.logger.Error("Failed to refresh token", zap.Error(err))
+		return "", fmt.Errorf("failed to refresh token: %w", err)
 	}
 
-	// Generate new access token
-	accessToken, err := utils.GenerateJWT(claims.UserID, claims.Email, claims.Role, s.config.JWTSecret, s.config.JWTExpiry)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get user info
-	user, err := s.GetUserByID(ctx, claims.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &models.AuthResponse{
-		User:         *user,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		ExpiresIn:    int64(s.config.JWTExpiry.Seconds()),
-	}, nil
+	return newToken, nil
 }
 
 // UpdateProfile updates user profile
-func (s *AuthService) UpdateProfile(ctx context.Context, userID string, req *models.UpdateProfileRequest) (*models.User, error) {
-	s.logger.Info("UpdateProfile called", zap.String("userID", userID))
+func (s *AuthService) UpdateProfile(ctx context.Context, userID string, req *models.UpdateProfileRequest) error {
+	s.logger.Info("Updating user profile", zap.String("user_id", userID))
 
-	// Get existing user
-	user, err := s.GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Update fields
-	if req.FirstName != "" {
-		user.FirstName = req.FirstName
-	}
-	if req.LastName != "" {
-		user.LastName = req.LastName
-	}
-	if req.Phone != "" {
-		user.Phone = req.Phone
-	}
-	if req.AvatarURL != "" {
-		user.AvatarURL = req.AvatarURL
+	// Update in Better Auth
+	if err := s.betterAuth.UpdateProfile(ctx, userID, req); err != nil {
+		s.logger.Error("Failed to update profile in Better Auth", zap.Error(err))
+		return fmt.Errorf("failed to update profile: %w", err)
 	}
 
-	user.UpdatedAt = time.Now()
+	// Update in database
+	if err := s.db.UpdateUserProfile(ctx, userID, req); err != nil {
+		s.logger.Error("Failed to update profile in database", zap.Error(err))
+		return fmt.Errorf("failed to update profile in database: %w", err)
+	}
 
-	return user, nil
+	s.logger.Info("Profile updated successfully", zap.String("user_id", userID))
+	return nil
 }
 
-// Helper function to generate user ID
-func generateUserID() string {
-	return "user_" + time.Now().Format("20060102150405") + "_" + utils.GenerateRandomString(8)
+// ChangePassword changes user password
+func (s *AuthService) ChangePassword(ctx context.Context, userID string, req *models.ChangePasswordRequest) error {
+	s.logger.Info("Changing user password", zap.String("user_id", userID))
+
+	// Use Better Auth to change password
+	if err := s.betterAuth.ChangePassword(ctx, userID, req.CurrentPassword, req.NewPassword); err != nil {
+		s.logger.Error("Failed to change password", zap.Error(err))
+		return fmt.Errorf("failed to change password: %w", err)
+	}
+
+	s.logger.Info("Password changed successfully", zap.String("user_id", userID))
+	return nil
+}
+
+// GetUserByID gets user by ID
+func (s *AuthService) GetUserByID(ctx context.Context, userID string) (*models.User, error) {
+	return s.db.GetUserByID(ctx, userID)
+}
+
+// GetUserByEmail gets user by email
+func (s *AuthService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	return s.db.GetUserByEmail(ctx, email)
 }

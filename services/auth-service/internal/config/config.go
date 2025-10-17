@@ -2,47 +2,49 @@ package config
 
 import (
 	"os"
-	"time"
+
+	"github.com/joho/godotenv"
 )
 
+// Config holds all configuration for the auth service
 type Config struct {
-	Port        string
-	Environment string
-	LogLevel    string
-	DatabaseURL string
-	RedisURL    string
-	JWTSecret   string
-	JWTExpiry   time.Duration
-	Issuer      string
-	Audience    string
+	DatabaseURL      string `env:"DATABASE_URL"`
+	BetterAuthSecret string `env:"BETTER_AUTH_SECRET"`
+	JWTSecret        string `env:"JWT_SECRET"`
+	ServicePort      string `env:"PORT"`
+	Environment      string `env:"ENVIRONMENT"`
 }
 
-func Load() *Config {
-	return &Config{
-		Port:        getEnv("PORT", "8081"),
-		Environment: getEnv("GO_ENV", "development"),
-		LogLevel:    getEnv("LOG_LEVEL", "info"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://postgres:password@localhost:5432/auth?sslmode=disable"),
-		RedisURL:    getEnv("REDIS_URL", "redis://localhost:6379"),
-		JWTSecret:   getEnv("JWT_SECRET", "your-secret-key"),
-		JWTExpiry:   getDurationEnv("JWT_EXPIRY", 24*time.Hour),
-		Issuer:      getEnv("JWT_ISSUER", "blytz.auth"),
-		Audience:    getEnv("JWT_AUDIENCE", "blytz.app"),
+// Load loads configuration from environment variables
+func Load() (*Config, error) {
+	// Load .env file if it exists (for development)
+	_ = godotenv.Load()
+
+	cfg := &Config{
+		DatabaseURL:      getEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/authdb"),
+		BetterAuthSecret: getEnvOrDefault("BETTER_AUTH_SECRET", "better-auth-secret-key-change-in-production"),
+		JWTSecret:        getEnvOrDefault("JWT_SECRET", "jwt-secret-key-change-in-production"),
+		ServicePort:      getEnvOrDefault("PORT", "8084"),
+		Environment:      getEnvOrDefault("ENVIRONMENT", "development"),
 	}
+
+	return cfg, nil
 }
 
-func getEnv(key, defaultValue string) string {
+// getEnvOrDefault gets environment variable or returns default value
+func getEnvOrDefault(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
 	return defaultValue
 }
 
-func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
-	if value := os.Getenv(key); value != "" {
-		if duration, err := time.ParseDuration(value); err == nil {
-			return duration
-		}
-	}
-	return defaultValue
+// IsDevelopment returns true if running in development mode
+func (c *Config) IsDevelopment() bool {
+	return c.Environment == "development"
+}
+
+// IsProduction returns true if running in production mode
+func (c *Config) IsProduction() bool {
+	return c.Environment == "production"
 }

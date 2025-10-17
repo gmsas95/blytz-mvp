@@ -2,64 +2,84 @@ package models
 
 import (
 	"time"
-	"gorm.io/gorm"
 )
 
+// User represents a user in the system
 type User struct {
-	ID            uint           `gorm:"primaryKey" json:"id"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"-"`
-
-	// Identity
-	UserID       string `gorm:"uniqueIndex;not null" json:"user_id"`
-	Email        string `gorm:"uniqueIndex;not null" json:"email"`
-	Username     string `gorm:"uniqueIndex;not null" json:"username"`
-	FirebaseUID  string `gorm:"uniqueIndex" json:"firebase_uid"`
-
-	// Profile
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Phone       string `json:"phone"`
-	AvatarURL   string `json:"avatar_url"`
-
-	// Status
-	IsVerified  bool   `gorm:"default:false" json:"is_verified"`
-	IsActive    bool   `gorm:"default:true" json:"is_active"`
-	Role        string `gorm:"default:user" json:"role"`
-
-	// Metadata
-	Metadata    string `gorm:"type:text" json:"metadata,omitempty"`
+	ID          string    `json:"id" gorm:"primaryKey"`
+	Email       string    `json:"email" gorm:"uniqueIndex;not null"`
+	DisplayName string    `json:"display_name"`
+	PhoneNumber string    `json:"phone_number,omitempty"`
+	AvatarURL   string    `json:"avatar_url,omitempty"`
+	IsActive    bool      `json:"is_active" gorm:"default:true"`
+	Role        string    `json:"role" gorm:"default:user"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-type AuthRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Username  string `json:"username" binding:"required,min=3,max=50"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Role      string `json:"role" binding:"required,oneof=buyer seller admin"`
+// RegisterRequest represents user registration request
+type RegisterRequest struct {
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required,min=8"`
+	DisplayName string `json:"display_name" binding:"required,min=2,max=50"`
+	PhoneNumber string `json:"phone_number,omitempty" binding:"omitempty,e164"`
 }
 
+// LoginRequest represents user login request
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
+// AuthResponse represents authentication response
 type AuthResponse struct {
-	User         User   `json:"user"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int64  `json:"expires_in"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	User    *User  `json:"user,omitempty"`
+	Token   string `json:"token,omitempty"`
 }
 
-type VerifyResponse struct {
-	User  User  `json:"user"`
-	Valid bool  `json:"valid"`
+// ValidateTokenRequest represents token validation request
+type ValidateTokenRequest struct {
+	Token string `json:"token" binding:"required"`
 }
 
+// ValidateTokenResponse represents token validation response
+type ValidateTokenResponse struct {
+	Valid   bool   `json:"valid"`
+	UserID  string `json:"user_id,omitempty"`
+	Email   string `json:"email,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
+// RefreshTokenRequest represents token refresh request
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+// UpdateProfileRequest represents profile update request
 type UpdateProfileRequest struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Phone     string `json:"phone"`
-	AvatarURL string `json:"avatar_url"`
+	DisplayName string `json:"display_name,omitempty" binding:"omitempty,min=2,max=50"`
+	PhoneNumber string `json:"phone_number,omitempty" binding:"omitempty,e164"`
+	AvatarURL   string `json:"avatar_url,omitempty" binding:"omitempty,url"`
+}
+
+// ChangePasswordRequest represents password change request
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=8"`
+}
+
+// ErrorResponse represents error response
+type ErrorResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
+
+// SuccessResponse represents success response
+type SuccessResponse struct {
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
