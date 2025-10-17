@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MODE=mock
+      - NEXT_PUBLIC_API_BASE=http://localhost:8080
+    restart: unless-stopped
+    networks:
+      - blytz-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.blytz-frontend.rule=Host(`blytz.app`)"
+      - "traefik.http.routers.blytz-frontend.entrypoints=websecure"
+      - "traefik.http.routers.blytz-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.blytz-frontend.loadbalancer.server.port=3000"
+
+networks:
+  blytz-network:
+    external: true
