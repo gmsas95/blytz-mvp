@@ -37,21 +37,19 @@ func main() {
 	// Initialize repository
 	auctionRepo := repository.NewPostgresAuctionRepository(db, logger)
 
-	// Test database connection
+	// Test database connection - CRITICAL: Must fail if database is unavailable
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := auctionRepo.Ping(ctx); err != nil {
-		logger.Error("Database connection test failed", zap.Error(err))
-		// Continue with mock data for demo purposes
-		auctionRepo = nil
-	} else {
-		logger.Info("Database connection successful")
+		logger.Fatal("Database connection test failed - application cannot start without database", zap.Error(err))
+		// DO NOT continue with mock data - this is a production system
+	}
 
-		// Initialize database schema
-		if err := initDatabaseSchema(ctx, db, logger); err != nil {
-			logger.Error("Failed to initialize database schema", zap.Error(err))
-			// Continue with existing schema
-		}
+	logger.Info("Database connection successful")
+
+	// Initialize database schema
+	if err := initDatabaseSchema(ctx, db, logger); err != nil {
+		logger.Fatal("Failed to initialize database schema", zap.Error(err))
 	}
 
 	// Create services with repository
