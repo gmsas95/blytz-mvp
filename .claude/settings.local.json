@@ -87,7 +87,8 @@
       "Bash(./tests/integration/test-persistence-simple.sh:*)",
       "Bash(git checkout:*)",
       "Bash(npm run dev)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
