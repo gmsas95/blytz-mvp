@@ -46,7 +46,7 @@ export interface ApiAdapter {
 
 // Mock API Adapter
 export class MockApiAdapter implements ApiAdapter {
-  private delay(ms: number = 500): Promise<void> {
+  private delay(ms: number = 100): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 

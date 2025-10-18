@@ -84,7 +84,10 @@
       "Bash(/home/sas/blytzmvp-clean/verify-shared-migration.sh)",
       "Bash(./tests/integration/mvp-final-test.sh:*)",
       "Bash(python3:*)",
-      "Bash(./tests/integration/test-persistence-simple.sh:*)"
+      "Bash(./tests/integration/test-persistence-simple.sh:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run dev)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

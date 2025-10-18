@@ -6,11 +6,10 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy all backend files
+# Copy gateway files
 COPY . .
 
-# Go to gateway and build
-WORKDIR /app/gateway
+# Download dependencies and build
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gateway ./cmd/main.go
 
@@ -22,7 +21,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/gateway/gateway .
+COPY --from=builder /app/gateway .
 
 # Expose port
 EXPOSE 8080

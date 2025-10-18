@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - MODE=mock
+      - MODE=remote
       - NEXT_PUBLIC_API_BASE=http://localhost:8080
     restart: unless-stopped
     networks:

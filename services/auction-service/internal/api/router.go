@@ -66,6 +66,7 @@ func SetupRouterWithServices(logger *zap.Logger, auctionService *services.Auctio
 		auctions := api.Group("/auctions")
 		{
 			auctions.GET("", auctionHandler.ListAuctions)
+			auctions.GET("/active", auctionHandler.GetActiveAuctions)
 			auctions.GET("/:auction_id", auctionHandler.GetAuction)
 			auctions.GET("/:auction_id/status", auctionHandler.GetAuctionStatus)
 			auctions.GET("/:auction_id/bids", auctionHandler.GetBids)

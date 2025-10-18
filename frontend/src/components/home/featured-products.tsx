@@ -16,12 +16,15 @@ export function FeaturedProducts() {
   useEffect(() => {
     async function loadFeaturedProducts() {
       try {
+        // Add a small delay to show loading state, then load real data
+        await new Promise(resolve => setTimeout(resolve, 50))
         const response = await api.getFeaturedProducts()
         if (response.success && response.data) {
           setProducts(response.data)
         }
       } catch (error) {
-        console.error('Failed to load featured products:', error)
+        // If API fails, show empty state
+        setProducts([])
       } finally {
         setLoading(false)
       }
@@ -35,14 +38,20 @@ export function FeaturedProducts() {
       <section className="w-full bg-secondary/30 py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-12">
-            <div className="h-8 bg-muted rounded-lg w-64 mx-auto animate-pulse" />
-            <div className="h-4 bg-muted rounded w-96 mx-auto animate-pulse" />
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              Featured Products
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Discover amazing products from our top sellers
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="overflow-hidden">
-                <div className="aspect-square bg-muted animate-pulse" />
+              <Card key={i} className="overflow-hidden border-border hover:shadow-lg transition-shadow duration-300">
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  <span className="text-muted-foreground text-sm">Loading...</span>
+                </div>
                 <CardHeader className="pb-3">
                   <div className="h-4 bg-muted rounded animate-pulse mb-2" />
                   <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />

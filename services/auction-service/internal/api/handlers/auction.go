@@ -117,6 +117,28 @@ func (h *AuctionHandler) ListAuctions(c *gin.Context) {
 	utils.SuccessResponse(c, response)
 }
 
+// GetActiveAuctions retrieves only active auctions
+func (h *AuctionHandler) GetActiveAuctions(c *gin.Context) {
+	page, _ := strconv.Atoi(c.Query("page"))
+	limit, _ := strconv.Atoi(c.Query("limit"))
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+
+	// Call ListAuctions with "active" status
+	response, err := h.auctionService.ListAuctions(c.Request.Context(), "active", page, limit)
+	if err != nil {
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, response)
+}
+
 // UpdateAuction updates an auction
 func (h *AuctionHandler) UpdateAuction(c *gin.Context) {
 	userID, exists := c.Get("userID")

@@ -1,21 +1,19 @@
-import { Header } from '@/components/layout/header'
+'use client'
+
 import { Hero } from '@/components/home/hero'
 import { FeaturedProducts } from '@/components/home/featured-products'
 import { ActiveAuctions } from '@/components/home/active-auctions'
 import { LiveStreams } from '@/components/home/live-streams'
-import { Footer } from '@/components/layout/footer'
+import { TestComponent } from '@/components/home/test-component'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <FeaturedProducts />
-        <ActiveAuctions />
-        <LiveStreams />
-      </main>
-      <Footer />
+    <div className="bg-background">
+      <TestComponent />
+      <Hero />
+      <FeaturedProducts />
+      <ActiveAuctions />
+      <LiveStreams />
     </div>
   )
 }
