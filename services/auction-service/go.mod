@@ -44,4 +44,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/blytz/shared => ../../shared
+replace github.com/gmsas95/blytz-mvp/shared => ../../shared
