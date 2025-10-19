@@ -19,4 +19,5 @@ type FirebaseApp interface {
 
 	// Notification methods
 	SendNotification(ctx context.Context, userID, title, body string, data map[string]string) (*NotificationResponse, error)
+	SendBidNotification(ctx context.Context, bidData interface{}) error
 }

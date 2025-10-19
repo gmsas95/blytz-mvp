@@ -111,3 +111,8 @@ func (c *Client) GetAuction(ctx context.Context, auctionID string) (map[string]i
 func (c *Client) ProcessPayment(ctx context.Context, paymentData interface{}) error {
 	return c.callFirebase(ctx, "processPayment", paymentData, nil)
 }
+
+// SendBidNotification sends a bid notification via Firebase
+func (c *Client) SendBidNotification(ctx context.Context, bidData interface{}) error {
+	return c.callFirebase(ctx, "sendBidNotification", bidData, nil)
+}

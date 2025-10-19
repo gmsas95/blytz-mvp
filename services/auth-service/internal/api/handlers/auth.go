@@ -110,3 +110,33 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// In a real implementation, you'd invalidate the token
 	utils.SendSuccessResponse(c, http.StatusOK, gin.H{"message": "Logout successful"})
 }
+
+func (h *AuthHandler) UpdateProfile(c *gin.Context) {
+	var req models.UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.SendErrorResponse(c, shared_errors.ErrInvalidRequestBody)
+		return
+	}
+
+	// For now, just return success
+	// In a real implementation, you'd update the user profile
+	utils.SendSuccessResponse(c, http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}
+
+func (h *AuthHandler) GetProfile(c *gin.Context) {
+	// For now, return a mock profile
+	// In a real implementation, you'd get the user from the authenticated context
+	mockProfile := gin.H{
+		"id":           "123",
+		"email":        "user@example.com",
+		"display_name": "Test User",
+		"phone_number": "+1234567890",
+		"avatar_url":   "",
+		"is_active":    true,
+		"role":         "user",
+		"created_at":   "2024-01-01T00:00:00Z",
+		"updated_at":   "2024-01-01T00:00:00Z",
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, mockProfile)
+}
