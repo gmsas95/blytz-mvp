@@ -45,7 +45,12 @@ type AuctionDetails struct {
 
 // CreateAuction creates a new auction via Firebase
 func (c *Client) CreateAuction(ctx context.Context, auctionData AuctionData) (*AuctionResponse, error) {
-	return c.createAuction(ctx, auctionData)
+	var result AuctionResponse
+	err := c.callFirebase(ctx, "createAuction", auctionData, &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create auction: %w", err)
+	}
+	return &result, nil
 }
 
 // PlaceBid places a bid on an auction via Firebase
