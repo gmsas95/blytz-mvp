@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/gmsas95/blytz-mvp/shared v0.0.0
 	github.com/prometheus/client_golang v1.17.0
 	go.uber.org/zap v1.26.0
 	gorm.io/gorm v1.25.5

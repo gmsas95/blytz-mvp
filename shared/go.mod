@@ -2,7 +2,7 @@ module github.com/gmsas95/blytz-mvp/shared
 
 go 1.23.2
 
-replace github.com/blytz/shared => .
+replace github.com/gmsas95/blytz-mvp/shared => .
 
 require (
 	github.com/gin-gonic/gin v1.9.1
