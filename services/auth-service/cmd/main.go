@@ -53,11 +53,8 @@ func main() {
 	// Initialize auth service
 	authService := services.NewAuthService(nil, cfg) // Pass nil for DB temporarily
 
-	// Create auth handler
-	authHandler := api.NewAuthHandler(authService, logger)
-
-	// Setup routes
-	setupRoutes(router, authHandler, logger)
+	// Setup routes using the API router
+	router = api.NewRouter(authService, logger, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
@@ -90,38 +87,3 @@ func main() {
 	logger.Info("Server exited")
 }
 
-// setupRoutes configures all API routes
-func setupRoutes(router *gin.Engine, authHandler *api.AuthHandler, logger *zap.Logger) {
-	// Health check
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status":    "healthy",
-			"service":   "auth",
-			"timestamp": time.Now().Unix(),
-		})
-	})
-
-	// Metrics endpoint
-	router.GET("/metrics", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "metrics endpoint",
-		})
-	})
-
-	// API v1 routes
-	api := router.Group("/api/v1")
-	{
-		auth := api.Group("/auth")
-		{
-			auth.POST("/register", authHandler.RegisterUser)
-			auth.POST("/login", authHandler.LoginUser)
-			auth.POST("/refresh", authHandler.RefreshToken)
-			auth.POST("/validate", authHandler.ValidateToken) // Internal endpoint
-			
-			// Protected routes
-			auth.GET("/me", authHandler.GetCurrentUser)
-			auth.PUT("/profile", authHandler.UpdateProfile)
-			auth.POST("/change-password", authHandler.ChangePassword)
-		}
-	}
-}

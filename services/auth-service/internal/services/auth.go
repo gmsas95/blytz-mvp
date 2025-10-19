@@ -20,6 +20,11 @@ type AuthService struct {
 	config *config.Config
 }
 
+// GetConfig returns the service configuration
+func (s *AuthService) GetConfig() *config.Config {
+	return s.config
+}
+
 // NewAuthService creates a new AuthService
 func NewAuthService(db *gorm.DB, config *config.Config) *AuthService {
 	return &AuthService{db: db, config: config}

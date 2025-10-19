@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -37,7 +36,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(authService.config.JWTSecret), nil
+			return []byte(authService.GetConfig().JWTSecret), nil
 		})
 
 		if err != nil {
@@ -123,9 +122,9 @@ func extractOptionalToken(c *gin.Context) string {
 // RoleMiddleware provides role-based authorization
 func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("userID")
+		_, exists := c.Get("userID")
 		if !exists {
-			utils.ErrorResponse(c, errors.AuthenticationError("NO_AUTH", "User not authenticated"))
+			utils.SendErrorResponse(c, shared_errors.AuthenticationError("NO_AUTH", "User not authenticated"))
 			c.Abort()
 			return
 		}
@@ -144,7 +143,7 @@ func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 		}
 
 		if !hasRole {
-			utils.ErrorResponse(c, errors.AuthorizationError("INSUFFICIENT_PRIVILEGES", "Insufficient privileges"))
+			utils.SendErrorResponse(c, shared_errors.AuthorizationError("INSUFFICIENT_PRIVILEGES", "Insufficient privileges"))
 			c.Abort()
 			return
 		}
