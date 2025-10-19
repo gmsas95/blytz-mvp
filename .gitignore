@@ -7,6 +7,9 @@ go.sum
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+.env.production.example  # Keep example but not real secrets
 
 # Go build artifacts
 *.exe
@@ -44,10 +47,224 @@ log/
 *.key
 *.crt
 *.cert
+*.p12
+*.pfx
+
+# Production secrets and keys
+secrets/
+keys/
+*.secret
+*.keyfile
+service-account-*.json
+google-services.json
+GoogleService-Info.plist
 
 # Docker volumes
 redis-data/
 docker-volumes/
+volumes/
+data/
+postgres-data/
+mysql-data/
+
+# Docker
+.dockerignore
+Dockerfile.*.tmp
+
+# Next.js build artifacts
+frontend/.next/
+frontend/out/
+frontend/build/
+.next/
+out/
+build/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Go
+vendor/
+go.sum
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+
+# Coverage and test files
+*.coverprofile
+coverage.out
+coverage.html
+coverage/
+.nyc_output/
+
+# Build directories
+build/
+dist/
+bin/
+target/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+
+# Log files
+*.log
+logs/
+log/
+*.log.*
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Monitoring and metrics
+*.metrics
+*.monitoring
+
+# Dokploy specific
+dokploy-data/
+.dokploy/
+
+# Security and sensitive files
+*.private
+*.secret
+*.token
+*.password
+*.credential
+*.auth
+security/
+credentials/
+config/secrets/
+
+# Cloud provider credentials
+aws-credentials.json
+gcp-credentials.json
+azure-credentials.json
+
+# SSL certificates and keys
+*.pem
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# SSH keys and certificates
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+known_hosts
+ssh_config
+
+# Application specific secrets (add more as needed)
+shared/pkg/auth/keys/
+services/*/config/secrets/
+services/*/keys/
+
+# Production deployment files (keep examples but not real configs)
+.env.production
+.env.staging
+*.env.production
+*.env.staging
+
+# But keep example files
+!.env.production.example
+!.env.example
+
+# Frontend specific
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.npm
+frontend/.yarn-integrity
+frontend/package-lock.json
+frontend/yarn.lock
+
+# Service build artifacts
+services/*/bin/
+services/*/build/
+services/*/dist/
+services/*/node_modules/
+services/*/.env
+services/*/vendor/
+
+# Local development overrides
+local-compose.yml
+local-docker-compose.yml
+docker-compose.override.yml
+
+# Deployment artifacts (keep templates)
+deploy/*.env
+!deploy/*.example
+scripts/*.env
+!scripts/*.example
+
+# Keep Dokploy config template
+!dokploy.json
+!dokploy-compose.yml
 
 # Firebase
 .firebase/
