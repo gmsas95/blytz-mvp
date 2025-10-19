@@ -2,26 +2,24 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/api/handlers"
-	"github.com/blytz/auth-service/internal/middleware"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/api/handlers"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/middleware"
 )
 
 func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler) {
-	// Public routes
-	public := router.Group("/api/v1/auth")
+	api := router.Group("/api")
 	{
-		public.POST("/signup", authHandler.SignUp)
-		public.POST("/login", authHandler.Login)
-		public.POST("/refresh", authHandler.RefreshToken)
-	}
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
+		}
 
-	// Protected routes
-	protected := router.Group("/api/v1/auth")
-	protected.Use(middleware.AuthMiddleware())
-	{
-		protected.GET("/verify", authHandler.Verify)
-		protected.POST("/logout", authHandler.Logout)
-		protected.PUT("/profile", authHandler.UpdateProfile)
-		protected.GET("/profile", authHandler.GetProfile)
+		protected := api.Group("/protected").Use(middleware.AuthMiddleware())
+		{
+			protected.GET("/profile", func(c *gin.Context) {
+				c.JSON(200, gin.H{"message": "this is a protected route"})
+			})
+		}
 	}
 }

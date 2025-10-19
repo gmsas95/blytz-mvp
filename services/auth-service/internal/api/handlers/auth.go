@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/models"
-	"github.com/blytz/auth-service/internal/services"
-	"github.com/blytz/shared/pkg/utils"
-	"github.com/blytz/shared/pkg/errors"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 )
+
 
 type AuthHandler struct {
 	authService *services.AuthService
@@ -14,6 +17,41 @@ type AuthHandler struct {
 
 func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
+}
+
+func (h *AuthHandler) Register(c *gin.Context) {
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		utils.SendErrorResponse(c, shared_errors.ErrInvalidRequestBody)
+		return
+	}
+
+	if err := h.authService.RegisterUser(&user); err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusCreated, gin.H{"message": "User registered successfully"})
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	var loginDetails struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&loginDetails); err != nil {
+		utils.SendErrorResponse(c, shared_errors.ErrInvalidRequestBody)
+		return
+	}
+
+	token, err := h.authService.LoginUser(loginDetails.Email, loginDetails.Password)
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, gin.H{"token": token})
 }
 
 // SignUp handles user registration

@@ -1,60 +1,58 @@
 package middleware
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/services"
-	"github.com/blytz/shared/pkg/errors"
-	"github.com/blytz/shared/pkg/utils"
-	"go.uber.org/zap"
+	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
-// AuthMiddleware provides authentication middleware for protected routes
-type AuthMiddleware struct {
-	authService *services.AuthService
-	logger      *zap.Logger
-}
+func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
 
-// NewAuthMiddleware creates a new authentication middleware
-func NewAuthMiddleware(authService *services.AuthService, logger *zap.Logger) gin.HandlerFunc {
-	middleware := &AuthMiddleware{
-		authService: authService,
-		logger:      logger,
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		claims := &services.Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte(authService.GetConfig().JWTSecret), nil
+		})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			} else {
+				utils.SendErrorResponse(c, &shared_errors.ServiceError{Code: http.StatusBadRequest, Message: "Bad Request"})
+			}
+			c.Abort()
+			return
+		}
+
+		if !token.Valid {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", claims.UserID)
+		c.Next()
 	}
-	return middleware.Handle
-}
-
-// Handle processes authentication for incoming requests
-func (m *AuthMiddleware) Handle(c *gin.Context) {
-	// Extract token from Authorization header
-	token := m.extractToken(c)
-	if token == "" {
-		m.logger.Warn("No authorization token provided")
-		utils.ErrorResponse(c, errors.AuthenticationError("NO_TOKEN", "No authorization token provided"))
-		c.Abort()
-		return
-	}
-
-	// Validate token using auth service
-	response, err := m.authService.ValidateToken(c.Request.Context(), token)
-	if err != nil || !response.Valid {
-		m.logger.Warn("Invalid or expired token", zap.Error(err))
-		utils.ErrorResponse(c, errors.AuthenticationError("INVALID_TOKEN", "Invalid or expired token"))
-		c.Abort()
-		return
-	}
-
-	// Set user context for downstream handlers
-	c.Set("userID", response.UserID)
-	c.Set("userEmail", response.Email)
-
-	m.logger.Debug("Authentication successful", zap.String("user_id", response.UserID))
-	c.Next()
 }
 
 // extractToken extracts the JWT token from the Authorization header

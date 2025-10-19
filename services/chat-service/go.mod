@@ -1,4 +1,4 @@
-module github.com/blytz/chat-service
+module github.com/gmsas95/blytz-mvp/services/chat-service
 
 go 1.23.0
 

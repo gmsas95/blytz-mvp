@@ -1,4 +1,4 @@
-module github.com/blytz/product-service
+module github.com/gmsas95/blytz-mvp/services/product-service
 
 go 1.23.2
 

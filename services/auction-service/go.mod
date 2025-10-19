@@ -1,4 +1,4 @@
-module github.com/blytz/auction-service
+module github.com/gmsas95/blytz-mvp/services/auction-service
 
 go 1.23.2
 

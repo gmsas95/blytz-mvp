@@ -1,4 +1,4 @@
-module github.com/blytz/logistics-service
+module github.com/gmsas95/blytz-mvp/services/logistics-service
 
 go 1.23.0
 

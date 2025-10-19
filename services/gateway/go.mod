@@ -1,4 +1,4 @@
-module github.com/blytz/gateway
+module github.com/gmsas95/blytz-mvp/services/gateway
 
 go 1.23.0
 

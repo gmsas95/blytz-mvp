@@ -1,4 +1,4 @@
-module github.com/blytz/auth-service
+module github.com/gmsas95/blytz-mvp/services/auth-service
 
 go 1.23.2
 

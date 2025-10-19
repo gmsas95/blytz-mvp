@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blytz/auth-service/internal/config"
-	"github.com/blytz/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"go.uber.org/zap"

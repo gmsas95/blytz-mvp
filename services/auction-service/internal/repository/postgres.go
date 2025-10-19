@@ -3,206 +3,52 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"time"
 
-	"github.com/blytz/auction-service/internal/models"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
+
+	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/models"
 )
 
-type PostgresAuctionRepository struct {
+
+type PostgresRepo struct {
 	db     *sql.DB
 	logger *zap.Logger
 }
 
-func NewPostgresAuctionRepository(db *sql.DB, logger *zap.Logger) AuctionRepository {
-	return &PostgresAuctionRepository{
-		db:     db,
-		logger: logger,
-	}
+func NewPostgresRepo(db *sql.DB, logger *zap.Logger) *PostgresRepo {
+	return &PostgresRepo{db: db, logger: logger}
 }
 
-func (r *PostgresAuctionRepository) CreateAuction(ctx context.Context, auction *models.Auction) error {
-	r.logger.Info("Creating auction in database", zap.String("auction_id", auction.AuctionID))
-
-	query := `
-		INSERT INTO auctions (
-			auction_id, product_id, seller_id, title, description,
-			starting_price, current_price, reserve_price, min_bid_increment,
-			start_time, end_time, status, type, is_active, created_at, updated_at
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-	`
-
-	_, err := r.db.ExecContext(ctx, query,
-		auction.AuctionID, auction.ProductID, auction.SellerID, auction.Title, auction.Description,
-		auction.StartingPrice, auction.CurrentPrice, auction.ReservePrice, auction.MinBidIncrement,
-		auction.StartTime, auction.EndTime, auction.Status, auction.Type, auction.IsActive,
-		auction.CreatedAt, auction.UpdatedAt,
-	)
-
-	if err != nil {
-		r.logger.Error("Failed to create auction", zap.Error(err))
-		return fmt.Errorf("failed to create auction: %w", err)
-	}
-
-	return nil
+func (r *PostgresRepo) Create(ctx context.Context, auction *models.Auction) error {
+	query := `INSERT INTO auctions (id, item, start_time, end_time, start_price, created_by) VALUES (, $2, $3, $4, $5, $6)`
+	_, err := r.db.ExecContext(ctx, query, auction.ID, auction.Item, auction.StartTime, auction.EndTime, auction.StartPrice, auction.CreatedBy)
+	return err
 }
 
-func (r *PostgresAuctionRepository) GetAuction(ctx context.Context, auctionID string) (*models.Auction, error) {
-	r.logger.Info("Getting auction from database", zap.String("auction_id", auctionID))
+func (r *PostgresRepo) GetByID(ctx context.Context, id string) (*models.Auction, error) {
+	query := `SELECT id, item, start_time, end_time, start_price, current_price, created_by, winner_id, status FROM auctions WHERE id = `
+	row := r.db.QueryRowContext(ctx, query, id)
 
-	query := `
-		SELECT auction_id, product_id, seller_id, title, description,
-			starting_price, current_price, reserve_price, min_bid_increment,
-			start_time, end_time, status, type, is_active, created_at, updated_at
-		FROM auctions
-		WHERE auction_id = $1
-	`
-
-	var auction models.Auction
-	err := r.db.QueryRowContext(ctx, query, auctionID).Scan(
-		&auction.AuctionID, &auction.ProductID, &auction.SellerID, &auction.Title, &auction.Description,
-		&auction.StartingPrice, &auction.CurrentPrice, &auction.ReservePrice, &auction.MinBidIncrement,
-		&auction.StartTime, &auction.EndTime, &auction.Status, &auction.Type, &auction.IsActive,
-		&auction.CreatedAt, &auction.UpdatedAt,
-	)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("auction not found: %s", auctionID)
-		}
-		r.logger.Error("Failed to get auction", zap.Error(err))
-		return nil, fmt.Errorf("failed to get auction: %w", err)
+	auction := &models.Auction{}
+	if err := row.Scan(&auction.ID, &auction.Item, &auction.StartTime, &auction.EndTime, &auction.StartPrice, &auction.CurrentPrice, &auction.CreatedBy, &auction.WinnerID, &auction.Status); err != nil {
+		return nil, err
 	}
-
-	return &auction, nil
+	return auction, nil
 }
 
-func (r *PostgresAuctionRepository) GetAuctions(ctx context.Context, status string, page, limit int) (*models.AuctionsResponse, error) {
-	r.logger.Info("Getting auctions from database", zap.String("status", status), zap.Int("page", page), zap.Int("limit", limit))
-
-	offset := (page - 1) * limit
-
-	query := `
-		SELECT auction_id, product_id, seller_id, title, description,
-			starting_price, current_price, reserve_price, min_bid_increment,
-			start_time, end_time, status, type, is_active, created_at, updated_at
-		FROM auctions
-	`
-
-	var args []interface{}
-	var whereClause string
-
-	if status != "" {
-		whereClause = " WHERE status = $1"
-		args = append(args, status)
-	}
-
-	query += whereClause + " ORDER BY created_at DESC LIMIT $" + fmt.Sprintf("%d", len(args)+1) + " OFFSET $" + fmt.Sprintf("%d", len(args)+2)
-	args = append(args, limit, offset)
-
-	rows, err := r.db.QueryContext(ctx, query, args...)
-	if err != nil {
-		r.logger.Error("Failed to query auctions", zap.Error(err))
-		return nil, fmt.Errorf("failed to query auctions: %w", err)
-	}
-	defer rows.Close()
-
-	var auctions []models.Auction
-	for rows.Next() {
-		var auction models.Auction
-		err := rows.Scan(
-			&auction.AuctionID, &auction.ProductID, &auction.SellerID, &auction.Title, &auction.Description,
-			&auction.StartingPrice, &auction.CurrentPrice, &auction.ReservePrice, &auction.MinBidIncrement,
-			&auction.StartTime, &auction.EndTime, &auction.Status, &auction.Type, &auction.IsActive,
-			&auction.CreatedAt, &auction.UpdatedAt,
-		)
-		if err != nil {
-			r.logger.Error("Failed to scan auction", zap.Error(err))
-			return nil, fmt.Errorf("failed to scan auction: %w", err)
-		}
-		auctions = append(auctions, auction)
-	}
-
-	// Get total count
-	var total int
-	countQuery := "SELECT COUNT(*) FROM auctions"
-	if whereClause != "" {
-		countQuery += whereClause
-	}
-	err = r.db.QueryRowContext(ctx, countQuery, args[:len(args)-2]...).Scan(&total)
-	if err != nil {
-		r.logger.Error("Failed to count auctions", zap.Error(err))
-		return nil, fmt.Errorf("failed to count auctions: %w", err)
-	}
-
-	return &models.AuctionsResponse{
-		Auctions: auctions,
-		Total:    total,
-		Page:     page,
-		Limit:    limit,
-	}, nil
+func (r *PostgresRepo) UpdateAuctionPrice(ctx context.Context, id string, price float64) error {
+	query := `UPDATE auctions SET current_price =  WHERE id = $2`
+	_, err := r.db.ExecContext(ctx, query, price, id)
+	return err
 }
 
-func (r *PostgresAuctionRepository) UpdateAuction(ctx context.Context, auction *models.Auction) error {
-	r.logger.Info("Updating auction in database", zap.String("auction_id", auction.AuctionID))
-
-	query := `
-		UPDATE auctions SET
-			title = $2, description = $3, current_price = $4, reserve_price = $5,
-			min_bid_increment = $6, start_time = $7, end_time = $8, status = $9,
-			updated_at = $10
-		WHERE auction_id = $1
-	`
-
-	_, err := r.db.ExecContext(ctx, query,
-		auction.AuctionID, auction.Title, auction.Description,
-		auction.CurrentPrice, auction.ReservePrice, auction.MinBidIncrement,
-		auction.StartTime, auction.EndTime, auction.Status, auction.UpdatedAt,
-	)
-
-	if err != nil {
-		r.logger.Error("Failed to update auction", zap.Error(err))
-		return fmt.Errorf("failed to update auction: %w", err)
-	}
-
-	return nil
+func (r *PostgresRepo) CreateBid(ctx context.Context, bid *models.Bid) error {
+	query := `INSERT INTO bids (id, auction_id, user_id, amount, timestamp) VALUES (, $2, $3, $4, $5)`
+	_, err := r.db.ExecContext(ctx, query, bid.ID, bid.AuctionID, bid.UserID, bid.Amount, bid.Timestamp)
+	return err
 }
 
-func (r *PostgresAuctionRepository) DeleteAuction(ctx context.Context, auctionID string) error {
-	r.logger.Info("Deleting auction from database", zap.String("auction_id", auctionID))
-
-	query := "DELETE FROM auctions WHERE auction_id = $1"
-	_, err := r.db.ExecContext(ctx, query, auctionID)
-
-	if err != nil {
-		r.logger.Error("Failed to delete auction", zap.Error(err))
-		return fmt.Errorf("failed to delete auction: %w", err)
-	}
-
-	return nil
-}
-
-func (r *PostgresAuctionRepository) CreateBid(ctx context.Context, bid *models.Bid) error {
-	r.logger.Info("Creating bid in database", zap.String("bid_id", bid.BidID), zap.String("auction_id", bid.AuctionID))
-
-	query := `
-		INSERT INTO bids (bid_id, auction_id, bidder_id, amount, is_winning, bid_time, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`
-
-	_, err := r.db.ExecContext(ctx, query,
-		bid.BidID, bid.AuctionID, bid.BidderID, bid.Amount, bid.IsWinning, bid.BidTime, bid.CreatedAt,
-	)
-
-	if err != nil {
-		r.logger.Error("Failed to create bid", zap.Error(err))
-		return fmt.Errorf("failed to create bid: %w", err)
-	}
-
-	return nil
-}
 
 func (r *PostgresAuctionRepository) GetBids(ctx context.Context, auctionID string) (*models.BidsResponse, error) {
 	r.logger.Info("Getting bids from database", zap.String("auction_id", auctionID))

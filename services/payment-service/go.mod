@@ -1,4 +1,4 @@
-module github.com/blytz/payment-service
+module github.com/gmsas95/blytz-mvp/services/payment-service
 
 go 1.23.0
 

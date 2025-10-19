@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/api"
-	"github.com/blytz/auth-service/internal/config"
-	"github.com/blytz/auth-service/internal/services"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/api"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
 	"go.uber.org/zap"
 )
 

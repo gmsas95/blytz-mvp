@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blytz/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
 )
 
 const (

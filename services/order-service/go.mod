@@ -1,4 +1,4 @@
-module github.com/blytz/order-service
+module github.com/gmsas95/blytz-mvp/services/order-service
 
 go 1.23.0
 
