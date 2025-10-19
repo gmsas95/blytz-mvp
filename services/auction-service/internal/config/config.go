@@ -7,14 +7,15 @@ import (
 )
 
 type Config struct {
-	Port            string
-	Environment     string
-	LogLevel        string
-	DatabaseURL     string
-	RedisURL        string
-	JWTSecret       string
-	MetricsPort     string
-	ServiceName     string
+	Port                   string
+	Environment            string
+	LogLevel               string
+	DatabaseURL            string
+	RedisURL               string
+	JWTSecret              string
+	MetricsPort            string
+	ServiceName            string
+	DefaultAuctionDuration time.Duration
 }
 
 func Load() (*Config, error) {
@@ -26,7 +27,8 @@ func Load() (*Config, error) {
 		RedisURL:        getEnv("REDIS_URL", "localhost:6379"),
 		JWTSecret:       getEnv("JWT_SECRET", "your-secret-key"),
 		MetricsPort:     getEnv("METRICS_PORT", "9083"),
-		ServiceName:     getEnv("SERVICE_NAME", "auction-service"),
+		ServiceName:            getEnv("SERVICE_NAME", "auction-service"),
+		DefaultAuctionDuration: getEnvAsDuration("DEFAULT_AUCTION_DURATION", 24*time.Hour),
 	}, nil
 }
 

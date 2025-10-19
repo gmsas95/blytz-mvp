@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
-	"github.com/gmsas95/blytz-mvp/services/auth-service/pkg/betterauth"
 )
 
 // AuthService provides authentication related services
