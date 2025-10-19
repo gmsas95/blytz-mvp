@@ -23,7 +23,8 @@ COPY services/logistics-service/ ./services/logistics-service/
 RUN ln -sf /app/shared /shared
 
 # Download dependencies and build from service directory
-RUN cd services/logistics-service && go mod download || go mod tidy
+RUN cd services/logistics-service && go mod tidy
+RUN cd services/logistics-service && go mod download
 RUN cd services/logistics-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o logistics-service ./cmd/main.go
 
 # Final stage

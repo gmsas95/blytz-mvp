@@ -23,7 +23,8 @@ COPY services/gateway/ ./services/gateway/
 RUN ln -sf /app/shared /shared
 
 # Download dependencies and build from service directory
-RUN cd services/gateway && go mod download || go mod tidy
+RUN cd services/gateway && go mod tidy
+RUN cd services/gateway && go mod download
 RUN cd services/gateway && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gateway ./cmd/main.go
 
 # Final stage

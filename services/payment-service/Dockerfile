@@ -23,7 +23,8 @@ COPY services/payment-service/ ./services/payment-service/
 RUN ln -sf /app/shared /shared
 
 # Download dependencies and build from service directory
-RUN cd services/payment-service && go mod download || go mod tidy
+RUN cd services/payment-service && go mod tidy
+RUN cd services/payment-service && go mod download
 RUN cd services/payment-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o payment-service ./cmd/main.go
 
 # Final stage

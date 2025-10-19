@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	    shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"	"github.com/gin-gonic/gin"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
+	"github.com/gin-gonic/gin"
 )
 
 // AuthClient provides authentication client for microservices

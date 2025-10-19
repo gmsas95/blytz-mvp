@@ -23,7 +23,8 @@ COPY services/auction-service/ ./services/auction-service/
 RUN ln -sf /app/shared /shared
 
 # Download dependencies and build from service directory
-RUN cd services/auction-service && go mod download || go mod tidy
+RUN cd services/auction-service && go mod tidy
+RUN cd services/auction-service && go mod download
 RUN cd services/auction-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction-service ./cmd/main.go
 
 # Final stage
