@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 )
@@ -14,12 +12,12 @@ func SendSuccessResponse(c *gin.Context, statusCode int, data interface{}) {
 
 // SendErrorResponse sends an error response with a status code and error message
 func SendErrorResponse(c *gin.Context, err error) {
-	serviceErr, ok := err.(*errors.ServiceError)
+	appErr, ok := err.(*errors.AppError)
 	if !ok {
-		serviceErr = errors.ErrInternalServer
+		appErr = errors.ErrInternalServer
 	}
 
-	c.JSON(serviceErr.Code, gin.H{"status": "error", "message": serviceErr.Message})
+	c.JSON(appErr.StatusCode, gin.H{"status": "error", "message": appErr.Message})
 }
 
 type Response struct {
