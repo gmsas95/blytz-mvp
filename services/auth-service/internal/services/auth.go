@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
@@ -32,11 +34,11 @@ func (s *AuthService) RegisterUser(user *models.User) error {
 	}
 
 	// Hash password
-	hashedPassword, err := betterauth.HashPassword(user.Password)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	user.Password = hashedPassword
+	user.Password = string(hashedPassword)
 
 	// Create user
 	return s.db.Create(user).Error
@@ -51,7 +53,8 @@ func (s *AuthService) LoginUser(email, password string) (string, error) {
 	}
 
 	// Check password
-	if !betterauth.CheckPasswordHash(password, user.Password) {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
 		return "", errors.New("invalid credentials")
 	}
 

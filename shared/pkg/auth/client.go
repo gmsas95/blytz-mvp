@@ -147,7 +147,7 @@ func (c *AuthClient) RefreshToken(ctx context.Context, refreshToken string) (str
 		if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
 			return "", fmt.Errorf("authentication service error (status %d)", resp.StatusCode)
 		}
-		return "", errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
+		return "", shared_errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
 	}
 
 	// Decode response
