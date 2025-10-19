@@ -1,12 +1,18 @@
 package middleware
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
 	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
@@ -28,17 +34,17 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 			return
 		}
 
-		claims := &services.Claims{}
+		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(authService.GetConfig().JWTSecret), nil
+			return []byte(authService.config.JWTSecret), nil
 		})
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
 				utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
 			} else {
-				utils.SendErrorResponse(c, &shared_errors.ServiceError{Code: http.StatusBadRequest, Message: "Bad Request"})
+				utils.SendErrorResponse(c, shared_errors.ValidationError("BAD_REQUEST", "Bad Request"))
 			}
 			c.Abort()
 			return
@@ -56,7 +62,7 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 }
 
 // extractToken extracts the JWT token from the Authorization header
-func (m *AuthMiddleware) extractToken(c *gin.Context) string {
+func extractToken(c *gin.Context) string {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		return ""

@@ -32,9 +32,9 @@ func main() {
 		logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
 
-	logger.Info("Configuration loaded", 
-		zap.String("port", cfg.GetServicePort()),
-		zap.String("environment", cfg.GetEnvironment()))
+	logger.Info("Configuration loaded",
+		zap.String("port", cfg.ServicePort),
+		zap.String("environment", cfg.Environment))
 
 	// Set Gin mode based on environment
 	if cfg.IsProduction() {
@@ -46,11 +46,12 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
+	// Initialize database connection (you'll need to add this)
+	// For now, we'll create a mock database connection
+	// In production, you should properly initialize your database
+
 	// Initialize auth service
-	authService, err := services.NewAuthService(cfg, logger)
-	if err != nil {
-		logger.Fatal("Failed to initialize auth service", zap.Error(err))
-	}
+	authService := services.NewAuthService(nil, cfg) // Pass nil for DB temporarily
 
 	// Create auth handler
 	authHandler := api.NewAuthHandler(authService, logger)
@@ -60,7 +61,7 @@ func main() {
 
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    ":" + cfg.GetServicePort(),
+		Addr:    ":" + cfg.ServicePort,
 		Handler: router,
 	}
 

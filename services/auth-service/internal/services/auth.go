@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -72,6 +73,36 @@ func (s *AuthService) GetUserByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// ValidateToken validates a JWT token and returns the claims
+func (s *AuthService) ValidateToken(ctx context.Context, tokenString string) (*models.ValidateTokenResponse, error) {
+	claims := &models.Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(s.config.JWTSecret), nil
+	})
+
+	if err != nil {
+		return &models.ValidateTokenResponse{
+			Valid:   false,
+			Message: "Invalid token: " + err.Error(),
+		}, nil
+	}
+
+	if !token.Valid {
+		return &models.ValidateTokenResponse{
+			Valid:   false,
+			Message: "Token is not valid",
+		}, nil
+	}
+
+	return &models.ValidateTokenResponse{
+		Valid:   true,
+		UserID:  claims.UserID,
+		Email:   claims.Email,
+		Message: "Token is valid",
+	}, nil
 }
 
 // userExists checks if a user exists by email

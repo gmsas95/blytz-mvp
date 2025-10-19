@@ -65,7 +65,7 @@ func (h *AuctionHandler) PlaceBid(c *gin.Context) {
 	}
 
 	// Notify via Firebase
-	if err := h.firebaseApp.SendBidNotification(&bid); err != nil {
+	if err := h.firebaseApp.SendBidNotification(c.Request.Context(), &bid); err != nil {
 		h.logger.Error("Failed to send bid notification", zap.Error(err))
 	}
 
