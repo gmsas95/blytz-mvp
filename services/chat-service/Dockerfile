@@ -1,23 +1,25 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-WORKDIR /app
+WORKDIR /app/services/chat-service
 
 # Install dependencies
 RUN apk add --no-cache git
 
 # Copy go mod files
-COPY go.mod ./
-COPY go.sum* ./
+COPY services/chat-service/go.mod ./
+COPY services/chat-service/go.sum* ./
 
-# Copy shared package for Docker build
+# Copy shared package
 COPY shared ./shared
 
-# Download dependencies and build
+# Download dependencies
 RUN go mod download || go mod tidy
 
-# Copy source files
-COPY . .
+# Copy service source code
+COPY services/chat-service/ .
+
+# Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chat-service ./cmd/main.go
 
 # Final stage
@@ -28,7 +30,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/chat-service .
+COPY --from=builder /app/services/chat-service/chat-service .
 
 # Expose port
 EXPOSE 8088

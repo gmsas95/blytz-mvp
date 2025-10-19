@@ -5,20 +5,20 @@ FROM golang:1.23-alpine AS builder
 RUN apk add --no-cache git ca-certificates tzdata
 
 # Set working directory
-WORKDIR /app
+WORKDIR /app/services/auth-service
 
-# Copy go mod files (handle missing go.sum gracefully)
-COPY go.mod ./
-COPY go.sum* ./
+# Copy go mod files
+COPY services/auth-service/go.mod ./
+COPY services/auth-service/go.sum* ./
 
-# Copy shared package for Docker build
+# Copy shared package
 COPY shared ./shared
 
-# Download dependencies (generate go.sum if missing)
+# Download dependencies
 RUN go mod download || go mod tidy
 
-# Copy source code
-COPY . .
+# Copy auth service source code
+COPY services/auth-service/ .
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-service ./cmd/main.go
@@ -37,7 +37,7 @@ RUN addgroup -g 1001 -S appuser && \
 WORKDIR /root/
 
 # Copy the binary from builder stage
-COPY --from=builder /app/auth-service .
+COPY --from=builder /app/services/auth-service/auth-service .
 
 # Change ownership to non-root user
 RUN chown appuser:appuser auth-service

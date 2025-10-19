@@ -37,8 +37,8 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: ./services/auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
     container_name: blytz-auth-prod
     environment:
       - PORT=8084
@@ -61,8 +61,8 @@ services:
   # Auction Service
   auction-service:
     build:
-      context: ./services/auction-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/auction-service/Dockerfile
     container_name: blytz-auction-prod
     environment:
       - PORT=8083
@@ -88,8 +88,8 @@ services:
   # Product Service
   product-service:
     build:
-      context: ./services/product-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/product-service/Dockerfile
     container_name: blytz-product-prod
     environment:
       - PORT=8082
@@ -112,8 +112,8 @@ services:
   # Order Service
   order-service:
     build:
-      context: ./services/order-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/order-service/Dockerfile
     container_name: blytz-order-prod
     environment:
       - PORT=8085
@@ -136,8 +136,8 @@ services:
   # Payment Service
   payment-service:
     build:
-      context: ./services/payment-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
     container_name: blytz-payment-prod
     environment:
       - PORT=8086
@@ -160,8 +160,8 @@ services:
   # Chat Service
   chat-service:
     build:
-      context: ./services/chat-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
     container_name: blytz-chat-prod
     environment:
       - PORT=8088
@@ -184,8 +184,8 @@ services:
   # Logistics Service
   logistics-service:
     build:
-      context: ./services/logistics-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/logistics-service/Dockerfile
     container_name: blytz-logistics-prod
     environment:
       - PORT=8087
@@ -208,8 +208,8 @@ services:
   # API Gateway
   gateway:
     build:
-      context: ./services/gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/gateway/Dockerfile
     container_name: blytz-gateway-prod
     environment:
       - PORT=8080

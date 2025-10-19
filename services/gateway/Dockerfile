@@ -1,23 +1,25 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-WORKDIR /app
+WORKDIR /app/services/gateway
 
 # Install dependencies
 RUN apk add --no-cache git
 
 # Copy go mod files
-COPY go.mod ./
-COPY go.sum* ./
+COPY services/gateway/go.mod ./
+COPY services/gateway/go.sum* ./
 
-# Copy shared package for Docker build
+# Copy shared package
 COPY shared ./shared
 
-# Download dependencies and build
+# Download dependencies
 RUN go mod download || go mod tidy
 
-# Copy source files
-COPY . .
+# Copy service source code
+COPY services/gateway/ .
+
+# Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gateway ./cmd/main.go
 
 # Final stage
@@ -28,7 +30,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/gateway .
+COPY --from=builder /app/services/gateway/gateway .
 
 # Expose port
 EXPOSE 8080
