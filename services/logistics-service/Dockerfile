@@ -6,20 +6,24 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY services/logistics-service/go.mod ./
-COPY services/logistics-service/go.sum* ./
+# Create proper directory structure
+RUN mkdir -p services shared
 
-# Copy shared package
+# Copy go mod files to service directory
+COPY services/logistics-service/go.mod ./services/logistics-service/
+COPY services/logistics-service/go.sum* ./services/logistics-service/
+
+# Copy shared package to root level
 COPY shared ./shared
-
-# Download dependencies
-RUN go mod download || go mod tidy
 
 # Copy service source code
 COPY services/logistics-service/ ./services/logistics-service/
 
-# Build the application from the correct directory
+# Create symlink for shared package in the correct location
+RUN ln -sf /app/shared /shared
+
+# Download dependencies and build from service directory
+RUN cd services/logistics-service && go mod download || go mod tidy
 RUN cd services/logistics-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o logistics-service ./cmd/main.go
 
 # Final stage

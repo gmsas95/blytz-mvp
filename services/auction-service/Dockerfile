@@ -6,20 +6,24 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY services/auction-service/go.mod ./
-COPY services/auction-service/go.sum* ./
+# Create proper directory structure
+RUN mkdir -p services shared
 
-# Copy shared package
+# Copy go mod files to service directory
+COPY services/auction-service/go.mod ./services/auction-service/
+COPY services/auction-service/go.sum* ./services/auction-service/
+
+# Copy shared package to root level
 COPY shared ./shared
 
-# Download dependencies
-RUN go mod download || go mod tidy
-
-# Copy auction service source code
+# Copy service source code
 COPY services/auction-service/ ./services/auction-service/
 
-# Build the application from the correct directory
+# Create symlink for shared package in the correct location
+RUN ln -sf /app/shared /shared
+
+# Download dependencies and build from service directory
+RUN cd services/auction-service && go mod download || go mod tidy
 RUN cd services/auction-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction-service ./cmd/main.go
 
 # Final stage
