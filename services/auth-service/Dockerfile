@@ -11,6 +11,9 @@ WORKDIR /app
 COPY go.mod ./
 COPY go.sum* ./
 
+# Copy shared package for Docker build
+COPY shared ./shared
+
 # Download dependencies (generate go.sum if missing)
 RUN go mod download || go mod tidy
 

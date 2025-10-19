@@ -6,11 +6,18 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy source files
-COPY . .
+# Copy go mod files
+COPY go.mod ./
+COPY go.sum* ./
+
+# Copy shared package for Docker build
+COPY shared ./shared
 
 # Download dependencies and build
 RUN go mod download || go mod tidy
+
+# Copy source files
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction-service ./cmd/main.go
 
 # Final stage
