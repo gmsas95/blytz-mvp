@@ -1,0 +1,13 @@
+go 1.23.2
+
+use (
+	./services/auction-service
+	./services/auth-service
+	./services/chat-service
+	./services/gateway
+	./services/logistics-service
+	./services/order-service
+	./services/payment-service
+	./services/product-service
+	./shared
+)
