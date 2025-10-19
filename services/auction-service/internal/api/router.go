@@ -12,12 +12,12 @@ import (
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
 )
 
-func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cfg *config.Config, firebaseApp firebase.FirebaseApp) *gin.Engine {
+func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cfg *config.Config) *gin.Engine {
 	router := gin.Default()
 
 	authMiddleware := auth.NewAuthMiddleware(cfg.JWTSecret)
 
-	auctionHandler := handlers.NewAuctionHandler(auctionService, logger, firebaseApp)
+	auctionHandler := handlers.NewAuctionHandler(auctionService, logger, nil)
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {

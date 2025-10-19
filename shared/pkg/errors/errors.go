@@ -109,6 +109,8 @@ var (
 	// Auction-specific errors
 	ErrAuctionEnded = ConflictError("AUCTION_ENDED", "Auction has already ended")
 	ErrBidTooLow    = ValidationError("BID_TOO_LOW", "Bid amount is too low")
+	// Auth-specific errors
+	ErrInvalidRequestBody = ValidationError("INVALID_REQUEST_BODY", "Invalid request body")
 )
 
 // WrapError wraps an existing error with additional context

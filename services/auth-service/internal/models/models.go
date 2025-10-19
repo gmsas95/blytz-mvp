@@ -93,3 +93,16 @@ type SuccessResponse struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
+
+// AuthRequest represents authentication request
+type AuthRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+// VerifyResponse represents verification response
+type VerifyResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Valid   bool   `json:"valid"`
+}

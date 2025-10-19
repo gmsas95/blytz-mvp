@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Initialize logger
-	logger, err := utils.NewLogger("auction-service")
+	logger, err := utils.InitLogger("production")
 	if err != nil {
 		log.Fatalf("Failed to create logger: %v", err)
 	}
