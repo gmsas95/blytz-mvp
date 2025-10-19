@@ -1,7 +1,7 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-WORKDIR /app/services/product-service
+WORKDIR /app
 
 # Install dependencies
 RUN apk add --no-cache git
@@ -17,10 +17,10 @@ COPY shared ./shared
 RUN go mod download || go mod tidy
 
 # Copy service source code
-COPY services/product-service/ .
+COPY services/product-service/ ./services/product-service/
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
+# Build the application from the correct directory
+RUN cd services/product-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest

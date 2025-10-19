@@ -1,7 +1,7 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-WORKDIR /app/services/chat-service
+WORKDIR /app
 
 # Install dependencies
 RUN apk add --no-cache git
@@ -17,10 +17,10 @@ COPY shared ./shared
 RUN go mod download || go mod tidy
 
 # Copy service source code
-COPY services/chat-service/ .
+COPY services/chat-service/ ./services/chat-service/
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chat-service ./cmd/main.go
+# Build the application from the correct directory
+RUN cd services/chat-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chat-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
