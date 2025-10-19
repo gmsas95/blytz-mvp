@@ -6,20 +6,20 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git ca-certificates tzdata
 
-# Copy go mod files
-COPY services/auth-service/go.mod ./
-COPY services/auth-service/go.sum* ./
+# Create proper directory structure
+RUN mkdir -p services/auth-service
 
-# Copy shared package
+# Copy go mod files to service directory
+COPY services/auth-service/go.mod services/auth-service/go.sum* ./services/auth-service/
+
+# Copy shared package to root level
 COPY shared ./shared
 
-# Download dependencies
-RUN go mod download || go mod tidy
-
-# Copy auth service source code
+# Copy service source code
 COPY services/auth-service/ ./services/auth-service/
 
-# Build the application from the correct directory
+# Download dependencies and build from service directory
+RUN cd services/auth-service && go mod tidy
 RUN cd services/auth-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-service ./cmd/main.go
 
 # Final stage
