@@ -87,26 +87,6 @@ func (c *Client) callFirebase(ctx context.Context, function string, data interfa
 	return nil
 }
 
-// CreateAuction creates a new auction via Firebase (interface implementation)
-func (c *Client) CreateAuction(ctx context.Context, auctionData interface{}) error {
-	data, ok := auctionData.(AuctionData)
-	if !ok {
-		return fmt.Errorf("invalid auction data type")
-	}
-	_, err := c.createAuction(ctx, data)
-	return err
-}
-
-// createAuction creates a new auction via Firebase (internal method)
-func (c *Client) createAuction(ctx context.Context, auctionData AuctionData) (*AuctionResponse, error) {
-	var result AuctionResponse
-	err := c.callFirebase(ctx, "createAuction", auctionData, &result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create auction: %w", err)
-	}
-	return &result, nil
-}
-
 // UpdateAuction updates an auction via Firebase
 func (c *Client) UpdateAuction(ctx context.Context, auctionID string, updateData interface{}) error {
 	// For now, we'll use the existing EndAuction method as a placeholder
@@ -130,13 +110,4 @@ func (c *Client) GetAuction(ctx context.Context, auctionID string) (map[string]i
 // ProcessPayment processes a payment via Firebase
 func (c *Client) ProcessPayment(ctx context.Context, paymentData interface{}) error {
 	return c.callFirebase(ctx, "processPayment", paymentData, nil)
-}
-
-// SendNotification sends a notification via Firebase
-func (c *Client) SendNotification(ctx context.Context, userID string, notification interface{}) error {
-	data := map[string]interface{}{
-		"userId":       userID,
-		"notification": notification,
-	}
-	return c.callFirebase(ctx, "sendNotification", data, nil)
 }

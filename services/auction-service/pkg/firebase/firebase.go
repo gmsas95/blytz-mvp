@@ -10,7 +10,7 @@ type FirebaseApp interface {
 	UpdateProfile(ctx context.Context, displayName, phoneNumber string) (*UpdateProfileResponse, error)
 
 	// Auction methods
-	CreateAuction(ctx context.Context, auctionData interface{}) error
+	CreateAuction(ctx context.Context, auctionData AuctionData) (*AuctionResponse, error)
 	UpdateAuction(ctx context.Context, auctionID string, updateData interface{}) error
 	GetAuction(ctx context.Context, auctionID string) (map[string]interface{}, error)
 
@@ -18,5 +18,5 @@ type FirebaseApp interface {
 	ProcessPayment(ctx context.Context, paymentData interface{}) error
 
 	// Notification methods
-	SendNotification(ctx context.Context, userID string, notification interface{}) error
+	SendNotification(ctx context.Context, userID, title, body string, data map[string]string) (*NotificationResponse, error)
 }
