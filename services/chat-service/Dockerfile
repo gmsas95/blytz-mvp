@@ -11,7 +11,7 @@ COPY . .
 
 # Go to chat service and build
 WORKDIR /app/chat-service
-RUN go mod download
+RUN go mod download || go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chat-service ./cmd/main.go
 
 # Final stage

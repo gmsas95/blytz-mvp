@@ -10,7 +10,7 @@ COPY . .
 
 # Go to product service and build
 WORKDIR /app/product-service
-RUN go mod download
+RUN go mod download || go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
 
 FROM alpine:latest
