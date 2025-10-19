@@ -6,11 +6,10 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy all backend files
+# Copy source files
 COPY . .
 
-# Go to logistics service and build
-WORKDIR /app/logistics-service
+# Download dependencies and build
 RUN go mod download || go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o logistics-service ./cmd/main.go
 
@@ -22,7 +21,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/logistics-service/logistics-service .
+COPY --from=builder /app/logistics-service .
 
 # Expose port
 EXPOSE 8087

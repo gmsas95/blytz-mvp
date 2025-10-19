@@ -6,11 +6,10 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy all backend files
+# Copy source files
 COPY . .
 
-# Go to order service and build
-WORKDIR /app/order-service
+# Download dependencies and build
 RUN go mod download || go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o order-service ./cmd/main.go
 
@@ -22,7 +21,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/order-service/order-service .
+COPY --from=builder /app/order-service .
 
 # Expose port
 EXPOSE 8085
