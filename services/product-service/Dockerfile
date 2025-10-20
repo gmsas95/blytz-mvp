@@ -3,11 +3,7 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Copy all go modules and vendor directory
-COPY go.mod go.sum go.work go.work.sum ./
-COPY vendor ./vendor
-
-# Copy all source code
+# Copy the entire repository
 COPY . .
 
 # Build the application from the correct directory using vendored modules
