@@ -6,16 +6,16 @@ services:
     env_file:
       - ./.env
     environment:
-      POSTGRES_DB: ${{project.POSTGRES_DB:-blytz_prod}}
-      POSTGRES_USER: ${{project.POSTGRES_USER:-blytz}}
-      POSTGRES_PASSWORD: ${{project.POSTGRES_PASSWORD}}
+      POSTGRES_DB: ${POSTGRES_DB:-blytz_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-blytz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - blytz-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${{project.POSTGRES_USER:-blytz}} -d ${{project.POSTGRES_DB:-blytz_prod}}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blytz} -d ${POSTGRES_DB:-blytz_prod}"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -48,9 +48,9 @@ services:
       - PORT=8084
       - NODE_ENV=production
       - ENVIRONMENT=production
-      - DATABASE_URL=${{project.DATABASE_URL}}
-      - JWT_SECRET=${{project.JWT_SECRET}}
-      - BETTER_AUTH_SECRET=${{project.BETTER_AUTH_SECRET}}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - BETTER_AUTH_URL=https://api.blytz.app
     depends_on:
       postgres:
@@ -75,7 +75,7 @@ services:
     environment:
       - PORT=8083
       - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=${{project.DATABASE_URL}}
+      - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       redis:
@@ -103,7 +103,7 @@ services:
       - ./.env
     environment:
                 - PORT=8082
-                - DATABASE_URL=${{project.DATABASE_URL}}
+                - DATABASE_URL=${DATABASE_URL}
                 - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
@@ -129,7 +129,7 @@ services:
       - ./.env
     environment:
       - PORT=8085
-      - DATABASE_URL=${{project.DATABASE_URL}}
+      - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
@@ -210,7 +210,7 @@ services:
       - ./.env
     environment:
       - PORT=8087
-      - DATABASE_URL=${{project.DATABASE_URL}}
+      - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
