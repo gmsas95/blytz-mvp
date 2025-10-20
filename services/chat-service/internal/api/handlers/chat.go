@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/chat-service/internal/services"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
@@ -32,13 +33,13 @@ func NewChatHandler(chatService *services.ChatService, logger *zap.Logger) *Chat
 func (h *ChatHandler) HandleWebSocket(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	roomID := c.Query("roomId")
 	if roomID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Room ID is required")
+		utils.ValidationError(c, "Room ID is required", nil)
 		return
 	}
 
@@ -97,26 +98,26 @@ func (h *ChatHandler) HandleWebSocket(c *gin.Context) {
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	roomID := c.Param("roomId")
 	if roomID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Room ID is required")
+		utils.ValidationError(c, "Room ID is required", nil)
 		return
 	}
 
 	var req services.SendMessageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ValidationError(c, "Invalid request body", nil)
 		return
 	}
 
 	message, err := h.chatService.SendMessage(c.Request.Context(), roomID, userID, req.Content)
 	if err != nil {
 		h.logger.Error("Failed to send message", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to send message")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -128,19 +129,19 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		Timestamp: message.Timestamp.Format("2006-01-02T15:04:05Z"),
 	}
 
-	utils.RespondWithJSON(c, http.StatusCreated, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *ChatHandler) GetMessages(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	roomID := c.Param("roomId")
 	if roomID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Room ID is required")
+		utils.ValidationError(c, "Room ID is required", nil)
 		return
 	}
 
@@ -148,7 +149,7 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 	messages, err := h.chatService.GetMessages(c.Request.Context(), roomID, limit)
 	if err != nil {
 		h.logger.Error("Failed to get messages", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get messages")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -163,20 +164,20 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 		}
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, services.GetMessagesResponse{Messages: response})
+	utils.SuccessResponse(c, services.GetMessagesResponse{Messages: response})
 }
 
 func (h *ChatHandler) GetUserRooms(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	rooms, err := h.chatService.GetUserRooms(c.Request.Context(), userID)
 	if err != nil {
 		h.logger.Error("Failed to get user rooms", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get rooms")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -190,5 +191,5 @@ func (h *ChatHandler) GetUserRooms(c *gin.Context) {
 		}
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, services.GetRoomsResponse{Rooms: response})
+	utils.SuccessResponse(c, services.GetRoomsResponse{Rooms: response})
 }
