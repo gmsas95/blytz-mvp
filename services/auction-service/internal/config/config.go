@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -11,6 +13,11 @@ type Config struct {
 	Environment            string
 	LogLevel               string
 	DatabaseURL            string
+	PostgresUser           string `env:"POSTGRES_USER"`
+	PostgresPassword       string `env:"POSTGRES_PASSWORD"`
+	PostgresHost           string `env:"POSTGRES_HOST"`
+	PostgresPort           string `env:"POSTGRES_PORT"`
+	PostgresDB             string `env:"POSTGRES_DB"`
 	RedisURL               string
 	JWTSecret              string
 	MetricsPort            string
@@ -19,17 +26,28 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-	return &Config{
-		Port:            getEnv("PORT", "8083"),
-		Environment:     getEnv("ENVIRONMENT", "development"),
-		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		DatabaseURL:     getEnv("DATABASE_URL", "postgres://postgres:password@localhost:5432/auction_db?sslmode=disable"),
-		RedisURL:        getEnv("REDIS_URL", "localhost:6379"),
-		JWTSecret:       getEnv("JWT_SECRET", "your-secret-key"),
-		MetricsPort:     getEnv("METRICS_PORT", "9083"),
+	cfg := &Config{
+		Port:                   getEnv("PORT", "8083"),
+		Environment:            getEnv("ENVIRONMENT", "development"),
+		LogLevel:               getEnv("LOG_LEVEL", "info"),
+		PostgresUser:           getEnv("POSTGRES_USER", "blytz"),
+		PostgresPassword:       getEnv("POSTGRES_PASSWORD", ""),
+		PostgresHost:           getEnv("POSTGRES_HOST", "postgres"),
+		PostgresPort:           getEnv("POSTGRES_PORT", "5432"),
+		PostgresDB:             getEnv("POSTGRES_DB", "blytz_prod"),
+		RedisURL:               getEnv("REDIS_URL", "localhost:6379"),
+		JWTSecret:              getEnv("JWT_SECRET", "your-secret-key"),
+		MetricsPort:            getEnv("METRICS_PORT", "9083"),
 		ServiceName:            getEnv("SERVICE_NAME", "auction-service"),
 		DefaultAuctionDuration: getEnvAsDuration("DEFAULT_AUCTION_DURATION", 24*time.Hour),
-	}, nil
+	}
+
+	// Construct the database URL
+	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
+	cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+
+	return cfg, nil
 }
 
 func getEnv(key, defaultValue string) string {

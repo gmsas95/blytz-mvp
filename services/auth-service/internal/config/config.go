@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -8,7 +10,12 @@ import (
 
 // Config holds all configuration for the auth service
 type Config struct {
-	DatabaseURL      string `env:"DATABASE_URL"`
+	DatabaseURL      string
+	PostgresUser     string `env:"POSTGRES_USER"`
+	PostgresPassword string `env:"POSTGRES_PASSWORD"`
+	PostgresHost     string `env:"POSTGRES_HOST"`
+	PostgresPort     string `env:"POSTGRES_PORT"`
+	PostgresDB       string `env:"POSTGRES_DB"`
 	BetterAuthSecret string `env:"BETTER_AUTH_SECRET"`
 	JWTSecret        string `env:"JWT_SECRET"`
 	ServicePort      string `env:"PORT"`
@@ -21,12 +28,21 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		DatabaseURL:      getEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/authdb"),
+		PostgresUser:     getEnvOrDefault("POSTGRES_USER", "blytz"),
+		PostgresPassword: getEnvOrDefault("POSTGRES_PASSWORD", ""),
+		PostgresHost:     getEnvOrDefault("POSTGRES_HOST", "postgres"),
+		PostgresPort:     getEnvOrDefault("POSTGRES_PORT", "5432"),
+		PostgresDB:       getEnvOrDefault("POSTGRES_DB", "blytz_prod"),
 		BetterAuthSecret: getEnvOrDefault("BETTER_AUTH_SECRET", "better-auth-secret-key-change-in-production"),
 		JWTSecret:        getEnvOrDefault("JWT_SECRET", "jwt-secret-key-change-in-production"),
 		ServicePort:      getEnvOrDefault("PORT", "8084"),
 		Environment:      getEnvOrDefault("ENVIRONMENT", "development"),
 	}
+
+	// Construct the database URL
+	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
+	cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
 
 	return cfg, nil
 }

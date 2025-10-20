@@ -41,8 +41,11 @@ services:
       dockerfile: ./services/auth-service/Dockerfile
     container_name: blytz-auth-prod
     environment:
-      - PORT=8084
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
+      - POSTGRES_USER=${POSTGRES_USER:-blytz}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=blytz_prod
       - JWT_SECRET=${JWT_SECRET}
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
       - BETTER_AUTH_URL=https://api.blytz.app
@@ -67,7 +70,11 @@ services:
     environment:
       - PORT=8083
       - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
+      - POSTGRES_USER=${POSTGRES_USER:-blytz}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=blytz_prod
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       redis:
@@ -92,9 +99,12 @@ services:
       dockerfile: ./services/product-service/Dockerfile
     container_name: blytz-product-prod
     environment:
-      - PORT=8082
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
-      - AUTH_SERVICE_URL=http://auth-service:8084
+                - PORT=8082
+                - POSTGRES_USER=${POSTGRES_USER:-blytz}
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - POSTGRES_HOST=postgres
+                - POSTGRES_PORT=5432
+                - POSTGRES_DB=blytz_prod      - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -117,7 +127,11 @@ services:
     container_name: blytz-order-prod
     environment:
       - PORT=8085
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
+      - POSTGRES_USER=${POSTGRES_USER:-blytz}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=blytz_prod
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
@@ -140,9 +154,12 @@ services:
       dockerfile: ./services/payment-service/Dockerfile
     container_name: blytz-payment-prod
     environment:
-      - PORT=8086
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
-      - AUTH_SERVICE_URL=http://auth-service:8084
+                - PORT=8086
+                - POSTGRES_USER=${POSTGRES_USER:-blytz}
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - POSTGRES_HOST=postgres
+                - POSTGRES_PORT=5432
+                - POSTGRES_DB=blytz_prod      - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -189,7 +206,11 @@ services:
     container_name: blytz-logistics-prod
     environment:
       - PORT=8087
-      - DATABASE_URL=postgres://${POSTGRES_USER:-blytz}:${POSTGRES_PASSWORD}@postgres:5432/blytz_prod?sslmode=disable
+      - POSTGRES_USER=${POSTGRES_USER:-blytz}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=blytz_prod
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
