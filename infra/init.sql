@@ -3,6 +3,22 @@ CREATE DATABASE IF NOT EXISTS payments;
 CREATE DATABASE IF NOT EXISTS orders;
 CREATE DATABASE IF NOT EXISTS users;
 
+-- Create blytz user and blytz_prod database for auth service (Dokploy compatibility)
+-- This handles the case where Dokploy manages PostgreSQL but we need specific user/database
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'blytz') THEN
+        CREATE USER blytz WITH PASSWORD 'bJot0TOZtAvj7kATOT6U6WL252AMSPQgjui90CbJXGQ=';
+    END IF;
+END
+$$;
+
+-- Create blytz_prod database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS blytz_prod OWNER blytz;
+
+-- Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE blytz_prod TO blytz;
+
 -- Connect to payments database
 \c payments;
 

@@ -6,16 +6,16 @@ services:
     env_file:
       - ./.env
     environment:
-      POSTGRES_DB: blytz_prod
-      POSTGRES_USER: ${POSTGRES_USER:-blytz}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${{project.POSTGRES_DB:-blytz_prod}}
+      POSTGRES_USER: ${{project.POSTGRES_USER:-blytz}}
+      POSTGRES_PASSWORD: ${{project.POSTGRES_PASSWORD}}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - blytz-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blytz} -d blytz_prod"]
+      test: ["CMD-SHELL", "pg_isready -U ${{project.POSTGRES_USER:-blytz}} -d ${{project.POSTGRES_DB:-blytz_prod}}"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -48,13 +48,9 @@ services:
       - PORT=8084
       - NODE_ENV=production
       - ENVIRONMENT=production
-      - POSTGRES_USER=blytz
-      - POSTGRES_PASSWORD=bJot0TOZtAvj7kATOT6U6WL252AMSPQgjui90CbJXGQ=
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=blytz_prod
-      - JWT_SECRET=${JWT_SECRET}
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - DATABASE_URL=${{project.DATABASE_URL}}
+      - JWT_SECRET=${{project.JWT_SECRET}}
+      - BETTER_AUTH_SECRET=${{project.BETTER_AUTH_SECRET}}
       - BETTER_AUTH_URL=https://api.blytz.app
     depends_on:
       postgres:
@@ -79,11 +75,7 @@ services:
     environment:
       - PORT=8083
       - REDIS_URL=redis://redis:6379
-      - POSTGRES_USER=${POSTGRES_USER:-blytz}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=blytz_prod
+      - DATABASE_URL=${{project.DATABASE_URL}}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       redis:
@@ -111,11 +103,8 @@ services:
       - ./.env
     environment:
                 - PORT=8082
-                - POSTGRES_USER=${POSTGRES_USER:-blytz}
-                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-                - POSTGRES_HOST=postgres
-                - POSTGRES_PORT=5432
-                - POSTGRES_DB=blytz_prod      - AUTH_SERVICE_URL=http://auth-service:8084
+                - DATABASE_URL=${{project.DATABASE_URL}}
+                - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -140,11 +129,7 @@ services:
       - ./.env
     environment:
       - PORT=8085
-      - POSTGRES_USER=${POSTGRES_USER:-blytz}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=blytz_prod
+      - DATABASE_URL=${{project.DATABASE_URL}}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
@@ -225,11 +210,7 @@ services:
       - ./.env
     environment:
       - PORT=8087
-      - POSTGRES_USER=${POSTGRES_USER:-blytz}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=blytz_prod
+      - DATABASE_URL=${{project.DATABASE_URL}}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
