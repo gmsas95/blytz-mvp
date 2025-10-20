@@ -46,12 +46,14 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	// Initialize database connection (you'll need to add this)
-	// For now, we'll create a mock database connection
-	// In production, you should properly initialize your database
+	// Initialize database connection
+	db, err := config.InitDB(cfg)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", zap.Error(err))
+	}
 
 	// Initialize auth service
-	authService := services.NewAuthService(nil, cfg) // Pass nil for DB temporarily
+	authService := services.NewAuthService(db, cfg)
 
 	// Setup routes using the API router
 	router = api.NewRouter(authService, logger, cfg)
