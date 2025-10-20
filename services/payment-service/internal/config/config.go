@@ -27,7 +27,7 @@ type Config struct {
 
 func LoadConfig() *Config {
 	cfg := &Config{
-		Environment:      getEnv("ENVIRONMENT", "development"),
+		Environment:      getEnv("NODE_ENV", "development"),
 		ServicePort:      getEnv("PORT", "8086"),
 		PostgresUser:     getEnv("POSTGRES_USER", "blytz"),
 		PostgresPassword: getEnv("POSTGRES_PASSWORD", ""),

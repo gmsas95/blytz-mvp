@@ -22,7 +22,7 @@ type Config struct {
 func Load() *Config {
 	cfg := &Config{
 		Port:             getEnv("PORT", "8082"),
-		Environment:      getEnv("GO_ENV", "development"),
+		Environment:      getEnv("NODE_ENV", "development"),
 		LogLevel:         getEnv("LOG_LEVEL", "info"),
 		PostgresUser:     getEnv("POSTGRES_USER", "blytz"),
 		PostgresPassword: getEnv("POSTGRES_PASSWORD", ""),

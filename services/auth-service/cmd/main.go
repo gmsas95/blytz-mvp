@@ -44,7 +44,6 @@ func main() {
 
 	// Create Gin router
 	router := gin.New()
-	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
 	// Initialize database connection

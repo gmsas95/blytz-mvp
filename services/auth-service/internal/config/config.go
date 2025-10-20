@@ -36,7 +36,7 @@ func Load() (*Config, error) {
 		BetterAuthSecret: getEnvOrDefault("BETTER_AUTH_SECRET", "better-auth-secret-key-change-in-production"),
 		JWTSecret:        getEnvOrDefault("JWT_SECRET", "jwt-secret-key-change-in-production"),
 		ServicePort:      getEnvOrDefault("PORT", "8084"),
-		Environment:      getEnvOrDefault("ENVIRONMENT", "development"),
+		Environment:      getEnvOrDefault("NODE_ENV", "development"),
 	}
 
 	// Construct the database URL
