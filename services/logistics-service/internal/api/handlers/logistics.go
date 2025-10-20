@@ -27,132 +27,132 @@ func NewLogisticsHandler(logisticsService *services.LogisticsService, logger *za
 func (h *LogisticsHandler) CreateShipment(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	var req services.CreateShipmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ValidationError(c, "Invalid request body", nil)
 		return
 	}
 
 	shipment, err := h.logisticsService.CreateShipment(c.Request.Context(), userID, &req)
 	if err != nil {
 		h.logger.Error("Failed to create shipment", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to create shipment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapShipmentToResponse(shipment)
-	utils.RespondWithJSON(c, http.StatusCreated, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *LogisticsHandler) GetShipment(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Shipment ID is required")
+		utils.ValidationError(c, "Shipment ID is required", nil)
 		return
 	}
 
 	shipment, err := h.logisticsService.GetShipment(c.Request.Context(), shipmentID, userID)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Shipment not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to get shipment", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get shipment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapShipmentToResponse(shipment)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *LogisticsHandler) UpdateShipmentStatus(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Shipment ID is required")
+		utils.ValidationError(c, "Shipment ID is required", nil)
 		return
 	}
 
 	var req services.UpdateShipmentStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ValidationError(c, "Invalid request body", nil)
 		return
 	}
 
 	shipment, err := h.logisticsService.UpdateShipmentStatus(c.Request.Context(), shipmentID, userID, models.ShipmentStatus(req.Status))
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Shipment not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to update shipment status", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to update shipment status")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapShipmentToResponse(shipment)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *LogisticsHandler) GetShipmentByOrder(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	orderID := c.Param("orderId")
 	if orderID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Order ID is required")
+		utils.ValidationError(c, "Order ID is required", nil)
 		return
 	}
 
 	shipment, err := h.logisticsService.GetShipmentByOrder(c.Request.Context(), orderID, userID)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Shipment not found for order")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to get shipment by order", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get shipment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapShipmentToResponse(shipment)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *LogisticsHandler) TrackShipment(c *gin.Context) {
 	trackingNumber := c.Param("trackingNumber")
 	if trackingNumber == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Tracking number is required")
+		utils.ValidationError(c, "Tracking number is required", nil)
 		return
 	}
 
 	shipment, events, err := h.logisticsService.TrackShipment(c.Request.Context(), trackingNumber)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Shipment not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to track shipment", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to track shipment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -173,7 +173,7 @@ func (h *LogisticsHandler) TrackShipment(c *gin.Context) {
 		Events:   eventResponses,
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *LogisticsHandler) mapShipmentToResponse(shipment *models.Shipment) *services.ShipmentResponse {
