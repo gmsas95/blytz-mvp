@@ -34,14 +34,14 @@ func TestRegisterUser(t *testing.T) {
 	router, _ := setupTestRouter()
 
 	user := &models.User{
-		Username: "testuser",
+		DisplayName: "testuser",
 		Email:    "test@example.com",
 		Password: "password",
 	}
 
 	jsonUser, _ := json.Marshal(user)
 
-	req, _ := http.NewRequest("POST", "/register", bytes.NewBuffer(jsonUser))
+	req, _ := http.NewRequest("POST", "/api/v1/register", bytes.NewBuffer(jsonUser))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -55,7 +55,7 @@ func TestLoginUser(t *testing.T) {
 
 	// Create a user to log in
 	user := &models.User{
-		Username: "testuser",
+		DisplayName: "testuser",
 		Email:    "test@example.com",
 		Password: "password",
 	}
@@ -69,7 +69,7 @@ func TestLoginUser(t *testing.T) {
 
 	jsonLogin, _ := json.Marshal(loginDetails)
 
-	req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(jsonLogin))
+	req, _ := http.NewRequest("POST", "/api/v1/login", bytes.NewBuffer(jsonLogin))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -85,26 +85,22 @@ func TestLoginUser(t *testing.T) {
 
 
 func TestValidateToken(t *testing.T) {
-	router, _, authService := setupTestRouter()
+	router, db := setupTestRouter()
+	authService := services.NewAuthService(db, &config.Config{JWTSecret: "test-secret"})
 
 	// First create and authenticate a user to get a valid token
-	registerReq := &models.RegisterRequest{
+	user := &models.User{
 		Email:       "validate@example.com",
-		Password:    "password123",
 		DisplayName: "Validate Test User",
+		Password:    "password123",
 	}
 
-	_, err := authService.CreateUser(context.Background(), registerReq)
+	err := authService.RegisterUser(user)
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
-	loginReq := &models.LoginRequest{
-		Email:    "validate@example.com",
-		Password: "password123",
-	}
-
-	_, validToken, err := authService.AuthenticateUser(context.Background(), loginReq)
+	validToken, err := authService.LoginUser("validate@example.com", "password123")
 	if err != nil {
 		t.Fatalf("Failed to authenticate user: %v", err)
 	}
@@ -172,7 +168,7 @@ func TestValidateToken(t *testing.T) {
 			}
 
 			// Create request
-			req, err := http.NewRequest("POST", "/api/v1/auth/validate", bytes.NewBuffer(jsonBody))
+			req, err := http.NewRequest("POST", "/api/v1/validate", bytes.NewBuffer(jsonBody))
 			if err != nil {
 				t.Fatalf("Failed to create request: %v", err)
 			}
@@ -196,10 +192,10 @@ func TestValidateToken(t *testing.T) {
 }
 
 func TestHealthCheck(t *testing.T) {
-	router, _, _ := setupTestRouter()
+	router, _ := setupTestRouter()
 
 	// Create request
-	req, err := http.NewRequest("GET", "/health", nil)
+	req, err := http.NewRequest("GET", "/api/v1/health", nil)
 	if err != nil {
 		t.Fatalf("Failed to create request: %v", err)
 	}

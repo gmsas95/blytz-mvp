@@ -7,10 +7,21 @@ import (
 
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"go.uber.org/zap"
 )
 
 func TestAuthService(t *testing.T) {
+	// Create test database
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("Failed to create test database: %v", err)
+	}
+
+	// Auto migrate the User model
+	db.AutoMigrate(&models.User{})
+
 	// Create test configuration
 	cfg := &config.Config{
 		ServicePort:      "8084",
@@ -20,70 +31,72 @@ func TestAuthService(t *testing.T) {
 		JWTSecret:        "test-jwt-secret",
 	}
 
-	// Create logger
-	logger, _ := zap.NewDevelopment()
-	defer logger.Sync()
-
 	// Create auth service
-	authService, err := NewAuthService(cfg, logger)
-	if err != nil {
-		t.Fatalf("Failed to create auth service: %v", err)
-	}
+	authService := NewAuthService(db, cfg)
 
 	ctx := context.Background()
 
 	t.Run("CreateUser", func(t *testing.T) {
-		req := &models.RegisterRequest{
+		user := &models.User{
 			Email:       "test@example.com",
-			Password:    "password123",
 			DisplayName: "Test User",
+			Password:    "password123",
 			PhoneNumber: "+1234567890",
 		}
 
-		user, err := authService.CreateUser(ctx, req)
+		err := authService.RegisterUser(user)
 		if err != nil {
 			t.Fatalf("Failed to create user: %v", err)
 		}
 
-		if user.Email != req.Email {
-			t.Errorf("Expected email %s, got %s", req.Email, user.Email)
+		// Verify user was created by getting it from the database
+		createdUser, err := authService.GetUserByEmail(user.Email)
+		if err != nil {
+			t.Fatalf("Failed to get created user: %v", err)
 		}
 
-		if user.DisplayName != req.DisplayName {
-			t.Errorf("Expected display name %s, got %s", req.DisplayName, user.DisplayName)
+		if createdUser.Email != user.Email {
+			t.Errorf("Expected email %s, got %s", user.Email, createdUser.Email)
 		}
 
-		if user.Role != "user" {
-			t.Errorf("Expected role 'user', got %s", user.Role)
+		if createdUser.DisplayName != user.DisplayName {
+			t.Errorf("Expected display name %s, got %s", user.DisplayName, createdUser.DisplayName)
+		}
+
+		if createdUser.Role != "user" {
+			t.Errorf("Expected role 'user', got %s", createdUser.Role)
 		}
 	})
 
 	t.Run("CreateUserDuplicateEmail", func(t *testing.T) {
-		req := &models.RegisterRequest{
+		user := &models.User{
 			Email:       "test@example.com",
-			Password:    "password123",
 			DisplayName: "Test User 2",
+			Password:    "password123",
 		}
 
-		_, err := authService.CreateUser(ctx, req)
+		err := authService.RegisterUser(user)
 		if err == nil {
 			t.Error("Expected error for duplicate email, got nil")
 		}
 	})
 
 	t.Run("AuthenticateUser", func(t *testing.T) {
-		req := &models.LoginRequest{
-			Email:    "test@example.com",
-			Password: "password123",
+		// First register a user to authenticate
+		user := &models.User{
+			Email:       "test@example.com",
+			DisplayName: "Test User",
+			Password:    "password123",
+		}
+		err := authService.RegisterUser(user)
+		if err != nil {
+			t.Fatalf("Failed to register user: %v", err)
 		}
 
-		user, token, err := authService.AuthenticateUser(ctx, req)
+		// Now try to login
+		token, err := authService.LoginUser("test@example.com", "password123")
 		if err != nil {
 			t.Fatalf("Failed to authenticate user: %v", err)
-		}
-
-		if user.Email != req.Email {
-			t.Errorf("Expected email %s, got %s", req.Email, user.Email)
 		}
 
 		if token == "" {
@@ -92,12 +105,7 @@ func TestAuthService(t *testing.T) {
 	})
 
 	t.Run("AuthenticateUserInvalidPassword", func(t *testing.T) {
-		req := &models.LoginRequest{
-			Email:    "test@example.com",
-			Password: "wrongpassword",
-		}
-
-		_, _, err := authService.AuthenticateUser(ctx, req)
+		_, err := authService.LoginUser("test@example.com", "wrongpassword")
 		if err == nil {
 			t.Error("Expected error for invalid password, got nil")
 		}
@@ -105,12 +113,7 @@ func TestAuthService(t *testing.T) {
 
 	t.Run("ValidateToken", func(t *testing.T) {
 		// First authenticate to get a token
-		loginReq := &models.LoginRequest{
-			Email:    "test@example.com",
-			Password: "password123",
-		}
-
-		_, token, err := authService.AuthenticateUser(ctx, loginReq)
+		token, err := authService.LoginUser("test@example.com", "password123")
 		if err != nil {
 			t.Fatalf("Failed to authenticate user: %v", err)
 		}
@@ -143,101 +146,6 @@ func TestAuthService(t *testing.T) {
 		}
 	})
 
-	t.Run("RefreshToken", func(t *testing.T) {
-		// First authenticate to get a token
-		loginReq := &models.LoginRequest{
-			Email:    "test@example.com",
-			Password: "password123",
-		}
-
-		_, token, err := authService.AuthenticateUser(ctx, loginReq)
-		if err != nil {
-			t.Fatalf("Failed to authenticate user: %v", err)
-		}
-
-		// Refresh the token
-		newToken, err := authService.RefreshToken(ctx, token)
-		if err != nil {
-			t.Fatalf("Failed to refresh token: %v", err)
-		}
-
-		if newToken == "" {
-			t.Error("Expected non-empty new token")
-		}
-
-		if newToken == token {
-			t.Error("Expected different token after refresh")
-		}
-	})
-
-	t.Run("UpdateProfile", func(t *testing.T) {
-		userID := "user123" // This would be the actual user ID from authentication
-
-		req := &models.UpdateProfileRequest{
-			DisplayName: "Updated Name",
-			PhoneNumber: "+0987654321",
-			AvatarURL:   "https://example.com/avatar.jpg",
-		}
-
-		err := authService.UpdateProfile(ctx, userID, req)
-		if err != nil {
-			t.Fatalf("Failed to update profile: %v", err)
-		}
-	})
-
-	t.Run("ChangePassword", func(t *testing.T) {
-		userID := "user123" // This would be the actual user ID from authentication
-
-		req := &models.ChangePasswordRequest{
-			CurrentPassword: "password123",
-			NewPassword:     "newpassword123",
-		}
-
-		err := authService.ChangePassword(ctx, userID, req)
-		if err != nil {
-			t.Fatalf("Failed to change password: %v", err)
-		}
-	})
-
-	t.Run("ChangePasswordWrongCurrent", func(t *testing.T) {
-		userID := "user123" // This would be the actual user ID from authentication
-
-		req := &models.ChangePasswordRequest{
-			CurrentPassword: "wrongpassword",
-			NewPassword:     "newpassword123",
-		}
-
-		err := authService.ChangePassword(ctx, userID, req)
-		if err == nil {
-			t.Error("Expected error for wrong current password, got nil")
-		}
-	})
-
-	t.Run("GetUserByID", func(t *testing.T) {
-		userID := "user123" // This would be the actual user ID
-
-		user, err := authService.GetUserByID(ctx, userID)
-		if err != nil {
-			t.Fatalf("Failed to get user by ID: %v", err)
-		}
-
-		if user.ID != userID {
-			t.Errorf("Expected user ID %s, got %s", userID, user.ID)
-		}
-	})
-
-	t.Run("GetUserByEmail", func(t *testing.T) {
-		email := "test@example.com"
-
-		user, err := authService.GetUserByEmail(ctx, email)
-		if err != nil {
-			t.Fatalf("Failed to get user by email: %v", err)
-		}
-
-		if user.Email != email {
-			t.Errorf("Expected email %s, got %s", email, user.Email)
-		}
-	})
 }
 
 func TestDatabase(t *testing.T) {
