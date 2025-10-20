@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -33,7 +31,7 @@ func (h *LogisticsHandler) CreateShipment(c *gin.Context) {
 
 	var req services.CreateShipmentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, "Invalid request body", nil)
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
@@ -57,7 +55,7 @@ func (h *LogisticsHandler) GetShipment(c *gin.Context) {
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.ValidationError(c, "Shipment ID is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
@@ -85,13 +83,13 @@ func (h *LogisticsHandler) UpdateShipmentStatus(c *gin.Context) {
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.ValidationError(c, "Shipment ID is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
 	var req services.UpdateShipmentStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, "Invalid request body", nil)
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
@@ -119,7 +117,7 @@ func (h *LogisticsHandler) GetShipmentByOrder(c *gin.Context) {
 
 	orderID := c.Param("orderId")
 	if orderID == "" {
-		utils.ValidationError(c, "Order ID is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
@@ -141,7 +139,7 @@ func (h *LogisticsHandler) GetShipmentByOrder(c *gin.Context) {
 func (h *LogisticsHandler) TrackShipment(c *gin.Context) {
 	trackingNumber := c.Param("trackingNumber")
 	if trackingNumber == "" {
-		utils.ValidationError(c, "Tracking number is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 

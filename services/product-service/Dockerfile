@@ -3,29 +3,15 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache git
+# Copy all go modules and vendor directory
+COPY go.mod go.sum go.work go.work.sum ./
+COPY vendor ./vendor
 
-# Create proper directory structure
-RUN mkdir -p services shared
+# Copy all source code
+COPY . .
 
-# Copy go mod files to service directory
-COPY services/product-service/go.mod ./services/product-service/
-COPY services/product-service/go.sum* ./services/product-service/
-
-# Copy shared package to root level
-COPY shared ./shared
-
-# Copy service source code
-COPY services/product-service/ ./services/product-service/
-
-# Create symlink for shared package in the correct location
-RUN ln -sf /app/shared /shared
-
-# Download dependencies and build from service directory
-RUN cd services/product-service && go mod tidy
-RUN cd services/product-service && go mod download
-RUN cd services/product-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
+# Build the application from the correct directory using vendored modules
+RUN cd services/product-service && CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o product-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest

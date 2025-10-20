@@ -28,59 +28,59 @@ func NewOrderHandler(orderService *services.OrderService, logger *zap.Logger) *O
 func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	var req services.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
 	order, err := h.orderService.CreateOrder(c.Request.Context(), userID, &req)
 	if err != nil {
 		h.logger.Error("Failed to create order", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to create order")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.RespondWithJSON(c, http.StatusCreated, response)
+	utils.SuccessResponse(c, http.StatusCreated, response)
 }
 
 func (h *OrderHandler) GetOrder(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Order ID is required")
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
 	order, err := h.orderService.GetOrder(c.Request.Context(), orderID, userID)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Order not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to get order", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get order")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, http.StatusOK, response)
 }
 
 func (h *OrderHandler) GetUserOrders(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
@@ -105,7 +105,7 @@ func (h *OrderHandler) GetUserOrders(c *gin.Context) {
 	orders, total, err := h.orderService.GetUserOrders(c.Request.Context(), userID, pageSize, offset)
 	if err != nil {
 		h.logger.Error("Failed to get user orders", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get orders")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -128,72 +128,72 @@ func (h *OrderHandler) GetUserOrders(c *gin.Context) {
 		TotalPages: totalPages,
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, http.StatusOK, response)
 }
 
 func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Order ID is required")
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
 	var req services.UpdateOrderStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
 	order, err := h.orderService.UpdateOrderStatus(c.Request.Context(), orderID, userID, models.OrderStatus(req.Status))
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Order not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		if err == errors.ErrBadRequest {
-			utils.RespondWithError(c, http.StatusBadRequest, "Invalid status transition")
+			utils.ErrorResponse(c, errors.ErrBadRequest)
 			return
 		}
 		h.logger.Error("Failed to update order status", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to update order status")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, http.StatusOK, response)
 }
 
 func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Order ID is required")
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
 	err := h.orderService.CancelOrder(c.Request.Context(), orderID, userID)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Order not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to cancel order", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to cancel order")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, gin.H{"message": "Order cancelled successfully"})
+	utils.SuccessResponse(c, http.StatusOK, gin.H{"message": "Order cancelled successfully"})
 }
 
 func (h *OrderHandler) mapOrderToResponse(order *models.Order) *services.OrderResponse {

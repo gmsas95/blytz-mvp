@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -34,7 +35,6 @@ func TestRegisterUser(t *testing.T) {
 	router, _ := setupTestRouter()
 
 	user := &models.User{
-		DisplayName: "testuser",
 		Email:    "test@example.com",
 		Password: "password",
 	}
@@ -55,7 +55,6 @@ func TestLoginUser(t *testing.T) {
 
 	// Create a user to log in
 	user := &models.User{
-		DisplayName: "testuser",
 		Email:    "test@example.com",
 		Password: "password",
 	}
@@ -86,16 +85,17 @@ func TestLoginUser(t *testing.T) {
 
 func TestValidateToken(t *testing.T) {
 	router, db := setupTestRouter()
-	authService := services.NewAuthService(db, &config.Config{JWTSecret: "test-secret"})
+	cfg := &config.Config{JWTSecret: "test-secret"}
+	authService := services.NewAuthService(db, cfg)
 
 	// First create and authenticate a user to get a valid token
-	user := &models.User{
+	registerReq := &models.User{
 		Email:       "validate@example.com",
-		DisplayName: "Validate Test User",
 		Password:    "password123",
+		DisplayName: "Validate Test User",
 	}
 
-	err := authService.RegisterUser(user)
+	err := authService.RegisterUser(registerReq)
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
@@ -214,7 +214,7 @@ func TestHealthCheck(t *testing.T) {
 	// Check response
 	var response map[string]interface{}
 	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
-		t.Fatalf("Failed to unmarshal response: %v", err)
+			t.Fatalf("Failed to unmarshal response: %v", err)
 	}
 
 	if response["status"] != "healthy" {

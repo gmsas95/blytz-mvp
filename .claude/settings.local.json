@@ -89,7 +89,8 @@
       "Bash(npm run dev)",
       "Bash(cat:*)",
       "Bash(git reset:*)",
-      "Bash(do)"
+      "Bash(do)",
+      "Bash(go test:*)"
     ],
     "deny": [],
     "ask": []

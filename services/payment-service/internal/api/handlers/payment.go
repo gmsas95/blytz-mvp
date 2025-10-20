@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -34,7 +33,7 @@ func (h *PaymentHandler) ProcessPayment(c *gin.Context) {
 
 	var req models.ProcessPaymentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, "Invalid request body", nil)
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
@@ -58,7 +57,7 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.ValidationError(c, "Payment ID is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
@@ -129,13 +128,13 @@ func (h *PaymentHandler) ProcessRefund(c *gin.Context) {
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.ValidationError(c, "Payment ID is required", nil)
+		utils.ErrorResponse(c, errors.ErrBadRequest)
 		return
 	}
 
 	var req models.RefundRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ValidationError(c, "Invalid request body", nil)
+		utils.ErrorResponse(c, errors.ErrInvalidRequestBody)
 		return
 	}
 
