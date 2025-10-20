@@ -133,7 +133,7 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderID string, us
 
 	// Validate status transition
 	if !s.isValidStatusTransition(order.Status, string(status)) {
-		return nil, errors.ErrBadRequest
+		return nil, errors.ErrInvalidRequest
 	}
 
 	order.Status = string(status)

@@ -28,59 +28,59 @@ func NewPaymentHandler(paymentService *services.PaymentService, logger *zap.Logg
 func (h *PaymentHandler) ProcessPayment(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	var req models.ProcessPaymentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ValidationError(c, "Invalid request body", nil)
 		return
 	}
 
 	payment, err := h.paymentService.ProcessPayment(c.Request.Context(), userID, &req)
 	if err != nil {
 		h.logger.Error("Failed to process payment", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to process payment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapPaymentToResponse(payment)
-	utils.RespondWithJSON(c, http.StatusCreated, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *PaymentHandler) GetPayment(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Payment ID is required")
+		utils.ValidationError(c, "Payment ID is required", nil)
 		return
 	}
 
 	payment, err := h.paymentService.GetPayment(c.Request.Context(), paymentID, userID)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Payment not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to get payment", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get payment")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapPaymentToResponse(payment)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *PaymentHandler) GetPaymentHistory(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (h *PaymentHandler) GetPaymentHistory(c *gin.Context) {
 	payments, err := h.paymentService.GetPaymentHistory(c.Request.Context(), userID, limit)
 	if err != nil {
 		h.logger.Error("Failed to get payment history", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get payment history")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (h *PaymentHandler) GetPaymentHistory(c *gin.Context) {
 		response[i] = *h.mapPaymentToResponse(payment)
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, models.PaymentHistoryResponse{
+	utils.SuccessResponse(c, models.PaymentHistoryResponse{
 		Payments: response,
 		Total:    int64(len(payments)),
 	})
@@ -113,45 +113,45 @@ func (h *PaymentHandler) GetPaymentMethods(c *gin.Context) {
 	methods, err := h.paymentService.GetPaymentMethods(c.Request.Context())
 	if err != nil {
 		h.logger.Error("Failed to get payment methods", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to get payment methods")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
-	utils.RespondWithJSON(c, http.StatusOK, models.PaymentMethodsResponse{Methods: methods})
+	utils.SuccessResponse(c, models.PaymentMethodsResponse{Methods: methods})
 }
 
 func (h *PaymentHandler) ProcessRefund(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		utils.RespondWithError(c, http.StatusUnauthorized, "User not authenticated")
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
 		return
 	}
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.RespondWithError(c, http.StatusBadRequest, "Payment ID is required")
+		utils.ValidationError(c, "Payment ID is required", nil)
 		return
 	}
 
 	var req models.RefundRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, "Invalid request body")
+		utils.ValidationError(c, "Invalid request body", nil)
 		return
 	}
 
 	payment, err := h.paymentService.ProcessRefund(c.Request.Context(), paymentID, userID, req.Amount, req.Reason)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			utils.RespondWithError(c, http.StatusNotFound, "Payment not found")
+			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
 		h.logger.Error("Failed to process refund", zap.Error(err))
-		utils.RespondWithError(c, http.StatusInternalServerError, "Failed to process refund")
+		utils.ErrorResponse(c, err)
 		return
 	}
 
 	response := h.mapPaymentToResponse(payment)
-	utils.RespondWithJSON(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *PaymentHandler) mapPaymentToResponse(payment *models.Payment) *models.PaymentResponse {
