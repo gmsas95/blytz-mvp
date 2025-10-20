@@ -14,14 +14,10 @@ type Router struct {
 	engine *gin.Engine
 }
 
-func NewRouter(authService *services.AuthService, logger *zap.Logger, cfg *config.Config) *gin.Engine {
+func NewRouter(router *gin.Engine, authService *services.AuthService, logger *zap.Logger, cfg *config.Config) {
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
-	router := gin.New()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
 
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
@@ -41,8 +37,6 @@ func NewRouter(authService *services.AuthService, logger *zap.Logger, cfg *confi
 		authHandler := handlers.NewAuthHandler(authService)
 		SetupAuthRoutes(api, authHandler)
 	}
-
-	return router
 }
 
 func SetupAuthRoutes(api *gin.RouterGroup, authHandler *handlers.AuthHandler) {

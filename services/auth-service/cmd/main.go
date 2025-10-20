@@ -56,7 +56,7 @@ func main() {
 	authService := services.NewAuthService(db, cfg)
 
 	// Setup routes using the API router
-	router = api.NewRouter(authService, logger, cfg)
+	api.NewRouter(router, authService, logger, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
