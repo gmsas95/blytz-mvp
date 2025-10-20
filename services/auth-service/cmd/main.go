@@ -27,6 +27,9 @@ func main() {
 
 	logger.Info("Starting auth service...")
 
+	nodeEnv := os.Getenv("NODE_ENV")
+	logger.Info("NODE_ENV", zap.String("value", nodeEnv))
+
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
