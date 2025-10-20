@@ -55,7 +55,7 @@ func (h *LogisticsHandler) GetShipment(c *gin.Context) {
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *LogisticsHandler) UpdateShipmentStatus(c *gin.Context) {
 
 	shipmentID := c.Param("id")
 	if shipmentID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -117,7 +117,7 @@ func (h *LogisticsHandler) GetShipmentByOrder(c *gin.Context) {
 
 	orderID := c.Param("orderId")
 	if orderID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -139,7 +139,7 @@ func (h *LogisticsHandler) GetShipmentByOrder(c *gin.Context) {
 func (h *LogisticsHandler) TrackShipment(c *gin.Context) {
 	trackingNumber := c.Param("trackingNumber")
 	if trackingNumber == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -167,7 +167,7 @@ func (h *LogisticsHandler) TrackShipment(c *gin.Context) {
 	}
 
 	response := services.TrackingResponse{
-		Shipment: shipmentResponse,
+		Shipment: *shipmentResponse,
 		Events:   eventResponses,
 	}
 

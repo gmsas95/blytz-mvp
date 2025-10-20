@@ -57,7 +57,7 @@ func (h *PaymentHandler) GetPayment(c *gin.Context) {
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -116,7 +116,12 @@ func (h *PaymentHandler) GetPaymentMethods(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, models.PaymentMethodsResponse{Methods: methods})
+	responseMethods := make([]models.PaymentMethodInfo, len(methods))
+	for i, method := range methods {
+		responseMethods[i] = *method
+	}
+
+	utils.SuccessResponse(c, models.PaymentMethodsResponse{Methods: responseMethods})
 }
 
 func (h *PaymentHandler) ProcessRefund(c *gin.Context) {
@@ -128,7 +133,7 @@ func (h *PaymentHandler) ProcessRefund(c *gin.Context) {
 
 	paymentID := c.Param("id")
 	if paymentID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 

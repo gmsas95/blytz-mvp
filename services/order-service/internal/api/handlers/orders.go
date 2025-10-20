@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"net/http"
+
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -46,7 +46,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.SuccessResponse(c, http.StatusCreated, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *OrderHandler) GetOrder(c *gin.Context) {
@@ -58,7 +58,7 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -74,7 +74,7 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.SuccessResponse(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *OrderHandler) GetUserOrders(c *gin.Context) {
@@ -128,7 +128,7 @@ func (h *OrderHandler) GetUserOrders(c *gin.Context) {
 		TotalPages: totalPages,
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
@@ -140,7 +140,7 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -156,8 +156,8 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 			utils.ErrorResponse(c, errors.ErrNotFound)
 			return
 		}
-		if err == errors.ErrBadRequest {
-			utils.ErrorResponse(c, errors.ErrBadRequest)
+		if err == errors.ErrInvalidRequest {
+			utils.ErrorResponse(c, errors.ErrInvalidRequest)
 			return
 		}
 		h.logger.Error("Failed to update order status", zap.Error(err))
@@ -166,7 +166,7 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	}
 
 	response := h.mapOrderToResponse(order)
-	utils.SuccessResponse(c, http.StatusOK, response)
+	utils.SuccessResponse(c, response)
 }
 
 func (h *OrderHandler) CancelOrder(c *gin.Context) {
@@ -178,7 +178,7 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 
 	orderID := c.Param("id")
 	if orderID == "" {
-		utils.ErrorResponse(c, errors.ErrBadRequest)
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
 		return
 	}
 
@@ -193,7 +193,7 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(c, http.StatusOK, gin.H{"message": "Order cancelled successfully"})
+	utils.SuccessResponse(c, gin.H{"message": "Order cancelled successfully"})
 }
 
 func (h *OrderHandler) mapOrderToResponse(order *models.Order) *services.OrderResponse {
