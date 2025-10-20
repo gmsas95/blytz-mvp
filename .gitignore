@@ -1,7 +1,5 @@
 # Dependencies
 node_modules/
-vendor/
-go.sum
 
 # Environment variables
 .env
@@ -88,8 +86,6 @@ yarn-error.log*
 .yarn-integrity
 
 # Go
-vendor/
-go.sum
 *.exe
 *.dll
 *.so
