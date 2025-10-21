@@ -160,7 +160,8 @@ services:
                 - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
                 - POSTGRES_HOST=postgres
                 - POSTGRES_PORT=5432
-                - POSTGRES_DB=blytz_prod      - AUTH_SERVICE_URL=http://auth-service:8084
+                - POSTGRES_DB=blytz_prod
+                - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -286,7 +287,8 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
 
 volumes:
   postgres_data:
