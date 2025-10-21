@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/api"
@@ -50,8 +49,6 @@ func main() {
 	// Create a new Gin router
 	router := api.SetupRouter(auctionService, logger, cfg)
 
-	// Add Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// Start the server
 	logger.Info("Starting server on port " + cfg.Port)

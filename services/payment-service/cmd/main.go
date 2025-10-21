@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/api"
@@ -26,9 +25,6 @@ func main() {
 
 	// Create a new Gin router
 	router := api.SetupRouter(logger)
-
-	// Add Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// Get port from environment variable or use default
 	port := os.Getenv("PORT")
