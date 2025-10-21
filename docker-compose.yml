@@ -59,7 +59,7 @@ services:
       - blytz-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/health"]
       interval: 10s
       timeout: 5s
       retries: 5
