@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blytz/auth-service/internal/config"
-	"github.com/blytz/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"go.uber.org/zap"
@@ -166,7 +166,7 @@ func (c *Client) GenerateJWT(userID, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Sign token
-	tokenString, err := token.SignedString([]byte(c.config.GetJWTSecret()))
+	tokenString, err := token.SignedString([]byte(c.config.JWTSecret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
 	}
@@ -185,7 +185,7 @@ func (c *Client) ValidateToken(ctx context.Context, tokenString string) (string,
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(c.config.GetJWTSecret()), nil
+		return []byte(c.config.JWTSecret), nil
 	})
 
 	if err != nil {

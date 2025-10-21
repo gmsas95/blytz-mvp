@@ -1,23 +1,13 @@
 # Build stage
 FROM golang:1.23-alpine AS builder
 
-# Install dependencies
-RUN apk add --no-cache git ca-certificates tzdata
-
-# Set working directory
 WORKDIR /app
 
-# Copy go mod files
-COPY go.mod go.sum ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy source code
+# Copy the entire repository
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-service ./cmd/main.go
+# Build the application from the correct directory using vendored modules
+RUN cd services/auth-service && CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o auth-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -33,7 +23,7 @@ RUN addgroup -g 1001 -S appuser && \
 WORKDIR /root/
 
 # Copy the binary from builder stage
-COPY --from=builder /app/auth-service .
+COPY --from=builder /app/services/auth-service/auth-service .
 
 # Change ownership to non-root user
 RUN chown appuser:appuser auth-service

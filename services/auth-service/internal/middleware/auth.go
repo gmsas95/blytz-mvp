@@ -8,57 +8,60 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/services"
-	"github.com/blytz/shared/pkg/errors"
-	"github.com/blytz/shared/pkg/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
+
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
-// AuthMiddleware provides authentication middleware for protected routes
-type AuthMiddleware struct {
-	authService *services.AuthService
-	logger      *zap.Logger
-}
+func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
 
-// NewAuthMiddleware creates a new authentication middleware
-func NewAuthMiddleware(authService *services.AuthService, logger *zap.Logger) gin.HandlerFunc {
-	middleware := &AuthMiddleware{
-		authService: authService,
-		logger:      logger,
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		claims := &models.Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte(authService.GetConfig().JWTSecret), nil
+		})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			} else {
+				utils.SendErrorResponse(c, shared_errors.ValidationError("BAD_REQUEST", "Bad Request"))
+			}
+			c.Abort()
+			return
+		}
+
+		if !token.Valid {
+			utils.SendErrorResponse(c, shared_errors.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", claims.UserID)
+		c.Next()
 	}
-	return middleware.Handle
-}
-
-// Handle processes authentication for incoming requests
-func (m *AuthMiddleware) Handle(c *gin.Context) {
-	// Extract token from Authorization header
-	token := m.extractToken(c)
-	if token == "" {
-		m.logger.Warn("No authorization token provided")
-		utils.ErrorResponse(c, errors.AuthenticationError("NO_TOKEN", "No authorization token provided"))
-		c.Abort()
-		return
-	}
-
-	// Validate token using auth service
-	response, err := m.authService.ValidateToken(c.Request.Context(), token)
-	if err != nil || !response.Valid {
-		m.logger.Warn("Invalid or expired token", zap.Error(err))
-		utils.ErrorResponse(c, errors.AuthenticationError("INVALID_TOKEN", "Invalid or expired token"))
-		c.Abort()
-		return
-	}
-
-	// Set user context for downstream handlers
-	c.Set("userID", response.UserID)
-	c.Set("userEmail", response.Email)
-
-	m.logger.Debug("Authentication successful", zap.String("user_id", response.UserID))
-	c.Next()
 }
 
 // extractToken extracts the JWT token from the Authorization header
-func (m *AuthMiddleware) extractToken(c *gin.Context) string {
+func extractToken(c *gin.Context) string {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		return ""
@@ -119,9 +122,9 @@ func extractOptionalToken(c *gin.Context) string {
 // RoleMiddleware provides role-based authorization
 func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("userID")
+		_, exists := c.Get("userID")
 		if !exists {
-			utils.ErrorResponse(c, errors.AuthenticationError("NO_AUTH", "User not authenticated"))
+			utils.SendErrorResponse(c, shared_errors.AuthenticationError("NO_AUTH", "User not authenticated"))
 			c.Abort()
 			return
 		}
@@ -140,7 +143,7 @@ func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 		}
 
 		if !hasRole {
-			utils.ErrorResponse(c, errors.AuthorizationError("INSUFFICIENT_PRIVILEGES", "Insufficient privileges"))
+			utils.SendErrorResponse(c, shared_errors.AuthorizationError("INSUFFICIENT_PRIVILEGES", "Insufficient privileges"))
 			c.Abort()
 			return
 		}

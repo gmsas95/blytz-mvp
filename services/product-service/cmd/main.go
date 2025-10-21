@@ -1,60 +1,44 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/blytz/product-service/internal/api"
-	"github.com/blytz/shared/pkg/utils"
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
+
+	"github.com/gmsas95/blytz-mvp/services/product-service/internal/api"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
 func main() {
 	// Initialize logger
-	logger, err := utils.InitLogger("development")
+	logger, err := utils.InitLogger("production")
 	if err != nil {
-		log.Fatalf("Failed to initialize logger: %v", err)
+		log.Fatalf("Failed to create logger: %v", err)
 	}
-	defer logger.Sync()
+	defer logger.Sync() // flushes buffer, if any
 
-	// Create API router
+	// Set Gin to release mode
+	gin.SetMode(gin.ReleaseMode)
+
+	// Create a new Gin router
 	router := api.SetupRouter(logger)
 
-	// Start server
+	// Add Prometheus metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	// Get port from environment variable or use default
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8082"
 	}
 
-	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: router,
+	// Start the server
+	logger.Info("Starting server on port " + port)
+	if err := http.ListenAndServe(":"+port, router); err != nil {
+		logger.Fatal("Failed to start server", zap.Error(err))
 	}
-
-	// Graceful shutdown
-	go func() {
-		sigChan := make(chan os.Signal, 1)
-		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-		<-sigChan
-
-		logger.Info("Shutting down server...")
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer shutdownCancel()
-
-		if err := server.Shutdown(shutdownCtx); err != nil {
-			logger.Error("Server forced to shutdown", zap.Error(err))
-		}
-	}()
-
-	logger.Info("Product service started", zap.String("port", port))
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Fatal("Server failed to start", zap.Error(err))
-	}
-
-	logger.Info("Server stopped")
 }

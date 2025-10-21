@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Test</title>
+</head>
+<body>
+    <div id="test">Loading...</div>
+    <button onclick="document.getElementById('test').innerHTML = 'JavaScript Working!'">Test JS</button>
+    <script>
+        setTimeout(() => {
+            document.getElementById('test').innerHTML = 'Auto JS Working!';
+        }, 1000);
+    </script>
+</body>
+</html>

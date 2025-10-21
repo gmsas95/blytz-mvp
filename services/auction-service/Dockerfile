@@ -3,16 +3,11 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache git
-
-# Copy all backend files
+# Copy the entire repository
 COPY . .
 
-# Go to auction service and build
-WORKDIR /app/auction-service
-RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auction-service ./cmd/main.go
+# Build the application from the correct directory using vendored modules
+RUN cd services/auction-service && CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o auction-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -22,7 +17,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/auction-service/auction-service .
+COPY --from=builder /app/services/auction-service/auction-service .
 
 # Expose port
 EXPOSE 8083

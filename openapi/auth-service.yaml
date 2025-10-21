@@ -1,42 +1,252 @@
 openapi: 3.1.0
 info:
   title: Blytz Auth Service
-  version: 1.0.0
-  description: Handles authentication and user identity for Blytz Live.
+  version: "1.0.0"
+  description: Handles user registration, login, token management, and profile services for the Blytz platform.
+servers:
+  - url: /api/v1
 paths:
-  /auth/signup:
+  /auth/register:
     post:
       summary: Register a new user
+      tags:
+        - Authentication
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email: { type: string }
-                password: { type: string }
-                role: { type: string, enum: [buyer, seller] }
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
-        "201": { description: User registered }
+        '200':
+          description: User registered successfully. Returns the new user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request data or user already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/login:
     post:
-      summary: Authenticate and get Firebase JWT
+      summary: Authenticate a user
+      tags:
+        - Authentication
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email: { type: string }
-                password: { type: string }
+              $ref: '#/components/schemas/LoginRequest'
       responses:
-        "200": { description: Authenticated }
+        '200':
+          description: Authentication successful. Returns user object and JWT.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/verify:
+  /auth/refresh:
+    post:
+      summary: Refresh an access token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "new.jwt.token"
+        '401':
+          description: Invalid or expired refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
     get:
-      summary: Verify Firebase JWT
+      summary: Get current user's profile
+      tags:
+        - User Profile
       security:
         - bearerAuth: []
       responses:
-        "200": { description: Token valid }
+        '200':
+          description: User profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update current user's profile
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: User profile updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        phone_number:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        is_active:
+          type: boolean
+        role:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    RegisterRequest:
+      type: object
+      required: [email, password, display_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        phone_number:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    RefreshTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+    UpdateProfileRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        phone_number:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/User'
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            token:
+              type: string
+              example: "your.jwt.token"
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          example: "The request data was invalid."
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

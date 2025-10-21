@@ -11,7 +11,57 @@ import (
 	"github.com/stretchr/testify/require"
 
 	// Import your Firebase client (adjust path as needed)
-	firebase "github.com/blytz/auction-service/pkg/firebase"
+	package integration
+
+import (
+	"context"
+	"log"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	firebase "github.com/gmsas95/blytz-mvp/services/auction-service/pkg/firebase"
+)
+
+func TestAuctionFlow(t *testing.T) {
+	ctx := context.Background()
+
+	// Initialize Firebase
+	app, err := firebase.NewFirebaseApp(ctx)
+	assert.NoError(t, err, "Failed to initialize Firebase")
+
+	// Create a test auction
+	auctionData := firebase.AuctionData{
+		Title:         "Test Auction",
+		Description:   "This is a test auction",
+		StartingPrice: 10.0,
+		Duration:      1, // 1 hour
+	}
+	auction, err := app.CreateAuction(ctx, auctionData)
+	assert.NoError(t, err, "Failed to create auction")
+	assert.NotNil(t, auction, "Auction should not be nil")
+
+	log.Printf("Created auction with ID: %s", auction.AuctionID)
+
+	// Place a bid on the auction
+	bidData := firebase.BidData{
+		AuctionID: auction.AuctionID,
+		Amount:    15.0,
+	}
+	bid, err := app.PlaceBid(ctx, bidData)
+	assert.NoError(t, err, "Failed to place bid")
+	assert.NotNil(t, bid, "Bid should not be nil")
+
+	log.Printf("Placed bid with ID: %s", bid.BidID)
+
+	// End the auction
+	endAuctionResponse, err := app.EndAuction(ctx, auction.AuctionID)
+	assert.NoError(t, err, "Failed to end auction")
+	assert.NotNil(t, endAuctionResponse, "End auction response should not be nil")
+
+	log.Printf("Ended auction with winner: %s", *endAuctionResponse.WinnerID)
+}
+
 )
 
 // TestAuctionFlow tests the complete auction lifecycle

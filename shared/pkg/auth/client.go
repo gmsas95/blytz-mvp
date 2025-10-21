@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/blytz/shared/errors"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -62,7 +62,7 @@ func (c *AuthClient) ValidateToken(ctx context.Context, token string) (*Validate
 		if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
 			return nil, fmt.Errorf("authentication service error (status %d)", resp.StatusCode)
 		}
-		return nil, errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
+		return nil, shared_errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
 	}
 
 	// Decode response
@@ -98,7 +98,7 @@ func (c *AuthClient) GetUserInfo(ctx context.Context, token string) (*UserInfo, 
 		if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
 			return nil, fmt.Errorf("authentication service error (status %d)", resp.StatusCode)
 		}
-		return nil, errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
+		return nil, shared_errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
 	}
 
 	// Decode response
@@ -147,7 +147,7 @@ func (c *AuthClient) RefreshToken(ctx context.Context, refreshToken string) (str
 		if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
 			return "", fmt.Errorf("authentication service error (status %d)", resp.StatusCode)
 		}
-		return "", errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
+		return "", shared_errors.AuthenticationError("AUTH_SERVICE_ERROR", errorResp.Message)
 	}
 
 	// Decode response

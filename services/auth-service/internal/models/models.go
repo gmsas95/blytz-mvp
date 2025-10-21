@@ -2,7 +2,16 @@ package models
 
 import (
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
+
+// Claims represents JWT claims
+type Claims struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	jwt.RegisteredClaims
+}
 
 // User represents a user in the system
 type User struct {
@@ -13,6 +22,7 @@ type User struct {
 	AvatarURL   string    `json:"avatar_url,omitempty"`
 	IsActive    bool      `json:"is_active" gorm:"default:true"`
 	Role        string    `json:"role" gorm:"default:user"`
+	Password    string    `json:"-" gorm:"-"` // Temporary field for auth operations only
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -82,4 +92,17 @@ type SuccessResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+}
+
+// AuthRequest represents authentication request
+type AuthRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+// VerifyResponse represents verification response
+type VerifyResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Valid   bool   `json:"valid"`
 }

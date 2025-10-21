@@ -1,0 +1,44 @@
+# Git files
+.git
+.gitignore
+
+# Go build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test files
+coverage.out
+test-results/
+
+# Local environment
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+docs/
+
+# Scripts (keep only what's needed)
+scripts/test-*.sh
+!scripts/build.sh

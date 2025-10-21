@@ -1,0 +1,44 @@
+{
+  "name": "blytz-live-auction",
+  "description": "Blytz Live Auction MVP - Real-time livestream commerce platform",
+  "compose": "dokploy-compose.yml",
+  "env": [
+    {
+      "name": "POSTGRES_USER",
+      "value": "blytz",
+      "description": "PostgreSQL username"
+    },
+    {
+      "name": "POSTGRES_PASSWORD",
+      "value": "",
+      "description": "PostgreSQL password (generate secure)"
+    },
+    {
+      "name": "JWT_SECRET",
+      "value": "",
+      "description": "JWT secret key (generate secure)"
+    },
+    {
+      "name": "BETTER_AUTH_SECRET",
+      "value": "",
+      "description": "Better Auth secret (generate secure)"
+    }
+  ],
+  "domains": [
+    {
+      "host": "blytz.app",
+      "port": 3000,
+      "service": "frontend"
+    },
+    {
+      "host": "api.blytz.app",
+      "port": 8080,
+      "service": "gateway"
+    }
+  ],
+  "deploy": {
+    "restartPolicy": "unless-stopped",
+    "healthCheck": true,
+    "autoDeploy": true
+  }
+}

@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/blytz/auth-service/internal/api"
-	"github.com/blytz/auth-service/internal/config"
-	"github.com/blytz/auth-service/internal/services"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/api"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
+	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
 	"go.uber.org/zap"
 )
 
@@ -26,15 +27,18 @@ func main() {
 
 	logger.Info("Starting auth service...")
 
+	nodeEnv := os.Getenv("NODE_ENV")
+	logger.Info("NODE_ENV", zap.String("value", nodeEnv))
+
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
 		logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
 
-	logger.Info("Configuration loaded", 
-		zap.String("port", cfg.GetServicePort()),
-		zap.String("environment", cfg.GetEnvironment()))
+	logger.Info("Configuration loaded",
+		zap.String("port", cfg.ServicePort),
+		zap.String("environment", cfg.Environment))
 
 	// Set Gin mode based on environment
 	if cfg.IsProduction() {
@@ -43,24 +47,26 @@ func main() {
 
 	// Create Gin router
 	router := gin.New()
-	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	// Initialize auth service
-	authService, err := services.NewAuthService(cfg, logger)
+	// Initialize database connection
+	db, err := config.InitDB(cfg)
 	if err != nil {
-		logger.Fatal("Failed to initialize auth service", zap.Error(err))
+		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
 
-	// Create auth handler
-	authHandler := api.NewAuthHandler(authService, logger)
+	// Auto-migrate the User model
+	db.AutoMigrate(&models.User{})
 
-	// Setup routes
-	setupRoutes(router, authHandler, logger)
+	// Initialize auth service
+	authService := services.NewAuthService(db, cfg)
+
+	// Setup routes using the API router
+	api.NewRouter(router, authService, logger, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    ":" + cfg.GetServicePort(),
+		Addr:    ":" + cfg.ServicePort,
 		Handler: router,
 	}
 
@@ -89,38 +95,3 @@ func main() {
 	logger.Info("Server exited")
 }
 
-// setupRoutes configures all API routes
-func setupRoutes(router *gin.Engine, authHandler *api.AuthHandler, logger *zap.Logger) {
-	// Health check
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status":    "healthy",
-			"service":   "auth",
-			"timestamp": time.Now().Unix(),
-		})
-	})
-
-	// Metrics endpoint
-	router.GET("/metrics", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "metrics endpoint",
-		})
-	})
-
-	// API v1 routes
-	api := router.Group("/api/v1")
-	{
-		auth := api.Group("/auth")
-		{
-			auth.POST("/register", authHandler.RegisterUser)
-			auth.POST("/login", authHandler.LoginUser)
-			auth.POST("/refresh", authHandler.RefreshToken)
-			auth.POST("/validate", authHandler.ValidateToken) // Internal endpoint
-			
-			// Protected routes
-			auth.GET("/me", authHandler.GetCurrentUser)
-			auth.PUT("/profile", authHandler.UpdateProfile)
-			auth.POST("/change-password", authHandler.ChangePassword)
-		}
-	}
-}

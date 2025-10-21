@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -8,7 +10,12 @@ import (
 
 // Config holds all configuration for the auth service
 type Config struct {
-	DatabaseURL      string `env:"DATABASE_URL"`
+	DatabaseURL      string
+	PostgresUser     string `env:"POSTGRES_USER"`
+	PostgresPassword string `env:"POSTGRES_PASSWORD"`
+	PostgresHost     string `env:"POSTGRES_HOST"`
+	PostgresPort     string `env:"POSTGRES_PORT"`
+	PostgresDB       string `env:"POSTGRES_DB"`
 	BetterAuthSecret string `env:"BETTER_AUTH_SECRET"`
 	JWTSecret        string `env:"JWT_SECRET"`
 	ServicePort      string `env:"PORT"`
@@ -21,11 +28,44 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		DatabaseURL:      getEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/authdb"),
+		PostgresUser:     getEnvOrDefault("POSTGRES_USER", "blytz"),
+		PostgresPassword: getEnvOrDefault("POSTGRES_PASSWORD", ""),
+		PostgresHost:     getEnvOrDefault("POSTGRES_HOST", "postgres"),
+		PostgresPort:     getEnvOrDefault("POSTGRES_PORT", "5432"),
+		PostgresDB:       getEnvOrDefault("POSTGRES_DB", "blytz_prod"),
 		BetterAuthSecret: getEnvOrDefault("BETTER_AUTH_SECRET", "better-auth-secret-key-change-in-production"),
 		JWTSecret:        getEnvOrDefault("JWT_SECRET", "jwt-secret-key-change-in-production"),
 		ServicePort:      getEnvOrDefault("PORT", "8084"),
-		Environment:      getEnvOrDefault("ENVIRONMENT", "development"),
+		Environment:      getEnvOrDefault("NODE_ENV", "development"),
+	}
+
+	// Check if DATABASE_URL is provided (Dokploy style)
+	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
+		cfg.DatabaseURL = databaseURL
+		// Parse the DATABASE_URL to extract components for fallback usage
+		if parsedURL, err := url.Parse(databaseURL); err == nil {
+			if parsedURL.User != nil {
+				cfg.PostgresUser = parsedURL.User.Username()
+				if password, ok := parsedURL.User.Password(); ok {
+					cfg.PostgresPassword = password
+				}
+			}
+			if parsedURL.Hostname() != "" {
+				cfg.PostgresHost = parsedURL.Hostname()
+			}
+			if parsedURL.Port() != "" {
+				cfg.PostgresPort = parsedURL.Port()
+			}
+			// Extract database name from path
+			if len(parsedURL.Path) > 1 {
+				cfg.PostgresDB = parsedURL.Path[1:] // Remove leading slash
+			}
+		}
+	} else {
+		// Construct the database URL from individual components (original behavior)
+		encodedPassword := url.QueryEscape(cfg.PostgresPassword)
+		cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
 	}
 
 	return cfg, nil

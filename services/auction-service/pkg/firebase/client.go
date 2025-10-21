@@ -86,3 +86,33 @@ func (c *Client) callFirebase(ctx context.Context, function string, data interfa
 
 	return nil
 }
+
+// UpdateAuction updates an auction via Firebase
+func (c *Client) UpdateAuction(ctx context.Context, auctionID string, updateData interface{}) error {
+	// For now, we'll use the existing EndAuction method as a placeholder
+	// In a real implementation, you'd have a separate updateAuction function
+	data := map[string]interface{}{
+		"auctionId": auctionID,
+		"update":    updateData,
+	}
+	return c.callFirebase(ctx, "updateAuction", data, nil)
+}
+
+// GetAuction gets auction details via Firebase
+func (c *Client) GetAuction(ctx context.Context, auctionID string) (map[string]interface{}, error) {
+	result, err := c.GetAuctionDetails(ctx, auctionID)
+	if err != nil {
+		return nil, err
+	}
+	return result.Auction, nil
+}
+
+// ProcessPayment processes a payment via Firebase
+func (c *Client) ProcessPayment(ctx context.Context, paymentData interface{}) error {
+	return c.callFirebase(ctx, "processPayment", paymentData, nil)
+}
+
+// SendBidNotification sends a bid notification via Firebase
+func (c *Client) SendBidNotification(ctx context.Context, bidData interface{}) error {
+	return c.callFirebase(ctx, "sendBidNotification", bidData, nil)
+}

@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/blytz/shared/constants"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/constants"
 )
 
 type JWTClaims struct {

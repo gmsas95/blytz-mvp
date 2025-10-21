@@ -1,0 +1,408 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 99%; /* #F9FAFB */
+    --foreground: 222 47% 11%; /* #111827 */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%; /* #2563EB */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 46%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 1rem; /* rounded-2xl */
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 224 76% 94%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Geist', system-ui, sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40 rounded-full;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 rounded-lg;
+}
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-slide-in-from-bottom {
+  animation: slide-in-from-bottom 0.3s ease-out;
+}
+
+.animate-slide-in-from-right {
+  animation: slide-in-from-right 0.3s ease-out;
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .bg-gradient-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .bg-gradient-tertiary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+}
+
+/* Component animations */
+@layer components {
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .button-hover {
+    @apply transition-all duration-200 ease-out hover:scale-105 hover:shadow-lg;
+  }
+
+  .input-focus {
+    @apply transition-all duration-200 ease-out focus:scale-105 focus:shadow-lg;
+  }
+
+  .fade-in-up {
+    @apply animate-fade-in;
+  }
+
+  .slide-in-bottom {
+    @apply animate-slide-in-from-bottom;
+  }
+
+  .slide-in-right {
+    @apply animate-slide-in-from-right;
+  }
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 768px) {
+  .mobile-full {
+    @apply w-full;
+  }
+
+  .mobile-stack {
+    @apply flex flex-col space-y-4;
+  }
+
+  .mobile-center {
+    @apply flex flex-col items-center text-center;
+  }
+}
+
+/* Auction-specific styles */
+.auction-card {
+  @apply bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl;
+}
+
+.auction-status-active {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.auction-status-scheduled {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+}
+
+.auction-status-ended {
+  @apply bg-red-100 text-red-800 border-red-200;
+}
+
+.bid-button {
+  @apply bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 hover:from-blue-600 hover:to-purple-700 hover:scale-105 hover:shadow-lg;
+}
+
+.live-indicator {
+  @apply bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse;
+}
+
+.time-remaining {
+  @apply bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+/* Loading states */
+.skeleton {
+  @apply bg-gray-200 rounded-lg animate-pulse;
+}
+
+.loading-dots {
+  @apply flex space-x-1;
+}
+
+.loading-dots span {
+  @apply w-2 h-2 bg-gray-400 rounded-full animate-bounce;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+/* Accessibility improvements */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .high-contrast-border {
+    border-width: 2px !important;
+  }
+}
+
+/* Focus visible improvements */
+.focus-visible\:ring-2:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 rounded-full;
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 640px) {
+  .mobile-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .mobile-full-height {
+    height: 100vh;
+    height: calc(100vh - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Auction-specific animations */
+@keyframes bid-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-bid-pulse {
+  animation: bid-pulse 0.5s ease-in-out;
+}
+
+@keyframes countdown-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.7; }
+}
+
+.animate-countdown-blink {
+  animation: countdown-blink 1s infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 2s infinite;
+}
+
+/* Card hover effects */
+.card-hover-lift {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover-lift:hover {
+  @apply -translate-y-1 shadow-xl;
+}
+
+.card-hover-glow {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-hover-glow:hover {
+  @apply shadow-lg ring-2 ring-primary/20;
+}
+
+/* Button micro-animations */
+.button-micro-bounce {
+  @apply transition-transform duration-200 ease-out;
+}
+
+.button-micro-bounce:hover {
+  @apply scale-105;
+}
+
+.button-micro-press {
+  @apply transition-transform duration-150 ease-out;
+}
+
+.button-micro-press:active {
+  @apply scale-95;
+}
+
+/* Image gallery animations */
+.gallery-swipe {
+  @apply transition-transform duration-300 ease-out;
+}
+
+.gallery-swipe:hover {
+  @apply scale-105;
+}
+
+/* Status indicator animations */
+.status-pulse {
+  @apply animate-pulse;
+}
+
+.status-bounce {
+  @apply animate-bounce;
+}
+
+/* Custom focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+.focus-ring-offset {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-4;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.transition-fast {
+  @apply transition-all duration-150 ease-in-out;
+}
+
+.transition-slow {
+  @apply transition-all duration-500 ease-in-out;
+}
