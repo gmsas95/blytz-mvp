@@ -1,0 +1,232 @@
+http:
+  routers:
+    # Dokploy Management Interface
+    dokploy-router-app:
+      rule: Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    dokploy-router-app-http:
+      rule: Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Frontend (Main Website)
+    frontend-router:
+      rule: Host(`blytz.app`, `www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    frontend-router-http:
+      rule: Host(`blytz.app`, `www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # API Gateway
+    api-router:
+      rule: Host(`api.blytz.app`)
+      service: api-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    api-router-http:
+      rule: Host(`api.blytz.app`)
+      service: api-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Auth Service
+    auth-router:
+      rule: Host(`auth.blytz.app`)
+      service: auth-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    auth-router-http:
+      rule: Host(`auth.blytz.app`)
+      service: auth-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Auction Service
+    auction-router:
+      rule: Host(`auction.blytz.app`)
+      service: auction-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    auction-router-http:
+      rule: Host(`auction.blytz.app`)
+      service: auction-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Product Service
+    product-router:
+      rule: Host(`product.blytz.app`)
+      service: product-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    product-router-http:
+      rule: Host(`product.blytz.app`)
+      service: product-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Order Service
+    order-router:
+      rule: Host(`order.blytz.app`)
+      service: order-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    order-router-http:
+      rule: Host(`order.blytz.app`)
+      service: order-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Payment Service
+    payment-router:
+      rule: Host(`payment.blytz.app`)
+      service: payment-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    payment-router-http:
+      rule: Host(`payment.blytz.app`)
+      service: payment-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Chat Service
+    chat-router:
+      rule: Host(`chat.blytz.app`)
+      service: chat-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    chat-router-http:
+      rule: Host(`chat.blytz.app`)
+      service: chat-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Logistics Service
+    logistics-router:
+      rule: Host(`logistics.blytz.app`)
+      service: logistics-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    logistics-router-http:
+      rule: Host(`logistics.blytz.app`)
+      service: logistics-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+  services:
+    # Dokploy Management
+    dokploy-service-app:
+      loadBalancer:
+        servers:
+          - url: http://dokploy:3000
+        passHostHeader: true
+
+    # Frontend Service
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-frontend-prod:3000
+        passHostHeader: true
+
+    # API Gateway Service
+    api-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-gateway-prod:8080
+        passHostHeader: true
+
+    # Auth Service
+    auth-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-auth-prod:8084
+        passHostHeader: true
+
+    # Auction Service
+    auction-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-auction-prod:8083
+        passHostHeader: true
+
+    # Product Service
+    product-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-product-prod:8082
+        passHostHeader: true
+
+    # Order Service
+    order-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-order-prod:8085
+        passHostHeader: true
+
+    # Payment Service
+    payment-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-payment-prod:8086
+        passHostHeader: true
+
+    # Chat Service
+    chat-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-chat-prod:8088
+        passHostHeader: true
+
+    # Logistics Service
+    logistics-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-logistics-prod:8087
+        passHostHeader: true

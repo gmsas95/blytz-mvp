@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-complete.yml:/etc/traefik/traefik.yml:ro
+      - ./dokploy-complete.yml:/etc/dokploy/traefik/dynamic/dokploy.yml:ro
+      - ./middlewares-complete.yml:/etc/dokploy/traefik/dynamic/middlewares.yml:ro
+      - ./acme.json:/etc/dokploy/traefik/dynamic/acme.json
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.blytz.app`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$10$$8K1p3kV.dVf6yZY3P7g6OuOaJ68B3lHvH0w7z3d3L0w7z3d3L0w"
+
+networks:
+  dokploy-network:
+    external: true
+
+volumes:
+  traefik-data:
