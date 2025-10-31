@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Build the application from the correct directory using vendored modules
-RUN cd services/auction-service && CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o auction-service ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o auction-service ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
