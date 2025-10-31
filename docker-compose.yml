@@ -103,9 +103,9 @@ services:
     env_file:
       - ./.env
     environment:
-                - PORT=8082
-                - DATABASE_URL=${DATABASE_URL}
-                - AUTH_SERVICE_URL=http://auth-service:8084
+      - PORT=8082
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -155,7 +155,7 @@ services:
     env_file:
       - ./.env
     environment:
-                - PORT=8086
+      - PORT=8086
       - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
