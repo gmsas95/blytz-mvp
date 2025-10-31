@@ -1,0 +1,489 @@
+# Complete Dokploy Traefik Configuration for Blytz Live Auction
+# This file should be placed at: /etc/dokploy/traefik/dynamic/dokploy.yml
+
+http:
+  routers:
+    # Main Frontend HTTP (redirects to HTTPS)
+    frontend-router-http:
+      rule: Host(`blytz.app`) || Host(`www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Main Frontend HTTPS
+    frontend-router-secure:
+      rule: Host(`blytz.app`) || Host(`www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Demo Interface - Viewer Platform with LiveKit Client
+    demo-router-http:
+      rule: Host(`demo.blytz.app`)
+      service: demo-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    demo-router-secure:
+      rule: Host(`demo.blytz.app`)
+      service: demo-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Seller Interface - Broadcaster Platform with LiveKit SDK
+    seller-router-http:
+      rule: Host(`seller.blytz.app`)
+      service: seller-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    seller-router-secure:
+      rule: Host(`seller.blytz.app`)
+      service: seller-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # LiveKit Server for WebRTC streaming
+    livekit-router-http:
+      rule: Host(`livekit.blytz.app`)
+      service: livekit-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    livekit-router-secure:
+      rule: Host(`livekit.blytz.app`)
+      service: livekit-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Dokploy Management
+    dokploy-router-app:
+      rule: Host(`dokploy.docker.localhost`) && PathPrefix(`/`) || Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+    dokploy-router-app-secure:
+      rule: Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    # Main Frontend Service
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-frontend-prod:3000
+        passHostHeader: true
+
+    # Demo Frontend Service - Viewer Platform
+    demo-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-demo-prod:3001
+        passHostHeader: true
+
+    # Seller Frontend Service - Broadcaster Platform
+    seller-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-seller-prod:3002
+        passHostHeader: true
+
+    # LiveKit Service - WebRTC Streaming
+    livekit-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-livekit-prod:7880
+        passHostHeader: true
+
+    dokploy-service-app:
+      loadBalancer:
+        servers:
+          - url: http://dokploy:3000
+        passHostHeader: true
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    # CORS middleware for API endpoints
+    cors-headers:
+      headers:
+        customResponseHeaders:
+          Access-Control-Allow-Origin: "*"
+          Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS"
+          Access-Control-Allow-Headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+
+    # Security headers
+    security-headers:
+      headers:
+        customResponseHeaders:
+          X-Frame-Options: "SAMEORIGIN"
+          X-Content-Type-Options: "nosniff"
+          X-XSS-Protection: "1; mode=block"
+          Strict-Transport-Security: "max-age=31536000; includeSubDomains"tcp:
+  routers:
+    # LiveKit WebRTC TCP routing
+    livekit-tcp:
+      rule: HostSNI(`livekit.blytz.app`)
+      service: livekit-tcp-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    livekit-tcp-service:
+      loadBalancer:
+        servers:
+          - address: blytz-livekit-prod:7881
+
+udp:
+  routers:
+    # LiveKit WebRTC UDP routing
+    livekit-udp:
+      entryPoints:
+        - websecure
+      service: livekit-udp-service
+
+  services:
+    livekit-udp-service:
+      loadBalancer:
+        servers:
+          - address: blytz-livekit-prod:7882
+
+# API Configuration (for Traefik dashboard)
+api:
+  dashboard: true
+  insecure: true
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: blytzgroup25@gmail.com
+      storage: /etc/dokploy/traefik/dynamic/acme.json
+      httpChallenge:
+        entryPoint: web
+
+# Entry Points
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+    http3:
+      advertisedPort: 443
+    http:
+      tls:
+        certResolver: letsencrypt
+
+# Providers
+providers:
+  docker:
+    exposedByDefault: false
+    watch: true
+    network: dokploy-network
+  file:
+    directory: /etc/dokploy/traefik/dynamic
+    watch: true
+global:
+  sendAnonymousUsage: false
+
+# Logging
+log:
+  level: INFO
+  format: json
+
+# Metrics
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    addRoutersLabels: true
+    entryPoint: metrics
+
+# Access Logs
+accessLog:
+  format: json
+  filters:
+    statusCodes:
+      - "200-299"
+      - "400-599"
+    retryAttempts: true
+    minDuration: "10ms"middlewares:
+  rate-limit:
+    rateLimit:
+      average: 100
+      burst: 50
+
+  api-auth:
+    basicAuth:
+      users:
+        - "admin:$2y$10$8K1p3kV.dVf6yZY3P7g6OuOaJ68B3lHvH0w7z3d3L0w7z3d3L0w" # admin:admin123
+
+# Rate limiting for API endpoints
+api-rate-limit:
+  rateLimit:
+    average: 1000
+    burst: 200
+
+# Security headers
+security-headers:
+  headers:
+    customResponseHeaders:
+      X-Frame-Options: "SAMEORIGIN"
+      X-Content-Type-Options: "nosniff"
+      X-XSS-Protection: "1; mode=block"
+      Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+      Referrer-Policy: "strict-origin-when-cross-origin"
+      Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss: https:; media-src 'self' blob:; object-src 'none'; frame-ancestors 'none';"
+
+# CORS for API endpoints
+cors-headers:
+  headers:
+    customResponseHeaders:
+      Access-Control-Allow-Origin: "*"
+      Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS"
+      Access-Control-Allow-Headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+      Access-Control-Max-Age: "86400"# Rate limiting for streaming endpoints
+streaming-rate-limit:
+  rateLimit:
+    average: 50
+    burst: 20
+
+# WebSocket specific configuration
+websocket-headers:
+  headers:
+    customResponseHeaders:
+      Upgrade: "websocket"
+      Connection: "Upgrade"
+
+# LiveKit specific headers
+livekit-headers:
+  headers:
+    customResponseHeaders:
+      Access-Control-Allow-Origin: "*"
+      Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS"
+      Access-Control-Allow-Headers: "Authorization,Content-Type,Upgrade,Connection"
+      Access-Control-Allow-Credentials: "true"
+      Access-Control-Max-Age: "86400"
+
+# Compression
+compress:
+  compress: true
+  excludedContentTypes:
+    - "application/grpc"
+    - "application/grpc+proto"
+    - "application/octet-stream"
+
+# Circuit breaker for resilience
+circuit-breaker:
+  circuitBreaker:
+    expression: "ResponseCodeRatio(500, 600, 0, 600) > 0.5 || NetworkErrorRatio() > 0.1"
+    checkPeriod: 10s
+
+# Retry mechanism
+retry:
+  retry:
+    attempts: 3
+    initialInterval: 100ms
+    maxInterval: 1s
+
+# Timeout configurations
+timeouts:
+  forwarding:
+    dialTimeout: 30s
+    responseHeaderTimeout: 30s
+    idleConnTimeout: 90s
+
+  # LiveKit specific timeouts
+  livekit-timeout:
+    forwarding:
+      dialTimeout: 60s
+      responseHeaderTimeout: 60s
+      idleConnTimeout: 300s
+
+# Health check configuration
+ping:
+  entryPoint: ping
+
+# Provider configuration
+providers:
+  docker:
+    exposedByDefault: false
+    watch: true
+    network: dokploy-network
+    endpoint: unix:///var/run/docker.sock
+
+  file:
+    directory: /etc/dokploy/traefik/dynamic
+    watch: true
+
+  # Provider for Docker Swarm (if needed)
+  swarm:
+    exposedByDefault: false
+    watch: true
+    network: dokploy-network
+
+# Server configuration
+server:
+  # Forward headers configuration
+  forwardHeaders:
+    trustedIPs:
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
+      - "127.0.0.1/32"
+      - "::1/128"
+
+  # Host header configuration
+  hostHeader:
+    default: blytz.app
+
+# Experimental features
+experimental:
+  http3: true
+  plugins:
+    enabled: true
+
+# Plugin configuration (for future extensions)
+plugins:
+  blytz-plugin:
+    moduleName: github.com/blytz/traefik-plugin
+    version: v1.0.0
+
+# Monitoring configuration
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    addRoutersLabels: true
+    entryPoint: metrics
+
+# Distributed tracing
+tracing:
+  jaeger:
+    localAgentHostPort: jaeger:6831
+    samplingServerURL: http://jaeger:5778/sampling
+    samplingType: const
+    samplingParam: 1.0
+
+# Host resolver for better performance
+hostResolver:
+  cnameFlattening: true
+  resolvConfig: /etc/resolv.conf
+
+# Plugin store
+pluginStore:
+  local:
+    path: /etc/dokploy/traefik/plugins
+
+# Feature flags
+features:
+  http3: true
+  kubernetesgateway: false
+  kubernetesingress: false
+  nomad: false
+  rancher: false
+  consulcatalog: false
+  consulconnect: false
+  ecs: false
+  marathon: false
+  rancher: false
+  rest: true
+  docker: true
+  file: true
+  swarm: false
+  kubernetes: false
+  nomad: false
+  consulcatalog: false
+  consulconnect: false
+  ecs: false
+  marathon: false
+  rancher: false
+  rest: true
+
+# Performance tuning
+performance:
+  gc: 100
+  maxIdleConnsPerHost: 200
+  maxIdleConns: 0
+  idleTimeout: 180s
+
+# Security configuration
+security:
+  # Allowed IPs for admin access
+  allowedIPs:
+    - "127.0.0.1"
+    - "::1"
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+
+  # Blocked IPs (if needed)
+  blockedIPs: []
+
+  # Rate limiting for admin endpoints
+  adminRateLimit:
+    average: 10
+    burst: 5
+
+# Custom error pages
+errors:
+  service: error-pages
+  status:
+    - "400-599"
+  query: /{status}.html
+
+# Maintenance mode
+maintenance:
+  enabled: false
+  service: maintenance-service
+
+# A/B testing configuration
+ab-testing:
+  enabled: false
+  service: ab-testing-service
+
+# Feature flags
+feature-flags:
+  enabled: false
+  service: feature-flags-service
+
+# Analytics
+analytics:
+  enabled: true
+  service: analytics-service
+
+# Custom plugins
+custom-plugins:
+  enabled: false
+  plugins: []

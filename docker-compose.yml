@@ -39,8 +39,8 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: .
-      dockerfile: ./services/auth-service/Dockerfile
+      context: ./services/auth-service
+      dockerfile: Dockerfile
     container_name: blytz-auth-prod
     env_file:
       - ./.env
@@ -68,8 +68,8 @@ services:
   # Auction Service
   auction-service:
     build:
-      context: .
-      dockerfile: ./services/auction-service/Dockerfile
+      context: ./services/auction-service
+      dockerfile: Dockerfile
     container_name: blytz-auction-prod
     env_file:
       - ./.env
@@ -97,8 +97,8 @@ services:
   # Product Service
   product-service:
     build:
-      context: .
-      dockerfile: ./services/product-service/Dockerfile
+      context: ./services/product-service
+      dockerfile: Dockerfile
     container_name: blytz-product-prod
     env_file:
       - ./.env
@@ -123,8 +123,8 @@ services:
   # Order Service
   order-service:
     build:
-      context: .
-      dockerfile: ./services/order-service/Dockerfile
+      context: ./services/order-service
+      dockerfile: Dockerfile
     container_name: blytz-order-prod
     env_file:
       - ./.env
@@ -149,19 +149,15 @@ services:
   # Payment Service
   payment-service:
     build:
-      context: .
-      dockerfile: ./services/payment-service/Dockerfile
+      context: ./services/payment-service
+      dockerfile: Dockerfile
     container_name: blytz-payment-prod
     env_file:
       - ./.env
     environment:
                 - PORT=8086
-                - POSTGRES_USER=${POSTGRES_USER:-blytz}
-                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-                - POSTGRES_HOST=postgres
-                - POSTGRES_PORT=5432
-                - POSTGRES_DB=blytz_prod
-                - AUTH_SERVICE_URL=http://auth-service:8084
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://auth-service:8084
     depends_on:
       postgres:
         condition: service_healthy
@@ -179,8 +175,8 @@ services:
   # Chat Service
   chat-service:
     build:
-      context: .
-      dockerfile: ./services/chat-service/Dockerfile
+      context: ./services/chat-service
+      dockerfile: Dockerfile
     container_name: blytz-chat-prod
     env_file:
       - ./.env
@@ -205,8 +201,8 @@ services:
   # Logistics Service
   logistics-service:
     build:
-      context: .
-      dockerfile: ./services/logistics-service/Dockerfile
+      context: ./services/logistics-service
+      dockerfile: Dockerfile
     container_name: blytz-logistics-prod
     env_file:
       - ./.env
@@ -231,8 +227,8 @@ services:
   # API Gateway
   gateway:
     build:
-      context: .
-      dockerfile: ./services/gateway/Dockerfile
+      context: ./services/gateway
+      dockerfile: Dockerfile
     container_name: blytz-gateway-prod
     env_file:
       - ./.env

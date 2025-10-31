@@ -1,0 +1,44 @@
+# LiveKit Server Configuration for Blytz Live Auction
+port: 7880
+bind_addresses:
+  - "0.0.0.0"
+
+# WebRTC Configuration
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  use_external_ip: true
+
+# Redis Configuration for session management
+redis:
+  address: livekit-redis:6379
+  db: 1
+
+# API Keys for authentication
+keys:
+  blytz-demo-key: "demo-secret-key-for-viewers"
+  blytz-seller-key: "seller-secret-key-for-broadcasters"
+
+# Room Configuration
+room:
+  enabled_codecs:
+    - mime: audio/opus
+    - mime: video/vp8
+    - mime: video/h264
+  max_participants: 1000
+  empty_timeout: 300
+  departure_timeout: 20
+
+# WebHook Configuration (optional)
+webhook:
+  api_key: blytz-webhook-key
+  urls:
+    - https://api.blytz.app/webhooks/livekit
+
+# Logging
+logging:
+  level: info
+  json: true
+
+# Development Mode (set to false for production)
+dev: true

@@ -1,0 +1,97 @@
+http:
+  routers:
+    # Frontend HTTP (redirects to HTTPS)
+    frontend-router-http:
+      rule: Host(`blytz.app`) || Host(`www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # Frontend HTTPS (main domain)
+    frontend-router-secure:
+      rule: Host(`blytz.app`) || Host(`www.blytz.app`)
+      service: frontend-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Demo Interface - Viewer Platform with LiveKit Client
+    demo-router-http:
+      rule: Host(`demo.blytz.app`)
+      service: demo-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    demo-router-secure:
+      rule: Host(`demo.blytz.app`)
+      service: demo-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Seller Interface - Broadcaster Platform with LiveKit SDK
+    seller-router-http:
+      rule: Host(`seller.blytz.app`)
+      service: seller-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    seller-router-secure:
+      rule: Host(`seller.blytz.app`)
+      service: seller-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    # Dokploy Management
+    dokploy-router-app:
+      rule: Host(`dokploy.docker.localhost`) && PathPrefix(`/`) || Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+    dokploy-router-app-secure:
+      rule: Host(`sudo.blytz.app`)
+      service: dokploy-service-app
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    # Main Frontend Service
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-frontend-prod:3000
+        passHostHeader: true
+
+    # Demo Interface Service - will be created for LiveKit client
+    demo-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-demo-prod:3001
+        passHostHeader: true
+
+    # Seller Interface Service - will be created for LiveKit broadcaster
+    seller-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-seller-prod:3002
+        passHostHeader: true
+
+    dokploy-service-app:
+      loadBalancer:
+        servers:
+          - url: http://dokploy:3000
+        passHostHeader: true

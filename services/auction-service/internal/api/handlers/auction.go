@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,10 +65,13 @@ func (h *AuctionHandler) PlaceBid(c *gin.Context) {
 		return
 	}
 
-	// Notify via Firebase
-	if err := h.firebaseApp.SendBidNotification(c.Request.Context(), &bid); err != nil {
-		h.logger.Error("Failed to send bid notification", zap.Error(err))
-	}
+	// Notify via Firebase asynchronously
+	go func() {
+		// Use a background context for the async operation
+		if err := h.firebaseApp.SendBidNotification(context.Background(), &bid); err != nil {
+			h.logger.Error("Failed to send bid notification", zap.Error(err))
+		}
+	}()
 
 	utils.SendSuccessResponse(c, http.StatusCreated, bid)
 }

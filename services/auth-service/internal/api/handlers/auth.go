@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -82,12 +84,14 @@ func (h *AuthHandler) Verify(c *gin.Context) {
 		return
 	}
 
-	// For now, just return a simple validation response
-	// In a real implementation, you'd validate the JWT token
-	utils.SendSuccessResponse(c, http.StatusOK, models.ValidateTokenResponse{
-		Valid:   true,
-		Message: "Token is valid",
-	})
+	// Validate the token using the auth service
+	response, err := h.authService.ValidateToken(context.Background(), req.Token)
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, response)
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
@@ -97,17 +101,57 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// For now, just return the same token
-	// In a real implementation, you'd generate a new token
+	// First validate the current token
+	validationResponse, err := h.authService.ValidateToken(context.Background(), req.RefreshToken)
+	if err != nil || !validationResponse.Valid {
+		utils.SendErrorResponse(c, errors.New("invalid refresh token"))
+		return
+	}
+
+	// Get user by ID to generate new token
+	user, err := h.authService.GetUserByID(validationResponse.UserID)
+	if err != nil {
+		utils.SendErrorResponse(c, errors.New("user not found"))
+		return
+	}
+
+	// Generate new token
+	newToken, err := h.authService.GenerateJWT(user)
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
 	utils.SendSuccessResponse(c, http.StatusOK, gin.H{
-		"token":        req.RefreshToken, // This should be a new token
-		"refreshToken": req.RefreshToken,
+		"token":        newToken,
+		"refreshToken": req.RefreshToken, // In production, you might want to rotate refresh tokens too
 	})
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
-	// For now, just return success
-	// In a real implementation, you'd invalidate the token
+	var req struct {
+		Token string `json:"token"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// If no token in body, try to get from Authorization header
+		authHeader := c.GetHeader("Authorization")
+		if authHeader != "" && len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+			req.Token = authHeader[7:]
+		} else {
+			utils.SendErrorResponse(c, shared_errors.ErrInvalidRequestBody)
+			return
+		}
+	}
+
+	// Validate the token first
+	validationResponse, err := h.authService.ValidateToken(c.Request.Context(), req.Token)
+	if err != nil || !validationResponse.Valid {
+		utils.SendErrorResponse(c, errors.New("invalid token"))
+		return
+	}
+
+	// In a production system, you would add the token to a blacklist here
+	// For now, we'll just return success since the client should remove the token
 	utils.SendSuccessResponse(c, http.StatusOK, gin.H{"message": "Logout successful"})
 }
 
@@ -118,25 +162,49 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	// For now, just return success
-	// In a real implementation, you'd update the user profile
+	// Get user ID from context (should be set by auth middleware)
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.SendErrorResponse(c, errors.New("user not authenticated"))
+		return
+	}
+
+	// Update user profile
+	if err := h.authService.UpdateUserProfile(context.Background(), userID.(string), &req); err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
 	utils.SendSuccessResponse(c, http.StatusOK, gin.H{"message": "Profile updated successfully"})
 }
 
 func (h *AuthHandler) GetProfile(c *gin.Context) {
-	// For now, return a mock profile
-	// In a real implementation, you'd get the user from the authenticated context
-	mockProfile := gin.H{
-		"id":           "123",
-		"email":        "user@example.com",
-		"display_name": "Test User",
-		"phone_number": "+1234567890",
-		"avatar_url":   "",
-		"is_active":    true,
-		"role":         "user",
-		"created_at":   "2024-01-01T00:00:00Z",
-		"updated_at":   "2024-01-01T00:00:00Z",
+	// Get user ID from context (should be set by auth middleware)
+	userID, exists := c.Get("userID")
+	if !exists {
+		utils.SendErrorResponse(c, errors.New("user not authenticated"))
+		return
 	}
 
-	utils.SendSuccessResponse(c, http.StatusOK, mockProfile)
+	// Get user profile
+	user, err := h.authService.GetUserByID(userID.(string))
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	// Return user profile (excluding sensitive data like password)
+	profile := gin.H{
+		"id":           user.ID,
+		"email":        user.Email,
+		"display_name": user.DisplayName,
+		"phone_number": user.PhoneNumber,
+		"avatar_url":   user.AvatarURL,
+		"is_active":    user.IsActive,
+		"role":         user.Role,
+		"created_at":   user.CreatedAt,
+		"updated_at":   user.UpdatedAt,
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, profile)
 }

@@ -130,3 +130,40 @@ func (s *AuthService) generateJWT(user *models.User) (string, error) {
 	return token.SignedString([]byte(s.config.JWTSecret))
 }
 
+// GetUserByID gets a user by ID
+func (s *AuthService) GetUserByID(userID string) (*models.User, error) {
+	var user models.User
+	if err := s.db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// UpdateUserProfile updates user profile information
+func (s *AuthService) UpdateUserProfile(ctx context.Context, userID string, req *models.UpdateProfileRequest) error {
+	var user models.User
+	if err := s.db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return err
+	}
+
+	// Update fields if provided
+	if req.DisplayName != "" {
+		user.DisplayName = req.DisplayName
+	}
+	if req.PhoneNumber != "" {
+		user.PhoneNumber = req.PhoneNumber
+	}
+	if req.AvatarURL != "" {
+		user.AvatarURL = req.AvatarURL
+	}
+
+	user.UpdatedAt = time.Now()
+
+	return s.db.Save(&user).Error
+}
+
+// GenerateJWT generates a JWT token for a user (public method)
+func (s *AuthService) GenerateJWT(user *models.User) (string, error) {
+	return s.generateJWT(user)
+}
+

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Demo Interface - Viewer Platform with LiveKit Client SDK
+  demo-frontend:
+    build:
+      context: ./frontend-demo
+      dockerfile: Dockerfile
+    container_name: blytz-demo-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://api.blytz.app
+      - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.blytz.app
+      - DEMO_MODE=viewer
+    networks:
+      - blytz-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.demo-frontend.rule=Host(`demo.blytz.app`)"
+      - "traefik.http.routers.demo-frontend.entrypoints=websecure"
+      - "traefik.http.routers.demo-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.demo-frontend.loadbalancer.server.port=3001"
+
+  # Seller Interface - Broadcaster Platform with LiveKit SDK
+  seller-frontend:
+    build:
+      context: ./frontend-seller
+      dockerfile: Dockerfile
+    container_name: blytz-seller-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://api.blytz.app
+      - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.blytz.app
+      - SELLER_MODE=broadcaster
+    networks:
+      - blytz-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.seller-frontend.rule=Host(`seller.blytz.app`)"
+      - "traefik.http.routers.seller-frontend.entrypoints=websecure"
+      - "traefik.http.routers.seller-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.seller-frontend.loadbalancer.server.port=3002"
+
+  # LiveKit Server for WebRTC streaming
+  livekit-server:
+    image: livekit/livekit-server:latest
+    container_name: blytz-livekit-prod
+    restart: unless-stopped
+    command: >
+      --config /etc/livekit.yaml
+      --dev
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882"
+    volumes:
+      - ./livekit-config.yaml:/etc/livekit.yaml
+    networks:
+      - blytz-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.livekit.rule=Host(`livekit.blytz.app`)"
+      - "traefik.http.routers.livekit.entrypoints=websecure"
+      - "traefik.http.routers.livekit.tls.certresolver=letsencrypt"
+      - "traefik.http.services.livekit.loadbalancer.server.port=7880"
+
+  # Redis for LiveKit session management
+  livekit-redis:
+    image: redis:7-alpine
+    container_name: blytz-livekit-redis-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - livekit-redis-data:/data
+    networks:
+      - blytz-network
+
+networks:
+  blytz-network:
+    external: true
+
+volumes:
+  livekit-redis-data:

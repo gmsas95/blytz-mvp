@@ -14,13 +14,13 @@ import (
 
 
 type AuctionService struct {
-	repo   repository.AuctionRepo
+	db     *sql.DB
 	logger *zap.Logger
 	config *config.Config
 }
 
-func NewAuctionService(repo repository.AuctionRepo, logger *zap.Logger, config *config.Config) *AuctionService {
-	return &AuctionService{repo: repo, logger: logger, config: config}
+func NewAuctionService(db *sql.DB, logger *zap.Logger, config *config.Config) *AuctionService {
+	return &AuctionService{db: db, logger: logger, config: config}
 }
 
 func (s *AuctionService) CreateAuction(ctx context.Context, auction *models.Auction) error {
@@ -31,7 +31,8 @@ func (s *AuctionService) CreateAuction(ctx context.Context, auction *models.Auct
 		auction.EndTime = auction.StartTime.Add(s.config.DefaultAuctionDuration)
 	}
 
-	if err := s.repo.Create(ctx, auction); err != nil {
+	repo := repository.NewPostgresRepo(s.db, s.logger)
+	if err := repo.Create(ctx, auction); err != nil {
 		s.logger.Error("Failed to create auction", zap.Error(err))
 		return shared_errors.ErrInternalServer
 	}
@@ -39,7 +40,8 @@ func (s *AuctionService) CreateAuction(ctx context.Context, auction *models.Auct
 }
 
 func (s *AuctionService) GetAuction(ctx context.Context, id string) (*models.Auction, error) {
-	auction, err := s.repo.GetByID(ctx, id)
+	repo := repository.NewPostgresRepo(s.db, s.logger)
+	auction, err := repo.GetByID(ctx, id)
 	if err != nil {
 		s.logger.Error("Failed to get auction", zap.String("auction_id", id), zap.Error(err))
 		return nil, shared_errors.ErrNotFound
@@ -48,7 +50,21 @@ func (s *AuctionService) GetAuction(ctx context.Context, id string) (*models.Auc
 }
 
 func (s *AuctionService) PlaceBid(ctx context.Context, bid *models.Bid) error {
-	auction, err := s.repo.GetByID(ctx, bid.AuctionID)
+	// Create a new repository instance for the transaction
+	repo := repository.NewPostgresRepo(s.db, s.logger)
+
+	// Begin a transaction
+	tx, err := repo.BeginTx(ctx)
+	if err != nil {
+		s.logger.Error("Failed to begin transaction", zap.Error(err))
+		return shared_errors.ErrInternalServer
+	}
+	defer tx.Rollback() // Rollback is a no-op if the transaction is already committed
+
+	// Create a new repository with the transaction
+	txRepo := repo.WithTx(tx)
+
+	auction, err := txRepo.GetByID(ctx, bid.AuctionID)
 	if err != nil {
 		s.logger.Error("Failed to get auction for bid", zap.String("auction_id", bid.AuctionID), zap.Error(err))
 		return shared_errors.ErrNotFound
@@ -62,15 +78,20 @@ func (s *AuctionService) PlaceBid(ctx context.Context, bid *models.Bid) error {
 		return shared_errors.ErrBidTooLow
 	}
 
-	if err := s.repo.CreateBid(ctx, bid); err != nil {
+	if err := txRepo.CreateBid(ctx, bid); err != nil {
 		s.logger.Error("Failed to place bid", zap.Any("bid", bid), zap.Error(err))
 		return shared_errors.ErrInternalServer
 	}
 
-	if err := s.repo.UpdateAuctionPrice(ctx, bid.AuctionID, bid.Amount); err != nil {
+	if err := txRepo.UpdateAuctionPrice(ctx, bid.AuctionID, bid.Amount); err != nil {
 		s.logger.Error("Failed to update auction price", zap.String("auction_id", bid.AuctionID), zap.Float64("new_price", bid.Amount), zap.Error(err))
-		// This is an internal error, the bid was placed but the price update failed.
-		// The system should handle this inconsistency, for now we log it.
+		return shared_errors.ErrInternalServer
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		s.logger.Error("Failed to commit transaction", zap.Error(err))
+		return shared_errors.ErrInternalServer
 	}
 
 	return nil

@@ -71,12 +71,36 @@ http:
       tls:
         certResolver: letsencrypt
 
+    # API Gateway Router (for api.blytz.app)
+    api-gateway-router-http:
+      rule: Host(`api.blytz.app`)
+      service: gateway-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    api-gateway-router-secure:
+      rule: Host(`api.blytz.app`)
+      service: gateway-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
   services:
     # Main Frontend Service
     frontend-service:
       loadBalancer:
         servers:
           - url: http://blytz-frontend-prod:3000
+        passHostHeader: true
+
+    # API Gateway Service
+    gateway-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-gateway-prod:8080
         passHostHeader: true
 
     # Demo Frontend Service - Viewer Platform

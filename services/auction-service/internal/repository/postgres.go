@@ -14,12 +14,24 @@ import (
 
 
 type PostgresRepo struct {
-	db     *sql.DB
+	db     DBTX
 	logger *zap.Logger
 }
 
-func NewPostgresRepo(db *sql.DB, logger *zap.Logger) *PostgresRepo {
+func NewPostgresRepo(db DBTX, logger *zap.Logger) *PostgresRepo {
 	return &PostgresRepo{db: db, logger: logger}
+}
+
+func (r *PostgresRepo) BeginTx(ctx context.Context) (*sql.Tx, error) {
+	db, ok := r.db.(*sql.DB)
+	if !ok {
+		return nil, fmt.Errorf("cannot begin transaction with a transaction")
+	}
+	return db.BeginTx(ctx, nil)
+}
+
+func (r *PostgresRepo) WithTx(tx *sql.Tx) AuctionRepo {
+	return &PostgresRepo{db: tx, logger: r.logger}
 }
 
 func (r *PostgresRepo) Create(ctx context.Context, auction *models.Auction) error {

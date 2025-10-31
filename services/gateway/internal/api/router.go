@@ -1,18 +1,24 @@
 package api
 
 import (
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
-	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
+	shared_auth "github.com/gmsas95/blytz-mvp/shared/pkg/auth"
 )
 
 func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
 	// Initialize auth client
-	authClient := auth.NewAuthClient("http://auth-service:8084")
+	authClient := shared_auth.NewAuthClient("http://auth-service:8084")
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
@@ -33,34 +39,144 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			})
 		}
 
+		// Auth routes (public)
+		auth := api.Group("/auth")
+		{
+			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
+		}
+
 		// Protected routes
 		protected := api.Group("/v1")
-		protected.Use(auth.GinAuthMiddleware(authClient))
+		protected.Use(shared_auth.GinAuthMiddleware(authClient))
 		{
 			// Proxy to other services
-			protected.Any("/auctions/*proxyPath", proxyToService("http://auction-service:8083"))
-			protected.Any("/products/*proxyPath", proxyToService("http://product-service:8082"))
-			protected.Any("/orders/*proxyPath", proxyToService("http://order-service:8085"))
-			protected.Any("/payments/*proxyPath", proxyToService("http://payment-service:8086"))
-			protected.Any("/logistics/*proxyPath", proxyToService("http://logistics-service:8087"))
-			protected.Any("/chat/*proxyPath", proxyToService("http://chat-service:8088"))
+			protected.Any("/auctions/*proxyPath", proxyToService("http://auction-service:8083", logger))
+			protected.Any("/products/*proxyPath", proxyToService("http://product-service:8082", logger))
+			protected.Any("/orders/*proxyPath", proxyToService("http://order-service:8085", logger))
+			protected.Any("/payments/*proxyPath", proxyToService("http://payment-service:8086", logger))
+			protected.Any("/logistics/*proxyPath", proxyToService("http://logistics-service:8087", logger))
+			protected.Any("/chat/*proxyPath", proxyToService("http://chat-service:8088", logger))
 		}
 	}
 
 	return router
 }
 
-func proxyToService(targetURL string) gin.HandlerFunc {
+func proxyToServiceWithPath(targetURL string, targetPath string, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Simple proxy implementation
-		proxyPath := c.Param("proxyPath")
-		fullURL := targetURL + proxyPath
+		// Parse the target URL
+		target, err := url.Parse(targetURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid target URL"})
+			return
+		}
 
-		// For now, just return a placeholder response
-		c.JSON(200, gin.H{
-			"message": "Gateway proxy",
-			"target":  fullURL,
-			"path":    proxyPath,
-		})
+		// Create a single-host reverse proxy
+		proxy := httputil.NewSingleHostReverseProxy(target)
+		
+		// Customize the director to properly handle the path
+		originalDirector := proxy.Director
+		proxy.Director = func(req *http.Request) {
+			originalDirector(req)
+			
+			// Extract the proxy path and prepend the target path
+			proxyPath := c.Param("proxyPath")
+			if proxyPath != "" && !strings.HasPrefix(proxyPath, "/") {
+				proxyPath = "/" + proxyPath
+			}
+			
+			// Combine target path with proxy path
+			fullPath := targetPath + proxyPath
+			
+			// Set the proper path and raw path
+			req.URL.Path = fullPath
+			req.URL.RawPath = fullPath
+			
+			// Copy headers from original request
+			for key, values := range c.Request.Header {
+				for _, value := range values {
+					req.Header.Add(key, value)
+				}
+			}
+			
+			// Set the proper host
+			req.Host = target.Host
+		}
+
+		// Handle proxy errors
+		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+			logger.Error("Proxy error", 
+				zap.String("target", targetURL), 
+				zap.String("path", r.URL.Path), 
+				zap.Error(err))
+			w.WriteHeader(http.StatusBadGateway)
+			w.Write([]byte(`{"error": "Service unavailable", "message": "The requested service is not available"}`))
+		}
+
+		// Set a timeout for the proxy request
+		proxy.Transport = &http.Transport{
+			ResponseHeaderTimeout: 30 * time.Second,
+		}
+
+		// Serve the request through the proxy
+		proxy.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Parse the target URL
+		target, err := url.Parse(targetURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid target URL"})
+			return
+		}
+
+		// Create a single-host reverse proxy
+		proxy := httputil.NewSingleHostReverseProxy(target)
+		
+		// Customize the director to properly handle the path
+		originalDirector := proxy.Director
+		proxy.Director = func(req *http.Request) {
+			originalDirector(req)
+			
+			// Extract the proxy path and clean it
+			proxyPath := c.Param("proxyPath")
+			if proxyPath != "" && !strings.HasPrefix(proxyPath, "/") {
+				proxyPath = "/" + proxyPath
+			}
+			
+			// Set the proper path and raw path
+			req.URL.Path = proxyPath
+			req.URL.RawPath = proxyPath
+			
+			// Copy headers from original request
+			for key, values := range c.Request.Header {
+				for _, value := range values {
+					req.Header.Add(key, value)
+				}
+			}
+			
+			// Set the proper host
+			req.Host = target.Host
+		}
+
+		// Handle proxy errors
+		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+			logger.Error("Proxy error", 
+				zap.String("target", targetURL), 
+				zap.String("path", r.URL.Path), 
+				zap.Error(err))
+			w.WriteHeader(http.StatusBadGateway)
+			w.Write([]byte(`{"error": "Service unavailable", "message": "The requested service is not available"}`))
+		}
+
+		// Set a timeout for the proxy request
+		proxy.Transport = &http.Transport{
+			ResponseHeaderTimeout: 30 * time.Second,
+		}
+
+		// Serve the request through the proxy
+		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 }

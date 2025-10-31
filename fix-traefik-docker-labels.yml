@@ -1,0 +1,28 @@
+# Fix Traefik routing using Docker labels (Dokploy approach)
+# This shows the proper Docker labels for Dokploy routing
+
+# For your existing services, add these labels to docker-compose.yml:
+
+# Demo Frontend - Add these labels to demo-frontend service:
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.demo-frontend.rule=Host(`demo.blytz.app`)"
+  - "traefik.http.routers.demo-frontend.entrypoints=websecure"
+  - "traefik.http.routers.demo-frontend.tls.certresolver=letsencrypt"
+  - "traefik.http.services.demo-frontend.loadbalancer.server.port=3001"
+
+# Seller Frontend - Add these labels to seller-frontend service:
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.seller-frontend.rule=Host(`seller.blytz.app`)"
+  - "traefik.http.routers.seller-frontend.entrypoints=websecure"
+  - "traefik.http.routers.seller-frontend.tls.certresolver=letsencrypt"
+  - "traefik.http.services.seller-frontend.loadbalancer.server.port=3002"
+
+# LiveKit (if using self-hosted) - Add these labels to livekit-server service:
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.livekit.rule=Host(`livekit.blytz.app`)"
+  - "traefik.http.routers.livekit.entrypoints=websecure"
+  - "traefik.http.routers.livekit.tls.certresolver=letsencrypt"
+  - "traefik.http.services.livekit.loadbalancer.server.port=7880"

@@ -43,10 +43,14 @@ func LoadConfig() *Config {
 		StripePublishableKey: getEnv("STRIPE_PUBLISHABLE_KEY", "pk_test_..."),
 	}
 
-	// Construct the database URL
-	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
-	cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+	// Use DATABASE_URL if provided, otherwise construct it
+	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
+		cfg.DatabaseURL = databaseURL
+	} else {
+		encodedPassword := url.QueryEscape(cfg.PostgresPassword)
+		cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+	}
 
 	return cfg
 }
