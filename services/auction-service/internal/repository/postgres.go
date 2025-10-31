@@ -175,11 +175,3 @@ func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]models.Auction,
 
 	return auctions, nil
 }
-
-func (r *PostgresRepo) Ping(ctx context.Context) error {
-	return r.db.PingContext(ctx)
-}
-
-func (r *PostgresRepo) Close() error {
-	return r.db.Close()
-}
