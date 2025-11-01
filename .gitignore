@@ -293,3 +293,120 @@ bin/
 *.db
 *.sqlite
 *.sqlite3
+
+# Large binary files and distributions
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.deb
+*.rpm
+*.dmg
+*.pkg
+*.msi
+*.exe
+*.bin
+*.run
+*.sh
+
+# Go distribution files
+go*.tar.gz
+go*.zip
+*.go
+
+# Build tools and binaries
+cmd/
+bin/
+tools/
+*.bin
+
+# Large documentation files (keep essential ones)
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Test artifacts and reports
+test-results/
+playwright-report/
+coverage/
+*.lcov
+.nyc_output/
+reports/
+
+# Docker build artifacts
+.dockerignore.bak
+Dockerfile.*.bak
+docker-compose.*.bak
+
+# Configuration backups
+*.conf.backup
+*.config.backup
+*.yml.backup
+*.yaml.backup
+
+# Local development artifacts
+.local/
+local/
+dev/
+development/
+
+# Cache directories
+.cache/
+cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Package manager locks (keep source control locks)
+# package-lock.json and yarn.lock should be committed
+# But ignore other lock files
+*.lock.bak
+*.lock.tmp
+
+# Generated files
+generated/
+auto-generated/
+*.generated.*
+
+# Profiling and debugging
+*.prof
+*.pprof
+*.cpu
+*.mem
+heap.prof
+cpu.prof
+
+# Monitoring and metrics data
+metrics/
+monitoring/
+*.metrics
+*.monitoring
+prometheus-data/
+grafana-data/
+
+# Temporary deployment files
+deploy-temp/
+deployment-temp/
+.tmp-deploy/
+
+# Large media files (unless needed for the project)
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+*.iso
+*.img
+
+# Archive and backup directories
+archives/
+backups/
+old/
+legacy/
+deprecated/

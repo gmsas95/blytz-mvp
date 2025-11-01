@@ -1,0 +1,256 @@
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Documentation
+*.md
+docs/
+README*
+CHANGELOG*
+LICENSE*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dependencies and package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+vendor/
+go.sum
+
+# Build artifacts and binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+build/
+dist/
+target/
+*.bin
+cmd/
+tools/
+
+# Environment and secrets
+.env
+.env.*
+.env.local
+.env.staging
+.env.production
+secrets/
+keys/
+*.secret
+*.keyfile
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+service-account-*.json
+google-services.json
+
+# Logs and temporary files
+*.log
+logs/
+log/
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Testing and coverage
+test-results/
+playwright-report/
+coverage/
+*.coverprofile
+*.lcov
+.nyc_output/
+reports/
+
+# Docker and deployment
+.dockerignore.bak
+Dockerfile.*.bak
+docker-compose.*.bak
+deploy-temp/
+deployment-temp/
+.tmp-deploy/
+
+# Configuration backups
+*.conf.backup
+*.config.backup
+*.yml.backup
+*.yaml.backup
+*.bak
+*.backup
+*.old
+
+# Local development
+.local/
+local/
+dev/
+development/
+.local-compose.yml
+local-docker-compose.yml
+docker-compose.override.yml
+
+# Large files and archives
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.deb
+*.rpm
+*.dmg
+*.pkg
+*.msi
+*.run
+*.sh
+go*.tar.gz
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+*.iso
+*.img
+
+# Generated files
+generated/
+auto-generated/
+*.generated.*
+
+# Profiling and debugging
+*.prof
+*.pprof
+*.cpu
+*.mem
+heap.prof
+cpu.prof
+
+# Monitoring and metrics
+metrics/
+monitoring/
+*.metrics
+*.monitoring
+prometheus-data/
+grafana-data/
+
+# Archive and backup directories
+archives/
+backups/
+old/
+legacy/
+deprecated/
+
+# Frontend specific
+.next/
+out/
+build/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/node_modules/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.npm
+frontend/.yarn-integrity
+
+# Service specific
+services/*/bin/
+services/*/build/
+services/*/dist/
+services/*/node_modules/
+services/*/.env
+services/*/vendor/
+services/*/logs/
+services/*/tmp/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+mysql-data/
+redis-data/
+docker-volumes/
+volumes/
+data/
+
+# Firebase
+.firebase/
+.firebaserc
+
+# Dokploy specific
+dokploy-data/
+.dokploy/
+
+# Package manager locks (keep source control locks)
+*.lock.bak
+*.lock.tmp
+
+# Security files
+*.private
+*.token
+*.password
+*.credential
+*.auth
+security/
+credentials/
+config/secrets/
+aws-credentials.json
+gcp-credentials.json
+azure-credentials.json
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+known_hosts
+ssh_config
+
+# Application specific
+shared/pkg/auth/keys/
+services/*/config/secrets/
+services/*/keys/
