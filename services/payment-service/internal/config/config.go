@@ -8,39 +8,55 @@ import (
 )
 
 type Config struct {
-	Environment      string
-	ServicePort      string
-	DatabaseURL      string
-	PostgresUser     string `env:"POSTGRES_USER"`
-	PostgresPassword string `env:"POSTGRES_PASSWORD"`
-	PostgresHost     string `env:"POSTGRES_HOST"`
-	PostgresPort     string `env:"POSTGRES_PORT"`
-	PostgresDB       string `env:"POSTGRES_DB"`
-	RedisURL         string
-	RedisPassword    string
-	AuthServiceURL   string
-	JWTSecret        string
-	LogLevel         string
-	StripeSecretKey  string
+	Environment          string
+	ServicePort          string
+	DatabaseURL          string
+	PostgresUser         string `env:"POSTGRES_USER"`
+	PostgresPassword     string `env:"POSTGRES_PASSWORD"`
+	PostgresHost         string `env:"POSTGRES_HOST"`
+	PostgresPort         string `env:"POSTGRES_PORT"`
+	PostgresDB           string `env:"POSTGRES_DB"`
+	RedisURL             string
+	RedisPassword        string
+	AuthServiceURL       string
+	JWTSecret            string
+	LogLevel             string
+	StripeSecretKey      string
 	StripePublishableKey string
+	// Fiuu Payment Gateway Configuration
+	FiuuMerchantID  string
+	FiuuVerifyKey   string
+	FiuuSandbox     bool
+	FiuuReturnURL   string
+	FiuuNotifyURL   string
+	FiuuCallbackURL string
+	FiuuCancelURL   string
 }
 
 func LoadConfig() *Config {
 	cfg := &Config{
-		Environment:      getEnv("NODE_ENV", "development"),
-		ServicePort:      getEnv("PORT", "8086"),
-		PostgresUser:     getEnv("POSTGRES_USER", "blytz"),
-		PostgresPassword: getEnv("POSTGRES_PASSWORD", ""),
-		PostgresHost:     getEnv("POSTGRES_HOST", "postgres"),
-		PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
-		PostgresDB:       getEnv("POSTGRES_DB", "blytz_prod"),
-		RedisURL:         getEnv("REDIS_URL", "redis:6379"),
-		RedisPassword:    getEnv("REDIS_PASSWORD", ""),
-		AuthServiceURL:   getEnv("AUTH_SERVICE_URL", "http://auth-service:8084"),
-		JWTSecret:        getEnv("JWT_SECRET", "your-secret-key"),
-		LogLevel:         getEnv("LOG_LEVEL", "info"),
-		StripeSecretKey:  getEnv("STRIPE_SECRET_KEY", "sk_test_..."),
+		Environment:          getEnv("NODE_ENV", "development"),
+		ServicePort:          getEnv("PORT", "8086"),
+		PostgresUser:         getEnv("POSTGRES_USER", "blytz"),
+		PostgresPassword:     getEnv("POSTGRES_PASSWORD", ""),
+		PostgresHost:         getEnv("POSTGRES_HOST", "postgres"),
+		PostgresPort:         getEnv("POSTGRES_PORT", "5432"),
+		PostgresDB:           getEnv("POSTGRES_DB", "blytz_prod"),
+		RedisURL:             getEnv("REDIS_URL", "redis:6379"),
+		RedisPassword:        getEnv("REDIS_PASSWORD", ""),
+		AuthServiceURL:       getEnv("AUTH_SERVICE_URL", "http://auth-service:8084"),
+		JWTSecret:            getEnv("JWT_SECRET", "your-secret-key"),
+		LogLevel:             getEnv("LOG_LEVEL", "info"),
+		StripeSecretKey:      getEnv("STRIPE_SECRET_KEY", "sk_test_..."),
 		StripePublishableKey: getEnv("STRIPE_PUBLISHABLE_KEY", "pk_test_..."),
+		// Fiuu Payment Gateway Configuration
+		FiuuMerchantID:  getEnv("FIUU_MERCHANT_ID", ""),
+		FiuuVerifyKey:   getEnv("FIUU_VERIFY_KEY", ""),
+		FiuuSandbox:     getEnvAsBool("FIUU_SANDBOX", true),
+		FiuuReturnURL:   getEnv("FIUU_RETURN_URL", ""),
+		FiuuNotifyURL:   getEnv("FIUU_NOTIFY_URL", ""),
+		FiuuCallbackURL: getEnv("FIUU_CALLBACK_URL", ""),
+		FiuuCancelURL:   getEnv("FIUU_CANCEL_URL", ""),
 	}
 
 	// Use DATABASE_URL if provided, otherwise construct it
@@ -66,6 +82,15 @@ func getEnvAsInt(key string, defaultValue int) int {
 	if value := os.Getenv(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return defaultValue

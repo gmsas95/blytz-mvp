@@ -9,7 +9,11 @@ import {
   AuctionFilter,
   LivestreamFilter,
   ApiResponse,
-  PaginatedResponse
+  PaginatedResponse,
+  PaymentMethodInfo,
+  FiuuSeamlessConfig,
+  PaymentRequest,
+  PaymentResponse
 } from '@/types'
 import { mockProducts, mockAuctions, mockLivestreams, mockCart, mockUsers } from '@/data/mock-data'
 
@@ -42,6 +46,12 @@ export interface ApiAdapter {
   register(userData: Partial<User>): Promise<ApiResponse<User>>
   logout(): Promise<ApiResponse<void>>
   getCurrentUser(): Promise<ApiResponse<User>>
+
+  // Payments
+  getPaymentMethods(): Promise<ApiResponse<PaymentMethodInfo[]>>
+  getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>>
+  createPayment(paymentRequest: PaymentRequest): Promise<ApiResponse<PaymentResponse>>
+  getPaymentStatus(paymentId: string): Promise<ApiResponse<PaymentResponse>>
 }
 
 // Mock API Adapter
@@ -320,6 +330,129 @@ export class MockApiAdapter implements ApiAdapter {
     await this.delay(300)
     return { success: true, data: mockUsers[0] }
   }
+
+  // Payment methods
+  async getPaymentMethods(): Promise<ApiResponse<PaymentMethodInfo[]>> {
+    await this.delay()
+    return {
+      success: true,
+      data: [
+        {
+          id: 'fpx',
+          name: 'FPX Online Banking',
+          type: 'bank_transfer',
+          icon: '🏦',
+          description: 'Pay directly from your bank account',
+          available: true,
+          fee: 0
+        },
+        {
+          id: 'tng',
+          name: 'Touch \'n Go eWallet',
+          type: 'ewallet',
+          icon: '📱',
+          description: 'Instant payment with TNG eWallet',
+          available: true,
+          fee: 0.50
+        },
+        {
+          id: 'grabpay',
+          name: 'GrabPay',
+          type: 'ewallet',
+          icon: '🚗',
+          description: 'Pay with GrabPay eWallet',
+          available: true,
+          fee: 0.50
+        },
+        {
+          id: 'credit_card',
+          name: 'Credit/Debit Card',
+          type: 'card',
+          icon: '💳',
+          description: 'Visa, Mastercard, AMEX',
+          available: true,
+          fee: 1.5
+        },
+        {
+          id: 'shopeepay',
+          name: 'ShopeePay',
+          type: 'ewallet',
+          icon: '🛒',
+          description: 'Quick payment with ShopeePay',
+          available: true,
+          fee: 0.50
+        }
+      ]
+    }
+  }
+
+  async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
+    await this.delay()
+    return {
+      success: true,
+      data: {
+        version: '7.5.0',
+        actionType: 'Pay',
+        merchantID: 'MERCHANT_ID',
+        paymentMethod: 'all',
+        orderNumber: `ORDER_${Date.now()}`,
+        amount: 100.00,
+        currency: 'MYR',
+        productDescription: 'Blytz Auction Purchase',
+        userName: 'John Doe',
+        userEmail: 'john@example.com',
+        userContact: '+60123456789',
+        remark: 'Payment for auction items',
+        lang: 'en',
+        vcode: 'MOCK_VCODE_123456',
+        callbackURL: 'https://your-domain.com/api/payments/webhook',
+        returnURL: 'https://your-domain.com/checkout/success',
+        backgroundUrl: 'https://your-domain.com/api/payments/webhook'
+      }
+    }
+  }
+
+  async createPayment(paymentRequest: PaymentRequest): Promise<ApiResponse<PaymentResponse>> {
+    await this.delay(2000)
+    
+    const paymentId = `PAY_${Date.now()}`
+    const orderNumber = `ORDER_${Date.now()}`
+    
+    return {
+      success: true,
+      data: {
+        paymentId,
+        orderNumber,
+        amount: paymentRequest.amount,
+        currency: 'MYR',
+        status: 'pending',
+        paymentMethod: paymentRequest.paymentMethod,
+        redirectUrl: `https://your-domain.com/checkout/success?payment_id=${paymentId}`,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+      }
+    }
+  }
+
+  async getPaymentStatus(paymentId: string): Promise<ApiResponse<PaymentResponse>> {
+    await this.delay()
+    
+    // Mock payment status - in real implementation this would check the actual payment status
+    return {
+      success: true,
+      data: {
+        paymentId,
+        orderNumber: `ORDER_${Date.now()}`,
+        amount: 100.00,
+        currency: 'MYR',
+        status: Math.random() > 0.3 ? 'success' : 'pending',
+        paymentMethod: 'fpx',
+        redirectUrl: '',
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+      }
+    }
+  }
 }
 
 // Remote API Adapter (for production)
@@ -453,6 +586,26 @@ export class RemoteApiAdapter implements ApiAdapter {
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return this.fetchApi('/auth/me')
+  }
+
+  // Payment methods
+  async getPaymentMethods(): Promise<ApiResponse<PaymentMethodInfo[]>> {
+    return this.fetchApi('/payments/methods')
+  }
+
+  async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
+    return this.fetchApi('/payments/fiuu/seamless-config')
+  }
+
+  async createPayment(paymentRequest: PaymentRequest): Promise<ApiResponse<PaymentResponse>> {
+    return this.fetchApi('/payments/create', {
+      method: 'POST',
+      body: JSON.stringify(paymentRequest)
+    })
+  }
+
+  async getPaymentStatus(paymentId: string): Promise<ApiResponse<PaymentResponse>> {
+    return this.fetchApi(`/payments/${paymentId}/status`)
   }
 }
 

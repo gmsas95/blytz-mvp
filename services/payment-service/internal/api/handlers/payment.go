@@ -158,6 +158,62 @@ func (h *PaymentHandler) ProcessRefund(c *gin.Context) {
 	utils.SuccessResponse(c, response)
 }
 
+// GetSeamlessConfig returns Fiuu seamless configuration for frontend
+func (h *PaymentHandler) GetSeamlessConfig(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		utils.ErrorResponse(c, errors.ErrUnauthorized)
+		return
+	}
+
+	orderID := c.Query("order_id")
+	amountStr := c.Query("amount")
+	billName := c.Query("bill_name")
+	billEmail := c.Query("bill_email")
+	billMobile := c.Query("bill_mobile")
+	billDesc := c.Query("bill_desc")
+	channel := c.Query("channel")
+
+	if orderID == "" || amountStr == "" || billName == "" || billEmail == "" || billMobile == "" || billDesc == "" || channel == "" {
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
+		return
+	}
+
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil || amount <= 0 {
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
+		return
+	}
+
+	config, err := h.paymentService.GetSeamlessConfig(orderID, amount, billName, billEmail, billMobile, billDesc, channel)
+	if err != nil {
+		h.logger.Error("Failed to get seamless config", zap.Error(err))
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, config)
+}
+
+// ProcessWebhook handles Fiuu webhook notifications
+func (h *PaymentHandler) ProcessWebhook(c *gin.Context) {
+	var webhook models.FiuuWebhookRequest
+	if err := c.ShouldBindJSON(&webhook); err != nil {
+		h.logger.Error("Invalid webhook payload", zap.Error(err))
+		c.JSON(400, gin.H{"error": "Invalid webhook payload"})
+		return
+	}
+
+	if err := h.paymentService.ProcessWebhook(c.Request.Context(), &webhook); err != nil {
+		h.logger.Error("Failed to process webhook", zap.Error(err))
+		c.JSON(500, gin.H{"error": "Failed to process webhook"})
+		return
+	}
+
+	// Return success response to Fiuu
+	c.JSON(200, gin.H{"status": "success"})
+}
+
 func (h *PaymentHandler) mapPaymentToResponse(payment *models.Payment) *models.PaymentResponse {
 	var refundedAt *string
 	if payment.RefundedAt != nil {

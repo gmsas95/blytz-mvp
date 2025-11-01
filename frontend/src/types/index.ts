@@ -169,3 +169,57 @@ export type LivestreamFilter = {
   seller?: string
   search?: string
 }
+
+// Payment related types
+export interface PaymentMethodInfo {
+  id: string
+  name: string
+  type: string
+  description: string
+  available: boolean
+  fee: number
+  icon?: string
+}
+
+export interface FiuuSeamlessConfig {
+  version: string
+  actionType: string
+  merchantID: string
+  paymentMethod: string
+  orderNumber: string
+  amount: number
+  currency: string
+  productDescription: string
+  userName: string
+  userEmail: string
+  userContact: string
+  remark: string
+  lang: string
+  vcode: string
+  callbackURL: string
+  returnURL: string
+  backgroundUrl: string
+}
+
+export interface PaymentRequest {
+  amount: number
+  currency: string
+  paymentMethod: string
+  orderNumber: string
+  description: string
+  returnUrl: string
+  cancelUrl: string
+  webhookUrl: string
+}
+
+export interface PaymentResponse {
+  paymentId: string
+  orderNumber: string
+  amount: number
+  currency: string
+  status: string
+  paymentMethod: string
+  redirectUrl: string
+  createdAt: string
+  expiresAt: string
+}

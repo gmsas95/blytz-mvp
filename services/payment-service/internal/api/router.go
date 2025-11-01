@@ -5,9 +5,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
-	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/services"
-	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/api/handlers"
+	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
 )
 
@@ -50,7 +50,11 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		paymentRoutes.GET("/history", paymentHandler.GetPaymentHistory)
 		paymentRoutes.GET("/:id", paymentHandler.GetPayment)
 		paymentRoutes.POST("/:id/refund", paymentHandler.ProcessRefund)
+		paymentRoutes.GET("/seamless/config", paymentHandler.GetSeamlessConfig)
 	}
+
+	// Webhook endpoint (no auth required)
+	router.POST("/api/v1/webhooks/fiuu", paymentHandler.ProcessWebhook)
 
 	return router
 }

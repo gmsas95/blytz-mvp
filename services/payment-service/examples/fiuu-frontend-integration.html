@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiuu Payment Integration - Blytz Auction</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .payment-method {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .payment-method:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        .payment-method.selected {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+        .payment-method.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .order-summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blytz Auction - Payment</h1>
+        
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            <p><strong>Auction Item:</strong> <span id="item-name">Vintage Watch</span></p>
+            <p><strong>Amount:</strong> RM <span id="amount">50.00</span></p>
+            <p><strong>Order ID:</strong> <span id="order-id">AUCTION-12345</span></p>
+        </div>
+
+        <div class="form-group">
+            <label for="bill-name">Full Name</label>
+            <input type="text" id="bill-name" value="John Doe" required>
+        </div>
+
+        <div class="form-group">
+            <label for="bill-email">Email</label>
+            <input type="email" id="bill-email" value="john.doe@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="bill-mobile">Mobile Number</label>
+            <input type="tel" id="bill-mobile" value="01234567890" required>
+        </div>
+
+        <h3>Select Payment Method</h3>
+        <div class="payment-methods" id="payment-methods">
+            <!-- Payment methods will be loaded here -->
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing payment...</p>
+        </div>
+
+        <div id="message"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" id="pay-button" disabled>Pay Now</button>
+            <button class="btn" id="config-button">Get Config</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPaymentMethod = null;
+        let fiuuConfig = null;
+
+        // Sample order data
+        const orderData = {
+            orderId: 'AUCTION-12345',
+            amount: 5000, // Amount in cents (RM 50.00)
+            itemName: 'Vintage Watch',
+            billName: 'John Doe',
+            billEmail: 'john.doe@example.com',
+            billMobile: '01234567890',
+            billDesc: 'Payment for Vintage Watch auction'
+        };
+
+        // Initialize payment methods
+        function initializePaymentMethods() {
+            const methods = [
+                { id: 'fpx', name: 'FPX Online Banking', type: 'online_banking', enabled: true, currency: 'MYR' },
+                { id: 'credit', name: 'Credit/Debit Card', type: 'card', enabled: true, currency: 'MYR' },
+                { id: 'GrabPay', name: 'GrabPay', type: 'ewallet', enabled: true, currency: 'MYR' },
+                { id: 'TNG-EWALLET', name: 'Touch \'n Go', type: 'ewallet', enabled: true, currency: 'MYR' },
+                { id: 'ShopeePay', name: 'ShopeePay', type: 'ewallet', enabled: true, currency: 'MYR' },
+                { id: 'BOOST', name: 'Boost', type: 'ewallet', enabled: true, currency: 'MYR' },
+                { id: 'FPX_B2B', name: 'FPX B2B', type: 'online_banking', enabled: true, currency: 'MYR' },
+                { id: 'RPP_DuitNowQR', name: 'DuitNow QR', type: 'qr', enabled: true, currency: 'MYR' },
+                { id: 'Atome', name: 'Atome', type: 'bnpl', enabled: true, currency: 'MYR' },
+                { id: 'Rely-PW', name: 'Rely', type: 'bnpl', enabled: true, currency: 'MYR' }
+            ];
+
+            const container = document.getElementById('payment-methods');
+            container.innerHTML = '';
+
+            methods.forEach(method => {
+                const methodDiv = document.createElement('div');
+                methodDiv.className = `payment-method ${method.enabled ? '' : 'disabled'}`;
+                methodDiv.dataset.channel = method.id;
+                methodDiv.innerHTML = `
+                    <h4>${method.name}</h4>
+                    <p>${method.type} • ${method.currency}</p>
+                `;
+                
+                if (method.enabled) {
+                    methodDiv.addEventListener('click', () => selectPaymentMethod(method));
+                }
+                
+                container.appendChild(methodDiv);
+            });
+        }
+
+        function selectPaymentMethod(method) {
+            // Remove previous selection
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selection to clicked method
+            document.querySelector(`[data-channel="${method.id}"]`).classList.add('selected');
+            
+            selectedPaymentMethod = method;
+            document.getElementById('pay-button').disabled = false;
+        }
+
+        async function getFiuuConfig() {
+            try {
+                const response = await fetch(`/api/v1/payments/seamless/config?` + new URLSearchParams({
+                    order_id: orderData.orderId,
+                    amount: orderData.amount.toString(),
+                    bill_name: orderData.billName,
+                    bill_email: orderData.billEmail,
+                    bill_mobile: orderData.billMobile,
+                    bill_desc: orderData.billDesc,
+                    channel: selectedPaymentMethod.id
+                }));
+
+                if (!response.ok) {
+                    throw new Error('Failed to get payment config');
+                }
+
+                fiuuConfig = await response.json();
+                showMessage('Configuration loaded successfully', 'success');
+                console.log('Fiuu Config:', fiuuConfig);
+            } catch (error) {
+                showMessage('Error getting payment configuration: ' + error.message, 'error');
+            }
+        }
+
+        function processPayment() {
+            if (!selectedPaymentMethod || !fiuuConfig) {
+                showMessage('Please select a payment method and get configuration first', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('pay-button').disabled = true;
+
+            // Initialize Fiuu seamless payment
+            $(document).ready(function() {
+                try {
+                    // Create payment button with Fiuu config
+                    const paymentOptions = {
+                        mpsmerchantid: fiuuConfig.mpsmerchantid,
+                        mpschannel: fiuuConfig.mpschannel,
+                        mpsamount: fiuuConfig.mpsamount,
+                        mpsorderid: fiuuConfig.mpsorderid,
+                        mpsbill_name: fiuuConfig.mpsbill_name,
+                        mpsbill_email: fiuuConfig.mpsbill_email,
+                        mpsbill_mobile: fiuuConfig.mpsbill_mobile,
+                        mpsbill_desc: fiuuConfig.mpsbill_desc,
+                        mpscurrency: fiuuConfig.mpscurrency,
+                        mpslangcode: fiuuConfig.mpslangcode,
+                        vcode: fiuuConfig.vcode
+                    };
+
+                    // Trigger Fiuu seamless payment
+                    $('#pay-button').MOLPaySeamless(paymentOptions);
+                    
+                    showMessage('Payment window opened. Please complete the payment.', 'success');
+                } catch (error) {
+                    showMessage('Error initiating payment: ' + error.message, 'error');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('pay-button').disabled = false;
+                }
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Event listeners
+        document.getElementById('pay-button').addEventListener('click', processPayment);
+        document.getElementById('config-button').addEventListener('click', getFiuuConfig);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePaymentMethods();
+            
+            // Update order summary
+            document.getElementById('item-name').textContent = orderData.itemName;
+            document.getElementById('amount').textContent = (orderData.amount / 100).toFixed(2);
+            document.getElementById('order-id').textContent = orderData.orderId;
+        });
+
+        // Listen for payment completion (this would be handled by your backend webhook)
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'FIUU_PAYMENT_COMPLETE') {
+                document.getElementById('loading').style.display = 'none';
+                showMessage('Payment completed successfully!', 'success');
+            } else if (event.data.type === 'FIUU_PAYMENT_FAILED') {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('pay-button').disabled = false;
+                showMessage('Payment failed: ' + event.data.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
