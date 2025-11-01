@@ -372,7 +372,6 @@ services:
     container_name: blytz-livekit-prod
     command: >
       --config /etc/livekit.yaml
-      --dev
     ports:
       - "7880:7880"
       - "7881:7881"

@@ -16,8 +16,8 @@ redis:
 
 # API Keys for authentication
 keys:
-  blytz-demo-key: "demo-secret-key-for-viewers"
-  blytz-seller-key: "seller-secret-key-for-broadcasters"
+  blytz-demo-key: "blytz-demo-secret-key-for-viewers-32chars-minimum"
+  blytz-seller-key: "blytz-seller-secret-key-for-broadcasters-32chars-minimum"
 
 # Room Configuration
 room:
@@ -30,10 +30,10 @@ room:
   departure_timeout: 20
 
 # WebHook Configuration (optional)
-webhook:
-  api_key: blytz-webhook-key
-  urls:
-    - https://api.blytz.app/webhooks/livekit
+# webhook:
+#   api_key: blytz-webhook-key-32chars-minimum
+#   urls:
+#     - https://api.blytz.app/webhooks/livekit
 
 # Logging
 logging:
