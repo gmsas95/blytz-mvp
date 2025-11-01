@@ -1,9 +1,17 @@
 {
-  "/not-found": "app/not-found.js",
-  "/page": "app/page.js",
-  "/products/page": "app/products/page.js",
-  "/livestream/page": "app/livestream/page.js",
+  "/_not-found": "app/_not-found.js",
+  "/api/health/route": "app/api/health/route.js",
+  "/auctions/[id]/page": "app/auctions/[id]/page.js",
   "/auctions/page": "app/auctions/page.js",
   "/auth/page": "app/auth/page.js",
-  "/cart/page": "app/cart/page.js"
+  "/cart/page": "app/cart/page.js",
+  "/checkout/cancel/page": "app/checkout/cancel/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/checkout/success/page": "app/checkout/success/page.js",
+  "/livestream/[id]/page": "app/livestream/[id]/page.js",
+  "/livestream/page": "app/livestream/page.js",
+  "/page": "app/page.js",
+  "/product/[id]/page": "app/product/[id]/page.js",
+  "/products/page": "app/products/page.js",
+  "/profile/page": "app/profile/page.js"
 }
