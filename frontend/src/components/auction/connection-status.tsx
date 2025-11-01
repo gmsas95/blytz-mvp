@@ -97,7 +97,7 @@ export function ConnectionStatus({
               {getStatusIcon()}
               <span className="text-xs font-medium">{getStatusText()}</span>
             </Badge>
-            {reconnectingAttempts > 0 && (
+            {reconnectAttempts > 0 && (
               <Badge variant="outline" className="text-xs">
                 Attempt {reconnectAttempts}
               </Badge>
