@@ -34,22 +34,37 @@ export default function LiveKitViewer({
   const [viewerToken, setViewerToken] = useState<string | null>(token || null)
 
   // Fetch token if not provided
-  const fetchViewerToken = useCallback(async () => {
+  const fetchViewerToken = useCallback(async (retryCount = 0) => {
     try {
       setIsConnecting(true)
       setConnectionError(null)
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.blytz.app'
+      console.log(`Fetching viewer token from: ${apiUrl}/api/public/livekit/token?room=${auctionId}&role=viewer`)
+      
       const response = await fetch(`${apiUrl}/api/public/livekit/token?room=${auctionId}&role=viewer`)
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch token: ${response.statusText}`)
+        const errorText = await response.text()
+        console.error(`Token fetch failed: ${response.status} - ${errorText}`)
+        throw new Error(`Failed to fetch token: ${response.status} ${response.statusText}`)
       }
 
       const data = await response.json()
+      console.log('Token received:', { url: data.url, room: data.room, identity: data.identity })
       setViewerToken(data.token)
     } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Failed to fetch token')
+      console.error('Error fetching viewer token:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch token'
+      
+      // Retry logic for network errors
+      if (retryCount < 3 && errorMessage.includes('fetch')) {
+        console.log(`Retrying token fetch (${retryCount + 1}/3)...`)
+        setTimeout(() => fetchViewerToken(retryCount + 1), 2000 * (retryCount + 1))
+        return
+      }
+      
+      setConnectionError(errorMessage)
     } finally {
       setIsConnecting(false)
     }

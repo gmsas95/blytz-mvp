@@ -43,23 +43,37 @@ export default function LiveKitBroadcaster({
   const [viewerCount, setViewerCount] = useState(0)
 
   // Fetch token if not provided
-  const fetchBroadcasterToken = useCallback(async () => {
+  const fetchBroadcasterToken = useCallback(async (retryCount = 0) => {
     try {
       setIsConnecting(true)
       setConnectionError(null)
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.blytz.app'
+      console.log(`Fetching broadcaster token from: ${apiUrl}/api/public/livekit/token?room=${auctionId}&role=broadcaster`)
+      
       const response = await fetch(`${apiUrl}/api/public/livekit/token?room=${auctionId}&role=broadcaster`)
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch token: ${response.statusText}`)
+        const errorText = await response.text()
+        console.error(`Token fetch failed: ${response.status} - ${errorText}`)
+        throw new Error(`Failed to fetch token: ${response.status} ${response.statusText}`)
       }
 
       const data = await response.json()
+      console.log('Token received:', { url: data.url, room: data.room, identity: data.identity })
       setBroadcasterToken(data.token)
     } catch (error) {
       console.error('Error fetching broadcaster token:', error)
-      setConnectionError(error instanceof Error ? error.message : 'Failed to connect')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect'
+      
+      // Retry logic for network errors
+      if (retryCount < 3 && errorMessage.includes('fetch')) {
+        console.log(`Retrying token fetch (${retryCount + 1}/3)...`)
+        setTimeout(() => fetchBroadcasterToken(retryCount + 1), 2000 * (retryCount + 1))
+        return
+      }
+      
+      setConnectionError(errorMessage)
       onError?.(error instanceof Error ? error : new Error('Connection failed'))
     } finally {
       setIsConnecting(false)
