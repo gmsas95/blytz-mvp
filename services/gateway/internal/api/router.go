@@ -69,10 +69,30 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
 		}
 
-		// Webhook routes (public - no auth required)
+		// Webhook routes (public - no auth required) - moved before protected routes
 		webhooks := api.Group("/v1/webhooks")
 		{
-			webhooks.Any("/fiuu", proxyToService("http://payment-service:8086", logger))
+			webhooks.Any("/fiuu", func(c *gin.Context) {
+				// Direct proxy to payment service webhook endpoint
+				target, err := url.Parse("http://payment-service:8086")
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid target URL"})
+					return
+				}
+
+				proxy := httputil.NewSingleHostReverseProxy(target)
+				proxy.Director = func(req *http.Request) {
+					req.URL.Scheme = target.Scheme
+					req.URL.Host = target.Host
+					req.URL.Path = "/api/v1/webhooks/fiuu"
+					req.Host = target.Host
+				}
+
+				proxy.ServeHTTP(c.Writer, c.Request)
+			})
+			webhooks.GET("/test", func(c *gin.Context) {
+				c.JSON(200, gin.H{"message": "webhook test route works"})
+			})
 		}
 
 		// Protected routes
