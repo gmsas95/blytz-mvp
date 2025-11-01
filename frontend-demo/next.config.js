@@ -6,6 +6,14 @@ const nextConfig = {
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'wss://api.blytz.app',
     NEXT_PUBLIC_LIVEKIT_URL: process.env.NEXT_PUBLIC_LIVEKIT_URL || 'wss://livekit.blytz.app',
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/livekit/token',
+        destination: 'https://api.blytz.app/api/public/livekit/token',
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig
