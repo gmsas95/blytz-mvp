@@ -12,6 +12,8 @@ import {
 import '@livekit/components-styles'
 import { Room, RoomConnectOptions, LocalVideoTrack, LocalAudioTrack } from 'livekit-client'
 import { Track } from 'livekit-client'
+import { Button } from '@/components/ui/button'
+import { Mic, MicOff, Video, VideoOff, Square } from 'lucide-react'
 
 interface LiveKitBroadcasterProps {
   auctionId: string
@@ -106,10 +108,13 @@ export default function LiveKitBroadcaster({
 
   if (isConnecting) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p className="text-white">Starting broadcast...</p>
+      <div className="flex items-center justify-center min-h-[400px] bg-card">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-destructive border-t-transparent mx-auto"></div>
+          <div>
+            <p className="text-foreground font-medium">Starting broadcast...</p>
+            <p className="text-muted-foreground text-sm">Initializing camera and microphone</p>
+          </div>
         </div>
       </div>
     )
@@ -117,21 +122,24 @@ export default function LiveKitBroadcaster({
 
   if (connectionError) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex items-center justify-center min-h-[400px] bg-card">
+        <div className="text-center space-y-4 max-w-md mx-auto p-6">
+          <div className="text-destructive mx-auto">
+            <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-white mb-2">Broadcast Error</p>
-          <p className="text-gray-400 text-sm mb-4">{connectionError}</p>
-          <button
+          <div>
+            <h3 className="text-foreground font-semibold text-lg mb-2">Broadcast Error</h3>
+            <p className="text-muted-foreground text-sm mb-4">{connectionError}</p>
+          </div>
+          <Button
             onClick={fetchBroadcasterToken}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+            variant="destructive"
+            className="gap-2"
           >
             Retry Broadcast
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -139,82 +147,78 @@ export default function LiveKitBroadcaster({
 
   if (!broadcasterToken) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <p className="text-white">Unable to start broadcast</p>
+      <div className="flex items-center justify-center min-h-[400px] bg-card">
+        <div className="text-center space-y-4">
+          <div className="text-muted-foreground">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-foreground font-medium">Broadcast Unavailable</p>
+            <p className="text-muted-foreground text-sm">Unable to start live broadcast</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg overflow-hidden">
+    <div className="bg-card rounded-3xl overflow-hidden border">
       {/* Broadcast Controls Header */}
-      <div className="bg-gray-800 p-4 border-b border-gray-700">
+      <div className="bg-muted/50 p-4 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${isBroadcasting ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`}></div>
-              <span className="text-white font-medium">
+              <div className={`w-3 h-3 rounded-full ${isBroadcasting ? 'bg-destructive animate-pulse' : 'bg-muted-foreground'}`}></div>
+              <span className="text-foreground font-medium">
                 {isBroadcasting ? 'LIVE' : 'OFFLINE'}
               </span>
             </div>
             {isBroadcasting && (
-              <div className="text-gray-400">
+              <div className="text-muted-foreground">
                 <span className="text-sm">{viewerCount} viewers</span>
               </div>
             )}
           </div>
           
           <div className="flex items-center space-x-2">
-            <button
+            <Button
               onClick={toggleAudio}
-              className={`p-2 rounded-lg transition-colors ${
-                isAudioEnabled 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
-                  : 'bg-red-600 text-white hover:bg-red-700'
-              }`}
+              size="icon"
+              variant={isAudioEnabled ? "secondary" : "destructive"}
               title={isAudioEnabled ? 'Mute Audio' : 'Unmute Audio'}
             >
               {isAudioEnabled ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
+                <Mic className="w-4 h-4" />
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                </svg>
+                <MicOff className="w-4 h-4" />
               )}
-            </button>
+            </Button>
             
-            <button
+            <Button
               onClick={toggleVideo}
-              className={`p-2 rounded-lg transition-colors ${
-                isVideoEnabled 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
-                  : 'bg-red-600 text-white hover:bg-red-700'
-              }`}
+              size="icon"
+              variant={isVideoEnabled ? "secondary" : "destructive"}
               title={isVideoEnabled ? 'Turn Off Video' : 'Turn On Video'}
             >
               {isVideoEnabled ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+                <Video className="w-4 h-4" />
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                </svg>
+                <VideoOff className="w-4 h-4" />
               )}
-            </button>
+            </Button>
             
             {isBroadcasting && (
-              <button
+              <Button
                 onClick={endBroadcast}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                variant="destructive"
+                size="sm"
+                className="gap-2"
               >
-                End Broadcast
-              </button>
+                <Square className="w-4 h-4" />
+                End
+              </Button>
             )}
           </div>
         </div>

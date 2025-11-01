@@ -1,87 +1,176 @@
 'use client'
 
 import { useState } from 'react'
+import { Play, Eye, Clock, Users, Gavel } from 'lucide-react'
 import LiveKitViewer from '../components/LiveKitViewer'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 
 export default function Home() {
   const [auctionId, setAuctionId] = useState('demo-auction-123')
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="container mx-auto px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Blytz Live Auction Demo</h1>
-          <p className="text-gray-400">Viewer Platform - Watch live auctions in real-time</p>
-        </header>
-
-        <main>
-          {/* Auction Selection */}
-          <div className="mb-6">
-            <label htmlFor="auction-id" className="block text-sm font-medium mb-2">
-              Auction ID:
-            </label>
-            <input
-              id="auction-id"
-              type="text"
-              value={auctionId}
-              onChange={(e) => setAuctionId(e.target.value)}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter auction ID"
-            />
+    <div className="min-h-screen bg-background">
+      {/* Modern Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Live Auction Demo</h1>
+              <p className="text-muted-foreground">Viewer Platform - Watch live auctions in real-time</p>
+            </div>
+            <Badge variant="secondary" className="gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"/>
+              Live Now
+            </Badge>
           </div>
+        </div>
+      </header>
 
-          {/* Live Stream Viewer */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Live Stream</h2>
+      <main className="container mx-auto px-4 py-8">
+        {/* Auction Selection */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Gavel className="w-5 h-5" />
+              Join Auction Room
+            </CardTitle>
+            <CardDescription>
+              Enter the auction room ID to start watching the live stream
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <Label htmlFor="auction-id">Auction Room ID</Label>
+                <Input 
+                  id="auction-id"
+                  type="text"
+                  value={auctionId}
+                  onChange={(e) => setAuctionId(e.target.value)}
+                  placeholder="Enter auction ID"
+                  className="max-w-md"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button size="lg" className="gap-2">
+                  <Play className="w-4 h-4" />
+                  Join Stream
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Live Stream Viewer */}
+        <Card className="mb-8 overflow-hidden">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"/>
+              Live Stream
+            </CardTitle>
+            <CardDescription>
+              Real-time auction broadcast with interactive bidding
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
             <LiveKitViewer 
               auctionId={auctionId}
               onConnected={() => console.log('Connected to live stream')}
               onDisconnected={() => console.log('Disconnected from live stream')}
               onError={(error) => console.error('Stream error:', error)}
             />
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Auction Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">Current Auction</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Item:</span>
-                  <span>Vintage Watch Collection</span>
+        {/* Auction Information */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gavel className="w-5 h-5" />
+                Current Auction
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Item</p>
+                  <p className="font-semibold">Vintage Watch Collection</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Current Bid:</span>
-                  <span className="text-green-500 font-semibold">$1,250</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Bid</p>
+                    <p className="text-2xl font-bold text-primary">$1,250</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Bidders</p>
+                    <p className="text-2xl font-bold text-primary">12</p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Time Remaining:</span>
-                  <span>5m 32s</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Bidders:</span>
-                  <span>12</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Time Remaining</p>
+                  <p className="text-lg font-semibold flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    5m 32s
+                  </p>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="bg-gray-900 rounded-lg p-6">
-              <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
-                  Place Bid
-                </button>
-                <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
-                  View Item Details
-                </button>
-                <button className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
-                  Auction History
-                </button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button className="w-full" size="lg">
+                Place Bid
+              </Button>
+              <Button variant="outline" className="w-full">
+                View Item Details
+              </Button>
+              <Button variant="outline" className="w-full">
+                Auction History
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Live Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Viewers</span>
+                  <Badge variant="secondary">247</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Total Bids</span>
+                  <Badge variant="secondary">47</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Badge className="gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"/>
+                    Active
+                  </Badge>
+                </div>
               </div>
-            </div>
-          </div>
-        </main>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   )
 }
