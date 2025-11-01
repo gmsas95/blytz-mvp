@@ -48,7 +48,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 
 	// Simple ping endpoint (no dependencies)
 	router.GET("/ping", func(c *gin.Context) {
-		c.String(200, "pong")
+		c.String(200, "pong - updated at "+time.Now().Format("2006-01-02 15:04:05"))
 	})
 
 	// API routes
