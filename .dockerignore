@@ -10,6 +10,8 @@
 !frontend-seller/
 !shared/
 !livekit-config.yaml
+!go.work
+!go.work.sum
 
 # Within included directories, exclude unnecessary files
 .git
