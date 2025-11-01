@@ -298,7 +298,21 @@ export class MockApiAdapter implements ApiAdapter {
   async login(email: string, password: string): Promise<ApiResponse<User>> {
     await this.delay(1000)
 
-    if (email === 'demo@blytz.app' && password === 'demo123') {
+    // Input validation
+    if (!email || !password) {
+      return { success: false, error: 'Email and password are required' }
+    }
+
+    if (!email.includes('@') || email.length < 5) {
+      return { success: false, error: 'Invalid email format' }
+    }
+
+    if (password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters' }
+    }
+
+    // Development demo credentials - only available in development mode
+    if (process.env.NODE_ENV === 'development' && email === 'demo@blytz.app' && password === 'demo123') {
       return { success: true, data: mockUsers[0] }
     }
 
@@ -474,14 +488,25 @@ export class RemoteApiAdapter implements ApiAdapter {
       })
 
       if (!response.ok) {
-        const error = await response.text()
-        return { success: false, error }
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        
+        try {
+          const errorText = await response.text()
+          if (errorText) {
+            errorMessage = errorText
+          }
+        } catch {
+          // Use default error message if response text is not readable
+        }
+        
+        return { success: false, error: errorMessage }
       }
 
       const data = await response.json()
       return { success: true, data }
     } catch (error) {
-      return { success: false, error: 'Network error' }
+      const errorMessage = error instanceof Error ? error.message : 'Network error occurred'
+      return { success: false, error: errorMessage }
     }
   }
 
@@ -614,7 +639,10 @@ export function createApiAdapter(): ApiAdapter {
   const mode = process.env.MODE || 'mock'
 
   if (mode === 'remote') {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080'
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL
+    if (!baseUrl) {
+      throw new Error('NEXT_PUBLIC_API_URL environment variable is required in remote mode')
+    }
     return new RemoteApiAdapter(baseUrl)
   }
 

@@ -174,7 +174,7 @@ export const mockAuctions: Auction[] = [
     totalBids: 12,
     participants: 8,
     isLive: true,
-    streamUrl: 'https://stream.example.com/auction-1',
+    streamUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/stream/auction-1`,
     bids: [
       {
         id: '1',
@@ -217,7 +217,7 @@ export const mockLivestreams: Livestream[] = [
     id: '1',
     title: 'Vintage Fashion Show - Spring Collection',
     description: 'Join Sarah for an exclusive showcase of vintage fashion pieces with live auctions!',
-    streamUrl: 'https://stream.example.com/live-1',
+    streamUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/stream/live-1`,
     thumbnail: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&h=450&fit=crop',
     seller: mockUsers[0],
     products: [mockProducts[0]],
