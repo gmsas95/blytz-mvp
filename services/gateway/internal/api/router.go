@@ -69,6 +69,12 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
 		}
 
+		// Webhook routes (public - no auth required)
+		webhooks := api.Group("/v1/webhooks")
+		{
+			webhooks.Any("/fiuu", proxyToService("http://payment-service:8086", logger))
+		}
+
 		// Protected routes
 		protected := api.Group("/v1")
 		protected.Use(shared_auth.GinAuthMiddleware(authClient))
