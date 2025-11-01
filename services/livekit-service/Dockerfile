@@ -12,7 +12,7 @@ COPY services/livekit-service/go.sum ./
 COPY shared/ ./shared/
 
 # Download dependencies
-RUN go mod download
+RUN go mod download github.com/gmsas95/blytz-mvp/shared
 
 # Generate go.sum if it doesn't exist (for fresh builds)
 RUN test -f go.sum || go mod tidy
