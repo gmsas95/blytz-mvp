@@ -101,8 +101,8 @@ func TestCircuitBreaker_HalfOpenFailure(t *testing.T) {
 
 func TestIsRetryable_NetworkErrors(t *testing.T) {
 	tests := []struct {
-		name     string
-		err      error
+		name      string
+		err       error
 		retryable bool
 	}{
 		{
@@ -308,15 +308,15 @@ func TestResilientClient_CreatePaymentWithRetry_Success(t *testing.T) {
 	client.Client.baseURL = server.URL
 
 	req := PaymentRequest{
-		Channel:     ChannelFPX,
-		Amount:      100.50,
-		OrderID:     "ORD123",
-		BillName:    "John Doe",
-		BillEmail:   "john@example.com",
-		BillMobile:  "0123456789",
-		BillDesc:    "Test Payment",
-		Currency:    CurrencyMYR,
-		LangCode:    "en",
+		Channel:    ChannelFPX,
+		Amount:     100.50,
+		OrderID:    "ORD123",
+		BillName:   "John Doe",
+		BillEmail:  "john@example.com",
+		BillMobile: "0123456789",
+		BillDesc:   "Test Payment",
+		Currency:   CurrencyMYR,
+		LangCode:   "en",
 	}
 
 	ctx := context.Background()
@@ -363,15 +363,15 @@ func TestResilientClient_CreatePaymentWithRetry_RetrySuccess(t *testing.T) {
 	client.Client.baseURL = server.URL
 
 	req := PaymentRequest{
-		Channel:     ChannelFPX,
-		Amount:      100.50,
-		OrderID:     "ORD123",
-		BillName:    "John Doe",
-		BillEmail:   "john@example.com",
-		BillMobile:  "0123456789",
-		BillDesc:    "Test Payment",
-		Currency:    CurrencyMYR,
-		LangCode:    "en",
+		Channel:    ChannelFPX,
+		Amount:     100.50,
+		OrderID:    "ORD123",
+		BillName:   "John Doe",
+		BillEmail:  "john@example.com",
+		BillMobile: "0123456789",
+		BillDesc:   "Test Payment",
+		Currency:   CurrencyMYR,
+		LangCode:   "en",
 	}
 
 	ctx := context.Background()
@@ -397,15 +397,15 @@ func TestResilientClient_CreatePaymentWithRetry_CircuitBreakerOpen(t *testing.T)
 	client.Client.baseURL = server.URL
 
 	req := PaymentRequest{
-		Channel:     ChannelFPX,
-		Amount:      100.50,
-		OrderID:     "ORD123",
-		BillName:    "John Doe",
-		BillEmail:   "john@example.com",
-		BillMobile:  "0123456789",
-		BillDesc:    "Test Payment",
-		Currency:    CurrencyMYR,
-		LangCode:    "en",
+		Channel:    ChannelFPX,
+		Amount:     100.50,
+		OrderID:    "ORD123",
+		BillName:   "John Doe",
+		BillEmail:  "john@example.com",
+		BillMobile: "0123456789",
+		BillDesc:   "Test Payment",
+		Currency:   CurrencyMYR,
+		LangCode:   "en",
 	}
 
 	ctx := context.Background()
@@ -443,15 +443,15 @@ func TestResilientClient_CreatePaymentWithRetry_NonRetryableError(t *testing.T) 
 	client.Client.baseURL = server.URL
 
 	req := PaymentRequest{
-		Channel:     ChannelFPX,
-		Amount:      100.50,
-		OrderID:     "ORD123",
-		BillName:    "John Doe",
-		BillEmail:   "john@example.com",
-		BillMobile:  "0123456789",
-		BillDesc:    "Test Payment",
-		Currency:    CurrencyMYR,
-		LangCode:    "en",
+		Channel:    ChannelFPX,
+		Amount:     100.50,
+		OrderID:    "ORD123",
+		BillName:   "John Doe",
+		BillEmail:  "john@example.com",
+		BillMobile: "0123456789",
+		BillDesc:   "Test Payment",
+		Currency:   CurrencyMYR,
+		LangCode:   "en",
 	}
 
 	ctx := context.Background()
@@ -486,19 +486,19 @@ func TestResilientClient_Performance(t *testing.T) {
 	client.Client.baseURL = server.URL
 
 	req := PaymentRequest{
-		Channel:     ChannelFPX,
-		Amount:      100.50,
-		OrderID:     "ORD123",
-		BillName:    "John Doe",
-		BillEmail:   "john@example.com",
-		BillMobile:  "0123456789",
-		BillDesc:    "Test Payment",
-		Currency:    CurrencyMYR,
-		LangCode:    "en",
+		Channel:    ChannelFPX,
+		Amount:     100.50,
+		OrderID:    "ORD123",
+		BillName:   "John Doe",
+		BillEmail:  "john@example.com",
+		BillMobile: "0123456789",
+		BillDesc:   "Test Payment",
+		Currency:   CurrencyMYR,
+		LangCode:   "en",
 	}
 
 	// Measure performance of multiple concurrent requests
-	const numRequests := 20
+	const numRequests = 20
 	start := time.Now()
 
 	for i := 0; i < numRequests; i++ {

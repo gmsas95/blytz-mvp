@@ -328,20 +328,20 @@ func TestPaymentHandler_RefundPayment_Success(t *testing.T) {
 
 	// Mock successful refund
 	expectedResp := &models.RefundResponse{
-		ID:            "refund123",
-		PaymentID:     "payment123",
-		Amount:        50.00,
-		Currency:      "MYR",
-		Status:        "processing",
-		RefundReason:  "Customer requested refund",
-		CreatedAt:     time.Now(),
+		ID:           "refund123",
+		PaymentID:    "payment123",
+		Amount:       50.00,
+		Currency:     "MYR",
+		Status:       "processing",
+		RefundReason: "Customer requested refund",
+		CreatedAt:    time.Now(),
 	}
 
 	mockService.On("RefundPayment", mock.Anything, "user123", "payment123", 50.00, "Customer requested refund").Return(expectedResp, nil)
 
 	// Prepare request
 	reqBody := map[string]interface{}{
-		"amount":       50.00,
+		"amount":        50.00,
 		"refund_reason": "Customer requested refund",
 	}
 
@@ -459,14 +459,14 @@ func TestPaymentHandler_ProcessFiuuWebhook_Success(t *testing.T) {
 
 	// Prepare webhook request
 	webhookData := fiuu.WebhookData{
-		TransactionID:  "TX123456",
-		OrderID:        "ORD123",
-		Amount:         100.50,
-		Currency:       "MYR",
-		PaymentStatus:  "1", // Success
-		ErrorCode:      "",
+		TransactionID:    "TX123456",
+		OrderID:          "ORD123",
+		Amount:           100.50,
+		Currency:         "MYR",
+		PaymentStatus:    "1", // Success
+		ErrorCode:        "",
 		ErrorDescription: "",
-		Signature:      "test_signature",
+		Signature:        "test_signature",
 	}
 
 	jsonBody, _ := json.Marshal(webhookData)
@@ -496,12 +496,12 @@ func TestPaymentHandler_ProcessFiuuWebhook_InvalidSignature(t *testing.T) {
 
 	// Prepare webhook request with invalid signature
 	webhookData := fiuu.WebhookData{
-		TransactionID:  "TX123456",
-		OrderID:        "ORD123",
-		Amount:         100.50,
-		Currency:       "MYR",
-		PaymentStatus:  "1",
-		Signature:      "invalid_signature",
+		TransactionID: "TX123456",
+		OrderID:       "ORD123",
+		Amount:        100.50,
+		Currency:      "MYR",
+		PaymentStatus: "1",
+		Signature:     "invalid_signature",
 	}
 
 	jsonBody, _ := json.Marshal(webhookData)
@@ -552,7 +552,7 @@ func TestPaymentHandler_CreatePayment_Performance(t *testing.T) {
 	}
 
 	// Measure performance of multiple concurrent requests
-	const numRequests := 50
+	const numRequests = 50
 	start := time.Now()
 
 	for i := 0; i < numRequests; i++ {
