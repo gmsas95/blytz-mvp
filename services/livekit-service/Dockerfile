@@ -9,7 +9,7 @@ RUN apk add --no-cache git
 # Copy go mod files and shared directory
 COPY services/livekit-service/go.mod ./
 COPY services/livekit-service/go.sum ./
-COPY services/livekit-service/shared/ ./shared/
+COPY shared/ ./shared/
 
 # Download dependencies
 RUN go mod download
