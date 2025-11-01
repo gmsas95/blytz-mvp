@@ -102,16 +102,16 @@ jobs:
         service:
           - name: auth-service
             dockerfile: services/auth-service/Dockerfile
-            context: ./services
+            context: .
           - name: product-service
             dockerfile: services/product-service/Dockerfile
-            context: ./services
+            context: .
           - name: auction-service
             dockerfile: services/auction-service/Dockerfile
-            context: ./services
+            context: .
           - name: payment-service
             dockerfile: services/payment-service/Dockerfile
-            context: ./services
+            context: .
 
     steps:
       - name: 📥 Checkout Code
