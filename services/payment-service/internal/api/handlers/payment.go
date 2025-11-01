@@ -195,6 +195,37 @@ func (h *PaymentHandler) GetSeamlessConfig(c *gin.Context) {
 	utils.SuccessResponse(c, config)
 }
 
+// GetPublicSeamlessConfig returns Fiuu seamless configuration for frontend (public endpoint)
+func (h *PaymentHandler) GetPublicSeamlessConfig(c *gin.Context) {
+	orderID := c.Query("order_id")
+	amountStr := c.Query("amount")
+	billName := c.Query("bill_name")
+	billEmail := c.Query("bill_email")
+	billMobile := c.Query("bill_mobile")
+	billDesc := c.Query("bill_desc")
+	channel := c.Query("channel")
+
+	if orderID == "" || amountStr == "" || billName == "" || billEmail == "" || billMobile == "" || billDesc == "" || channel == "" {
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
+		return
+	}
+
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil || amount <= 0 {
+		utils.ErrorResponse(c, errors.ErrInvalidRequest)
+		return
+	}
+
+	config, err := h.paymentService.GetSeamlessConfig(orderID, amount, billName, billEmail, billMobile, billDesc, channel)
+	if err != nil {
+		h.logger.Error("Failed to get seamless config", zap.Error(err))
+		utils.ErrorResponse(c, err)
+		return
+	}
+
+	utils.SuccessResponse(c, config)
+}
+
 // ProcessWebhook handles Fiuu webhook notifications
 func (h *PaymentHandler) ProcessWebhook(c *gin.Context) {
 	var webhook models.FiuuWebhookRequest

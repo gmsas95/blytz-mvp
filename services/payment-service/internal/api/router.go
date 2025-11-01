@@ -53,6 +53,9 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		paymentRoutes.GET("/seamless/config", paymentHandler.GetSeamlessConfig)
 	}
 
+	// Public seamless config endpoint (no auth required for frontend)
+	router.GET("/api/v1/public/seamless/config", paymentHandler.GetPublicSeamlessConfig)
+
 	// Webhook endpoint (no auth required)
 	router.POST("/api/v1/webhooks/fiuu", paymentHandler.ProcessWebhook)
 

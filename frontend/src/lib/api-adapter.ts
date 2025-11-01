@@ -402,31 +402,73 @@ export class MockApiAdapter implements ApiAdapter {
 
   async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
     await this.delay()
-    const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false'
-    return {
-      success: true,
-      data: {
-        version: '7.5.0',
-        actionType: 'Pay',
-        merchantID: 'MERCHANT_ID',
-        paymentMethod: 'all',
-        orderNumber: `ORDER_${Date.now()}`,
-        amount: 100.00,
-        currency: 'MYR',
-        productDescription: 'Blytz Auction Purchase',
-        userName: 'John Doe',
-        userEmail: 'john@example.com',
-        userContact: '+60123456789',
-        remark: 'Payment for auction items',
-        lang: 'en',
-        vcode: 'MOCK_VCODE_123456',
-        callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
-        returnURL: 'https://blytz.app/checkout/success',
-        backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
-        sandbox: isSandbox,
-        scriptUrl: isSandbox 
-          ? 'https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
-          : 'https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/public/seamless/config?order_id=ORDER_${Date.now()}&amount=10000&bill_name=Test%20User&bill_email=test@example.com&bill_mobile=01234567890&bill_desc=Test%20Payment&channel=FPX`)
+      const data = await response.json()
+      
+      if (data.success) {
+        return {
+          success: true,
+          data: data.data
+        }
+      } else {
+        // Fallback to mock if backend fails
+        const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false'
+        return {
+          success: true,
+          data: {
+            version: '7.5.0',
+            actionType: 'Pay',
+            merchantID: 'MERCHANT_ID',
+            paymentMethod: 'all',
+            orderNumber: `ORDER_${Date.now()}`,
+            amount: 100.00,
+            currency: 'MYR',
+            productDescription: 'Blytz Auction Purchase',
+            userName: 'John Doe',
+            userEmail: 'john@example.com',
+            userContact: '+60123456789',
+            remark: 'Payment for auction items',
+            lang: 'en',
+            vcode: 'MOCK_VCODE_123456',
+            callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+            returnURL: 'https://blytz.app/checkout/success',
+            backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+            sandbox: isSandbox,
+            scriptUrl: isSandbox 
+              ? 'https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+              : 'https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+          }
+        }
+      }
+    } catch (error) {
+      // Fallback to mock on network error
+      const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false'
+      return {
+        success: true,
+        data: {
+          version: '7.5.0',
+          actionType: 'Pay',
+          merchantID: 'MERCHANT_ID',
+          paymentMethod: 'all',
+          orderNumber: `ORDER_${Date.now()}`,
+          amount: 100.00,
+          currency: 'MYR',
+          productDescription: 'Blytz Auction Purchase',
+          userName: 'John Doe',
+          userEmail: 'john@example.com',
+          userContact: '+60123456789',
+          remark: 'Payment for auction items',
+          lang: 'en',
+          vcode: 'MOCK_VCODE_123456',
+          callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+          returnURL: 'https://blytz.app/checkout/success',
+          backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+          sandbox: isSandbox,
+          scriptUrl: isSandbox 
+            ? 'https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+            : 'https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+        }
       }
     }
   }

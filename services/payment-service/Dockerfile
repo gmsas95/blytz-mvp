@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy the entire repository
 COPY . .
 
+# Copy shared directory from parent
+COPY ../shared ./shared
+
 # Build the application
 RUN cd services/payment-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o payment-service ./cmd/main.go
 
