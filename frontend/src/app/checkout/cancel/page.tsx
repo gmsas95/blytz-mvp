@@ -1,12 +1,13 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { XCircle, ArrowLeft } from 'lucide-react'
+import { XCircle, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CheckoutCancelPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -22,25 +23,14 @@ export default function CheckoutCancelPage() {
             <CardTitle>What would you like to do?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button 
-              onClick={() => router.push('/checkout')}
-              className="w-full"
-            >
+            <Button onClick={() => router.push('/checkout')} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Try Payment Again
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/cart')}
-              className="w-full"
-            >
+            <Button variant="outline" onClick={() => router.push('/cart')} className="w-full">
               Review Cart
             </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => router.push('/')}
-              className="w-full"
-            >
+            <Button variant="ghost" onClick={() => router.push('/')} className="w-full">
               Continue Shopping
             </Button>
           </CardContent>
@@ -51,5 +41,5 @@ export default function CheckoutCancelPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

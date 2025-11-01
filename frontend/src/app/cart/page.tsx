@@ -1,9 +1,9 @@
-import { api } from '@/lib/api-adapter'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api-adapter';
 
 export default async function CartPage() {
-  const res = await api.getCart()
-  const cart = res.success && res.data ? res.data : null
+  const res = await api.getCart();
+  const cart = res.success && res.data ? res.data : null;
 
   return (
     <section className="w-full py-16 md:py-24">
@@ -15,7 +15,10 @@ export default async function CartPage() {
           <div className="space-y-4">
             <ul className="space-y-3">
               {cart.items.map((item) => (
-                <li key={item.id} className="flex items-center justify-between rounded-xl border p-4">
+                <li
+                  key={item.id}
+                  className="flex items-center justify-between rounded-xl border p-4"
+                >
                   <div>
                     <div className="font-medium">{item.product.title}</div>
                     <div className="text-sm text-muted-foreground">Qty: {item.quantity}</div>
@@ -28,10 +31,12 @@ export default async function CartPage() {
               <div className="text-sm text-muted-foreground">Items: {cart.itemCount}</div>
               <div className="text-lg font-semibold">Total: ${cart.total.toFixed(2)}</div>
             </div>
-            <a href="/checkout"><Button size="lg">Proceed to Checkout</Button></a>
+            <a href="/checkout">
+              <Button size="lg">Proceed to Checkout</Button>
+            </a>
           </div>
         )}
       </div>
     </section>
-  )
+  );
 }

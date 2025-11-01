@@ -1,12 +1,13 @@
-import Link from 'next/link'
-import { api } from '@/lib/api-adapter'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { formatPrice } from '@/lib/utils'
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
+import { formatPrice } from '@/lib/utils';
 
 export default async function ProductsPage() {
-  const res = await api.getProducts()
-  const items = res.success && res.data ? res.data.items : []
+  const res = await api.getProducts();
+  const items = res.success && res.data ? res.data.items : [];
 
   return (
     <section className="w-full py-16 md:py-24">
@@ -25,17 +26,27 @@ export default async function ProductsPage() {
                 <Card className="overflow-hidden h-full border-border hover:shadow-lg transition-shadow duration-300">
                   <div className="relative aspect-square bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={product.images[0]} alt={product.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" />
+                    <img
+                      src={product.images[0]}
+                      alt={product.title}
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
                   <CardHeader className="pb-3">
-                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">{product.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
+                      {product.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {product.description}
+                    </p>
                   </CardHeader>
                   <CardContent className="pb-3">
                     <div className="text-2xl font-bold">{formatPrice(product.price)}</div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full">View</Button>
+                    <Button variant="outline" className="w-full">
+                      View
+                    </Button>
                   </CardFooter>
                 </Card>
               </Link>
@@ -44,5 +55,5 @@ export default async function ProductsPage() {
         )}
       </div>
     </section>
-  )
+  );
 }

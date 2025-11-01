@@ -61,7 +61,12 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Geist', system-ui, sans-serif;
   }
 }
@@ -307,8 +312,13 @@ html {
 
 /* Auction-specific animations */
 @keyframes bid-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .animate-bid-pulse {
@@ -316,8 +326,14 @@ html {
 }
 
 @keyframes countdown-blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.7; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.7;
+  }
 }
 
 .animate-countdown-blink {
@@ -325,8 +341,13 @@ html {
 }
 
 @keyframes live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .animate-live-pulse {

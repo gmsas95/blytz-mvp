@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - MODE=remote
@@ -15,11 +15,11 @@ services:
     networks:
       - blytz-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.blytz-frontend.rule=Host(`blytz.app`)"
-      - "traefik.http.routers.blytz-frontend.entrypoints=websecure"
-      - "traefik.http.routers.blytz-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.blytz-frontend.loadbalancer.server.port=3000"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.blytz-frontend.rule=Host(`blytz.app`)'
+      - 'traefik.http.routers.blytz-frontend.entrypoints=websecure'
+      - 'traefik.http.routers.blytz-frontend.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.blytz-frontend.loadbalancer.server.port=3000'
 
 networks:
   blytz-network:

@@ -1,93 +1,94 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, CreditCard, Smartphone, Building2, CheckCircle } from 'lucide-react'
-import { api } from '@/lib/api-adapter'
-import { Cart, PaymentMethodInfo, PaymentRequest, PaymentResponse } from '@/types'
+import { Loader2, CreditCard, Smartphone, Building2, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { api } from '@/lib/api-adapter';
+import { Cart, PaymentMethodInfo, PaymentRequest, PaymentResponse } from '@/types';
 
 declare global {
   interface Window {
-    IPGSeamless: any
+    IPGSeamless: any;
   }
 }
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const [cart, setCart] = useState<Cart | null>(null)
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodInfo[]>([])
-  const [selectedMethod, setSelectedMethod] = useState<string>('fpx')
-  const [loading, setLoading] = useState(true)
-  const [processing, setProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [fiuuConfig, setFiuuConfig] = useState<any>(null)
-  const [paymentComplete, setPaymentComplete] = useState(false)
-  const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | null>(null)
+  const router = useRouter();
+  const [cart, setCart] = useState<Cart | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodInfo[]>([]);
+  const [selectedMethod, setSelectedMethod] = useState<string>('fpx');
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fiuuConfig, setFiuuConfig] = useState<any>(null);
+  const [paymentComplete, setPaymentComplete] = useState(false);
+  const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | null>(null);
 
   useEffect(() => {
-    loadCheckoutData()
-  }, [])
+    loadCheckoutData();
+  }, []);
 
   const loadCheckoutData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const [cartResponse, methodsResponse, configResponse] = await Promise.all([
         api.getCart(),
         api.getPaymentMethods(),
-        api.getFiuuSeamlessConfig()
-      ])
+        api.getFiuuSeamlessConfig(),
+      ]);
 
       if (cartResponse.success && cartResponse.data) {
-        setCart(cartResponse.data)
+        setCart(cartResponse.data);
       }
 
       if (methodsResponse.success && methodsResponse.data) {
-        setPaymentMethods(methodsResponse.data)
+        setPaymentMethods(methodsResponse.data);
       }
 
       if (configResponse.success && configResponse.data) {
-        setFiuuConfig(configResponse.data)
+        setFiuuConfig(configResponse.data);
       }
     } catch (err) {
-      setError('Failed to load checkout data')
+      setError('Failed to load checkout data');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getPaymentIcon = (method: PaymentMethodInfo) => {
     switch (method.type) {
       case 'bank_transfer':
-        return <Building2 className="w-5 h-5" />
+        return <Building2 className="w-5 h-5" />;
       case 'ewallet':
-        return <Smartphone className="w-5 h-5" />
+        return <Smartphone className="w-5 h-5" />;
       case 'card':
-        return <CreditCard className="w-5 h-5" />
+        return <CreditCard className="w-5 h-5" />;
       default:
-        return <CreditCard className="w-5 h-5" />
+        return <CreditCard className="w-5 h-5" />;
     }
-  }
+  };
 
   const calculateTotal = () => {
-    if (!cart) return 0
-    const selectedPaymentMethod = paymentMethods.find(m => m.id === selectedMethod)
-    const processingFee = selectedPaymentMethod?.fee || 0
-    return cart.total + processingFee
-  }
+    if (!cart) return 0;
+    const selectedPaymentMethod = paymentMethods.find((m) => m.id === selectedMethod);
+    const processingFee = selectedPaymentMethod?.fee || 0;
+    return cart.total + processingFee;
+  };
 
   const handlePayment = async () => {
-    if (!cart || !fiuuConfig) return
+    if (!cart || !fiuuConfig) return;
 
     try {
-      setProcessing(true)
-      setError(null)
+      setProcessing(true);
+      setError(null);
 
       // Update Fiuu config with current cart data
       const updatedConfig = {
@@ -95,8 +96,8 @@ export default function CheckoutPage() {
         amount: calculateTotal(),
         orderNumber: `BLYTZ_${Date.now()}`,
         productDescription: `Payment for ${cart.itemCount} item(s)`,
-        paymentMethod: selectedMethod === 'fpx' ? 'all' : selectedMethod
-      }
+        paymentMethod: selectedMethod === 'fpx' ? 'all' : selectedMethod,
+      };
 
       // Create payment
       const paymentRequest: PaymentRequest = {
@@ -107,47 +108,46 @@ export default function CheckoutPage() {
         description: updatedConfig.productDescription,
         returnUrl: `${window.location.origin}/checkout/success`,
         cancelUrl: `${window.location.origin}/checkout/cancel`,
-        webhookUrl: `${window.location.origin}/api/payments/webhook`
-      }
+        webhookUrl: `${window.location.origin}/api/payments/webhook`,
+      };
 
-      const paymentResult = await api.createPayment(paymentRequest)
-      
+      const paymentResult = await api.createPayment(paymentRequest);
+
       if (!paymentResult.success) {
-        throw new Error(paymentResult.error || 'Failed to create payment')
+        throw new Error(paymentResult.error || 'Failed to create payment');
       }
 
       if (paymentResult.data) {
-        setPaymentResponse(paymentResult.data)
+        setPaymentResponse(paymentResult.data);
       }
 
       // Initialize Fiuu seamless payment
       if (window.IPGSeamless) {
-        const seamless = new window.IPGSeamless(updatedConfig)
-        
+        const seamless = new window.IPGSeamless(updatedConfig);
+
         seamless.setCompleteCallback((response: any) => {
-          console.log('Payment complete:', response)
-          setPaymentComplete(true)
-          setProcessing(false)
-        })
+          console.log('Payment complete:', response);
+          setPaymentComplete(true);
+          setProcessing(false);
+        });
 
         seamless.setErrorCallback((error: any) => {
-          console.error('Payment error:', error)
-          setError('Payment failed. Please try again.')
-          setProcessing(false)
-        })
+          console.error('Payment error:', error);
+          setError('Payment failed. Please try again.');
+          setProcessing(false);
+        });
 
         // Start payment
-        seamless.makePayment()
+        seamless.makePayment();
       } else if (paymentResult.data) {
         // Fallback to redirect method
-        window.location.href = paymentResult.data.redirectUrl
+        window.location.href = paymentResult.data.redirectUrl;
       }
-
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Payment failed')
-      setProcessing(false)
+      setError(err instanceof Error ? err.message : 'Payment failed');
+      setProcessing(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -156,7 +156,7 @@ export default function CheckoutPage() {
           <Loader2 className="w-8 h-8 animate-spin" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!cart || cart.items.length === 0) {
@@ -164,12 +164,10 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Your cart is empty</h1>
-          <Button onClick={() => router.push('/products')}>
-            Continue Shopping
-          </Button>
+          <Button onClick={() => router.push('/products')}>Continue Shopping</Button>
         </div>
       </div>
-    )
+    );
   }
 
   if (paymentComplete && paymentResponse) {
@@ -185,22 +183,18 @@ export default function CheckoutPage() {
             <Button onClick={() => router.push('/orders')} className="w-full">
               View Order
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/')}
-              className="w-full"
-            >
+            <Button variant="outline" onClick={() => router.push('/')} className="w-full">
               Continue Shopping
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const selectedPaymentMethod = paymentMethods.find(m => m.id === selectedMethod)
-  const processingFee = selectedPaymentMethod?.fee || 0
-  const total = calculateTotal()
+  const selectedPaymentMethod = paymentMethods.find((m) => m.id === selectedMethod);
+  const processingFee = selectedPaymentMethod?.fee || 0;
+  const total = calculateTotal();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -236,9 +230,9 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               ))}
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -263,7 +257,7 @@ export default function CheckoutPage() {
         {/* Payment Method */}
         <div>
           <h2 className="text-2xl font-bold mb-6">Payment Method</h2>
-          
+
           {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertDescription>{error}</AlertDescription>
@@ -277,18 +271,22 @@ export default function CheckoutPage() {
             <CardContent>
               <RadioGroup value={selectedMethod} onValueChange={setSelectedMethod}>
                 {paymentMethods.map((method) => (
-                  <div key={method.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div
+                    key={method.id}
+                    className="flex items-center space-x-3 p-3 border rounded-lg"
+                  >
                     <RadioGroupItem value={method.id} id={method.id} />
-                    <Label htmlFor={method.id} className="flex items-center space-x-3 flex-1 cursor-pointer">
+                    <Label
+                      htmlFor={method.id}
+                      className="flex items-center space-x-3 flex-1 cursor-pointer"
+                    >
                       {getPaymentIcon(method)}
                       <div className="flex-1">
                         <div className="font-medium">{method.name}</div>
                         <div className="text-sm text-muted-foreground">{method.description}</div>
                       </div>
                       {method.fee > 0 && (
-                        <Badge variant="secondary">
-                          +RM{method.fee.toFixed(2)}
-                        </Badge>
+                        <Badge variant="secondary">+RM{method.fee.toFixed(2)}</Badge>
                       )}
                     </Label>
                   </div>
@@ -323,12 +321,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={handlePayment}
-                  disabled={processing}
-                  className="w-full"
-                  size="lg"
-                >
+                <Button onClick={handlePayment} disabled={processing} className="w-full" size="lg">
                   {processing ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -350,12 +343,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Fiuu Script */}
-      {fiuuConfig && (
-        <script
-          src={fiuuConfig.scriptUrl}
-          async
-        />
-      )}
+      {fiuuConfig && <script src={fiuuConfig.scriptUrl} async />}
     </div>
-  )
+  );
 }

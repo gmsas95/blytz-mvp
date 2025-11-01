@@ -1,32 +1,32 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
 export function TestComponent() {
-  const [data, setData] = useState('Loading...')
-  const [count, setCount] = useState(0)
-  const [mounted, setMounted] = useState(false)
+  const [data, setData] = useState('Loading...');
+  const [count, setCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    console.log('TestComponent: useEffect triggered - MOUNTED')
-    setMounted(true)
+    console.log('TestComponent: useEffect triggered - MOUNTED');
+    setMounted(true);
 
     // Test basic functionality
     const timer = setTimeout(() => {
-      console.log('TestComponent: Timer fired, updating state')
-      setData('React is working!')
-      setCount(1)
-    }, 100)
+      console.log('TestComponent: Timer fired, updating state');
+      setData('React is working!');
+      setCount(1);
+    }, 100);
 
     return () => {
-      console.log('TestComponent: Cleaning up timer')
-      clearTimeout(timer)
-    }
-  }, [])
+      console.log('TestComponent: Cleaning up timer');
+      clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
-    console.log('TestComponent: State updated - data:', data, 'count:', count, 'mounted:', mounted)
-  }, [data, count, mounted])
+    console.log('TestComponent: State updated - data:', data, 'count:', count, 'mounted:', mounted);
+  }, [data, count, mounted]);
 
   // Force client-side rendering
   if (!mounted) {
@@ -35,7 +35,7 @@ export function TestComponent() {
         <h3 className="text-yellow-800 font-bold text-xl mb-2">Test Component (SSR)</h3>
         <p className="text-yellow-700">Mounting...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -43,5 +43,5 @@ export function TestComponent() {
       <h3 className="text-green-800 font-bold text-xl mb-2">Test Component {count}</h3>
       <p className="text-green-700">{data}</p>
     </div>
-  )
+  );
 }

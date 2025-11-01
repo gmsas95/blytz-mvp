@@ -1,11 +1,12 @@
-import Link from 'next/link'
-import { api } from '@/lib/api-adapter'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
 
 export default async function LivestreamListPage() {
-  const res = await api.getLivestreams()
-  const items = res.success && res.data ? res.data.items : []
+  const res = await api.getLivestreams();
+  const items = res.success && res.data ? res.data.items : [];
 
   return (
     <section className="w-full py-16 md:py-24 bg-secondary/30">
@@ -23,10 +24,16 @@ export default async function LivestreamListPage() {
                 <Card className="overflow-hidden h-full">
                   <div className="relative aspect-video bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={ls.thumbnail} alt={ls.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" />
+                    <img
+                      src={ls.thumbnail}
+                      alt={ls.title}
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
                   <CardHeader className="pb-3">
-                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">{ls.title}</h3>
+                    <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
+                      {ls.title}
+                    </h3>
                     <p className="text-sm text-muted-foreground line-clamp-2">{ls.description}</p>
                   </CardHeader>
                   <CardFooter>
@@ -39,5 +46,5 @@ export default async function LivestreamListPage() {
         )}
       </div>
     </section>
-  )
+  );
 }

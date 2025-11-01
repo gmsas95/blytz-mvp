@@ -1,13 +1,16 @@
-import { notFound } from 'next/navigation'
-import { api } from '@/lib/api-adapter'
-import { Button } from '@/components/ui/button'
+import { notFound } from 'next/navigation';
 
-interface Props { params: { id: string } }
+import { Button } from '@/components/ui/button';
+import { api } from '@/lib/api-adapter';
+
+interface Props {
+  params: { id: string };
+}
 
 export default async function LivestreamDetailPage({ params }: Props) {
-  const res = await api.getLivestream(params.id)
-  if (!res.success || !res.data) return notFound()
-  const ls = res.data
+  const res = await api.getLivestream(params.id);
+  if (!res.success || !res.data) return notFound();
+  const ls = res.data;
 
   return (
     <section className="w-full py-16 md:py-24">
@@ -23,10 +26,14 @@ export default async function LivestreamDetailPage({ params }: Props) {
           <p className="text-muted-foreground">{ls.description}</p>
           <div className="flex gap-3">
             <Button size="lg">Watch Live</Button>
-            <a href="/products"><Button size="lg" variant="outline">Browse Items</Button></a>
+            <a href="/products">
+              <Button size="lg" variant="outline">
+                Browse Items
+              </Button>
+            </a>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

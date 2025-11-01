@@ -1,26 +1,27 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle, Loader2, AlertCircle } from 'lucide-react'
-import { api } from '@/lib/api-adapter'
-import { PaymentResponse } from '@/types'
+import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 
-export default function CheckoutSuccessPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [loading, setLoading] = useState(true)
-  const [payment, setPayment] = useState<PaymentResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
+import { PaymentResponse } from '@/types';
+
+function CheckoutSuccessContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [payment, setPayment] = useState<PaymentResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const paymentId = searchParams.get('payment_id')
-    const orderNumber = searchParams.get('order_number')
+    const paymentId = searchParams.get('payment_id');
+    const orderNumber = searchParams.get('order_number');
 
     if (paymentId) {
-      verifyPayment(paymentId)
+      verifyPayment(paymentId);
     } else if (orderNumber) {
       // Fallback for redirect-based payments
       setPayment({
@@ -32,30 +33,30 @@ export default function CheckoutSuccessPage() {
         paymentMethod: 'unknown',
         redirectUrl: '',
         createdAt: new Date().toISOString(),
-        expiresAt: ''
-      })
-      setLoading(false)
+        expiresAt: '',
+      });
+      setLoading(false);
     } else {
-      setError('No payment information found')
-      setLoading(false)
+      setError('No payment information found');
+      setLoading(false);
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const verifyPayment = async (paymentId: string) => {
     try {
-      const response = await api.getPaymentStatus(paymentId)
-      
+      const response = await api.getPaymentStatus(paymentId);
+
       if (response.success && response.data) {
-        setPayment(response.data)
+        setPayment(response.data);
       } else {
-        setError('Failed to verify payment status')
+        setError('Failed to verify payment status');
       }
     } catch (err) {
-      setError('Error verifying payment')
+      setError('Error verifying payment');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -67,7 +68,7 @@ export default function CheckoutSuccessPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -81,17 +82,13 @@ export default function CheckoutSuccessPage() {
             <Button onClick={() => router.push('/checkout')} className="w-full">
               Try Again
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/')}
-              className="w-full"
-            >
+            <Button variant="outline" onClick={() => router.push('/')} className="w-full">
               Return to Home
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -134,9 +131,7 @@ export default function CheckoutSuccessPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Date</p>
-                  <p className="font-medium">
-                    {new Date(payment.createdAt).toLocaleDateString()}
-                  </p>
+                  <p className="font-medium">{new Date(payment.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
 
@@ -157,15 +152,28 @@ export default function CheckoutSuccessPage() {
           <Button onClick={() => router.push('/orders')} className="w-full">
             View Order History
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => router.push('/')}
-            className="w-full"
-          >
+          <Button variant="outline" onClick={() => router.push('/')} className="w-full">
             Continue Shopping
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
 }

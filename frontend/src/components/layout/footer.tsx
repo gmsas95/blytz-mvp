@@ -1,6 +1,7 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react'
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
 
 export function Footer() {
   return (
@@ -40,19 +41,34 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold">Quick Links</h3>
             <nav className="space-y-2">
-              <Link href="/products" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/products"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Products
               </Link>
-              <Link href="/livestream" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/livestream"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Live Streams
               </Link>
-              <Link href="/auctions" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/auctions"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Auctions
               </Link>
-              <Link href="/sellers" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/sellers"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Sellers
               </Link>
-              <Link href="/categories" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/categories"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Categories
               </Link>
             </nav>
@@ -62,19 +78,34 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold">Support</h3>
             <nav className="space-y-2">
-              <Link href="/help" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/help"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Help Center
               </Link>
-              <Link href="/contact" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/contact"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Contact Us
               </Link>
-              <Link href="/shipping" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/shipping"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Shipping Info
               </Link>
-              <Link href="/returns" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/returns"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Returns
               </Link>
-              <Link href="/privacy" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/privacy"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Privacy Policy
               </Link>
             </nav>
@@ -114,9 +145,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              © 2024 Blytz. All rights reserved.
-            </p>
+            <p className="text-sm text-muted-foreground">© 2024 Blytz. All rights reserved.</p>
             <div className="flex gap-4 text-sm text-muted-foreground">
               <Link href="/terms" className="hover:text-foreground transition-colors">
                 Terms of Service
@@ -132,5 +161,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

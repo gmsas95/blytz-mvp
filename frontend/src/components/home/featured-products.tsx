@@ -1,37 +1,39 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Product } from '@/types'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { formatPrice } from '@/lib/utils'
-import { api } from '@/lib/api-adapter'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
+import { formatPrice } from '@/lib/utils';
+import { Product } from '@/types';
+
 
 export function FeaturedProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadFeaturedProducts() {
       try {
         // Add a small delay to show loading state, then load real data
-        await new Promise(resolve => setTimeout(resolve, 50))
-        const response = await api.getFeaturedProducts()
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const response = await api.getFeaturedProducts();
         if (response.success && response.data) {
-          setProducts(response.data)
+          setProducts(response.data);
         }
       } catch (error) {
         // If API fails, show empty state
-        setProducts([])
+        setProducts([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadFeaturedProducts()
-  }, [])
+    loadFeaturedProducts();
+  }, []);
 
   if (loading) {
     return (
@@ -48,7 +50,10 @@ export function FeaturedProducts() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="overflow-hidden border-border hover:shadow-lg transition-shadow duration-300">
+              <Card
+                key={i}
+                className="overflow-hidden border-border hover:shadow-lg transition-shadow duration-300"
+              >
                 <div className="aspect-square bg-muted flex items-center justify-center">
                   <span className="text-muted-foreground text-sm">Loading...</span>
                 </div>
@@ -67,7 +72,7 @@ export function FeaturedProducts() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   return (
@@ -78,7 +83,8 @@ export function FeaturedProducts() {
             Featured Products
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover amazing products from our top sellers, available for immediate purchase or live auction
+            Discover amazing products from our top sellers, available for immediate purchase or live
+            auction
           </p>
         </div>
 
@@ -95,7 +101,10 @@ export function FeaturedProducts() {
 
                   {product.originalPrice && (
                     <div className="absolute top-3 right-3 bg-destructive text-destructive-foreground px-2 py-1 rounded-full text-xs font-medium">
-                      {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                      {Math.round(
+                        ((product.originalPrice - product.price) / product.originalPrice) * 100
+                      )}
+                      % OFF
                     </div>
                   )}
 
@@ -149,9 +158,7 @@ export function FeaturedProducts() {
                   {product.auction && (
                     <div className="flex-1">
                       <Link href={`/auctions/${product.auction.id}`}>
-                        <Button className="w-full gap-2">
-                          Bid Now
-                        </Button>
+                        <Button className="w-full gap-2">Bid Now</Button>
                       </Link>
                     </div>
                   )}
@@ -170,5 +177,5 @@ export function FeaturedProducts() {
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,6 +1,8 @@
 # Blytz Frontend - Modern React Commerce Platform
 
-A modern, mobile-first React + TypeScript frontend for the Blytz live auction commerce platform. Built with Next.js 14, Tailwind CSS, shadcn/ui, and Framer Motion for a polished user experience.
+A modern, mobile-first React + TypeScript frontend for the Blytz live auction
+commerce platform. Built with Next.js 14, Tailwind CSS, shadcn/ui, and Framer
+Motion for a polished user experience.
 
 ## 🚀 Features
 
@@ -56,6 +58,7 @@ REMOTE_API_BASE=https://api.blytz.app
 ## 🏗 Architecture
 
 ### Folder Structure
+
 ```
 src/
 ├── app/                    # Next.js App Router pages
@@ -100,17 +103,20 @@ NEXT_PUBLIC_API_BASE=https://api.blytz.app
 ### Key Components
 
 #### UI Components (shadcn/ui)
+
 - `Button`: Custom button variants with animations
 - `Card`: Enhanced cards with hover effects
 - `Input`: Styled form inputs
 - Custom auction-specific components
 
 #### Layout Components
+
 - `Header`: Responsive navigation with mobile menu
 - `Footer`: Comprehensive footer with links and newsletter
 - `Hero`: Animated hero section with CTA buttons
 
 #### Data Components
+
 - `FeaturedProducts`: Product grid with loading states
 - `ActiveAuctions`: Live auction cards with countdown timers
 - `LiveStreams`: Live streaming preview cards
@@ -118,19 +124,22 @@ NEXT_PUBLIC_API_BASE=https://api.blytz.app
 ## 🎨 Design System
 
 ### Colors
+
 ```css
---background: 0 0% 99%;      /* #F9FAFB */
---foreground: 222 47% 11%;  /* #111827 */
---primary: 221 83% 53%;     /* #2563EB */
---border-radius: 1rem;      /* rounded-2xl */
+--background: 0 0% 99%; /* #F9FAFB */
+--foreground: 222 47% 11%; /* #111827 */
+--primary: 221 83% 53%; /* #2563EB */
+--border-radius: 1rem; /* rounded-2xl */
 ```
 
 ### Typography
+
 - **UI Font**: Geist Sans
 - **Body Font**: Inter
 - **Scale**: Mobile-first with responsive breakpoints
 
 ### Animations
+
 - Page transitions with Framer Motion
 - Micro-interactions on buttons and cards
 - Smooth hover effects and loading states
@@ -139,12 +148,14 @@ NEXT_PUBLIC_API_BASE=https://api.blytz.app
 ## 📱 Mobile-First Features
 
 ### Touch Interactions
+
 - Optimized button sizes for touch
 - Swipe gestures for image galleries
 - Pull-to-refresh functionality
 - Bottom navigation on mobile
 
 ### Responsive Design
+
 - Breakpoints: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`
 - Mobile-first CSS approach
 - Optimized images with responsive sizing
@@ -153,6 +164,7 @@ NEXT_PUBLIC_API_BASE=https://api.blytz.app
 ## 🚀 Deployment
 
 ### Docker Deployment
+
 ```bash
 # Build the Docker image
 docker build -t blytz-frontend .
@@ -162,12 +174,14 @@ docker-compose up -d
 ```
 
 ### Dokploy Deployment
+
 ```bash
 # Deploy to Dokploy
 dokploy deploy -f dokploy.json
 ```
 
 ### Environment Setup
+
 The frontend supports two modes:
 
 1. **Mock Mode** (Development/Default)
@@ -183,6 +197,7 @@ The frontend supports two modes:
 ## 🔧 Development
 
 ### Available Scripts
+
 ```bash
 npm run dev          # Development server
 npm run build        # Production build
@@ -194,6 +209,7 @@ npm run test         # Run tests
 ```
 
 ### Code Quality
+
 - ESLint configuration for React/Next.js
 - Prettier for code formatting
 - TypeScript strict mode
@@ -202,6 +218,7 @@ npm run test         # Run tests
 ## 🧪 Testing
 
 ### Test Structure
+
 ```
 tests/
 ├── unit/              # Unit tests
@@ -210,6 +227,7 @@ tests/
 ```
 
 ### Test Commands
+
 ```bash
 npm test              # Run all tests
 npm run test:watch    # Watch mode
@@ -219,6 +237,7 @@ npm run test:e2e      # E2E tests
 ## 📊 Performance
 
 ### Optimization Features
+
 - Image optimization with Next.js Image component
 - Code splitting with dynamic imports
 - Lazy loading for components
@@ -226,6 +245,7 @@ npm run test:e2e      # E2E tests
 - Optimized bundle size with tree shaking
 
 ### Core Web Vitals
+
 - **LCP**: Optimized with image loading strategies
 - **FID**: Minimal JavaScript execution
 - **CLS**: Stable layouts with proper sizing
@@ -233,6 +253,7 @@ npm run test:e2e      # E2E tests
 ## 🔒 Security
 
 ### Security Features
+
 - Content Security Policy headers
 - XSS protection
 - CSRF protection
@@ -242,12 +263,15 @@ npm run test:e2e      # E2E tests
 ## 📚 Documentation
 
 ### Component Documentation
+
 Each component includes:
+
 - JSDoc comments for props and usage
 - TypeScript interfaces for type safety
 - Usage examples in Storybook (optional)
 
 ### API Documentation
+
 - OpenAPI specification available at `/api/docs`
 - Type-safe API client generation
 - Mock data documentation
@@ -255,6 +279,7 @@ Each component includes:
 ## 🤝 Contributing
 
 ### Development Workflow
+
 1. Create feature branch from `main`
 2. Implement changes with tests
 3. Run quality checks
@@ -262,6 +287,7 @@ Each component includes:
 5. Code review and merge
 
 ### Code Standards
+
 - Follow TypeScript best practices
 - Use semantic HTML
 - Implement accessibility features
@@ -273,21 +299,25 @@ Each component includes:
 ### Common Issues
 
 **Build fails with TypeScript errors**
+
 ```bash
 npm run type-check
 npm run lint
 ```
 
 **Images not loading**
+
 - Check image domains in `next.config.js`
 - Verify image URLs are accessible
 
 **API calls failing**
+
 - Check environment variables
 - Verify API adapter mode setting
 - Check network connectivity
 
 **Performance issues**
+
 - Use React DevTools Profiler
 - Check bundle size with `npm run build`
 - Enable performance monitoring
@@ -295,6 +325,7 @@ npm run lint
 ## 📞 Support
 
 For support and questions:
+
 - Check the troubleshooting section
 - Review component documentation
 - Check the GitHub issues
@@ -302,10 +333,9 @@ For support and questions:
 
 ## 📄 License
 
-This project is part of the Blytz MVP and follows the same licensing terms. See the main repository for license information."}
+This project is part of the Blytz MVP and follows the same licensing terms. See
+the main repository for license information."}
 
 ---
 
-**Last Updated**: $(date)
-**Version**: 2.0.0
-**Status**: Production Ready
+**Last Updated**: $(date) **Version**: 2.0.0 **Status**: Production Ready

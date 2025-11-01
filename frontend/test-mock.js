@@ -11,9 +11,9 @@ const mockProducts = [
       name: 'Test Seller',
       storeName: 'Test Store',
       rating: 4.5,
-      totalSales: 100
-    }
-  }
+      totalSales: 100,
+    },
+  },
 ];
 
 console.log('Mock data test:', mockProducts.length, 'products');

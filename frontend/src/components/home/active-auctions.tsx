@@ -1,60 +1,62 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Auction } from '@/types'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { formatPrice, formatTimeRemaining } from '@/lib/utils'
-import { api } from '@/lib/api-adapter'
-import { Clock, Users, TrendingUp } from 'lucide-react'
+import { Clock, Users, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
+import { formatPrice, formatTimeRemaining } from '@/lib/utils';
+import { Auction } from '@/types';
+
 
 export function ActiveAuctions() {
-  const [auctions, setAuctions] = useState<Auction[]>([])
-  const [loading, setLoading] = useState(true)
-  const [timeRemaining, setTimeRemaining] = useState<Record<string, number>>({})
+  const [auctions, setAuctions] = useState<Auction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<Record<string, number>>({});
 
   useEffect(() => {
     async function loadActiveAuctions() {
       try {
-        const response = await api.getActiveAuctions()
+        const response = await api.getActiveAuctions();
         if (response.success && response.data) {
-          setAuctions(response.data)
+          setAuctions(response.data);
 
           // Initialize time remaining
-          const initialTimes: Record<string, number> = {}
-          response.data.forEach(auction => {
-            const endTime = new Date(auction.endTime).getTime()
-            const now = new Date().getTime()
-            initialTimes[auction.id] = Math.max(0, Math.floor((endTime - now) / 1000))
-          })
-          setTimeRemaining(initialTimes)
+          const initialTimes: Record<string, number> = {};
+          response.data.forEach((auction) => {
+            const endTime = new Date(auction.endTime).getTime();
+            const now = new Date().getTime();
+            initialTimes[auction.id] = Math.max(0, Math.floor((endTime - now) / 1000));
+          });
+          setTimeRemaining(initialTimes);
         }
       } catch (error) {
-        console.error('Failed to load active auctions:', error)
+        console.error('Failed to load active auctions:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadActiveAuctions()
-  }, [])
+    loadActiveAuctions();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        const updated = { ...prev }
-        Object.keys(updated).forEach(auctionId => {
+      setTimeRemaining((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((auctionId) => {
           if (updated[auctionId] > 0) {
-            updated[auctionId] -= 1
+            updated[auctionId] -= 1;
           }
-        })
-        return updated
-      })
-    }, 1000)
+        });
+        return updated;
+      });
+    }, 1000);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -85,11 +87,11 @@ export function ActiveAuctions() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (auctions.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -112,19 +114,25 @@ export function ActiveAuctions() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {auctions.map((auction, index) => {
-            const remaining = timeRemaining[auction.id] || 0
-            const isEndingSoon = remaining < 300 // 5 minutes
+            const remaining = timeRemaining[auction.id] || 0;
+            const isEndingSoon = remaining < 300; // 5 minutes
 
             return (
               <div key={auction.id} className="flex">
-                <Card className={`overflow-hidden flex-1 border-2 ${
-                  isEndingSoon ? 'border-orange-300 animate-pulse' : 'border-border'
-                }`}>
+                <Card
+                  className={`overflow-hidden flex-1 border-2 ${
+                    isEndingSoon ? 'border-orange-300 animate-pulse' : 'border-border'
+                  }`}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between mb-3">
-                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        auction.isLive ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                          auction.isLive
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
                         {auction.isLive ? (
                           <>
                             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -135,17 +143,19 @@ export function ActiveAuctions() {
                         )}
                       </div>
 
-                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        isEndingSoon ? 'bg-orange-100 text-orange-800 animate-pulse' : 'bg-gray-100 text-gray-800'
-                      }`}>
+                      <div
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                          isEndingSoon
+                            ? 'bg-orange-100 text-orange-800 animate-pulse'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
                         <Clock className="w-3 h-3" />
                         {formatTimeRemaining(remaining)}
                       </div>
                     </div>
 
-                    <h3 className="font-semibold text-lg leading-tight">
-                      {auction.product.title}
-                    </h3>
+                    <h3 className="font-semibold text-lg leading-tight">{auction.product.title}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {auction.product.description}
                     </p>
@@ -178,7 +188,8 @@ export function ActiveAuctions() {
                         <div className="text-sm">
                           <div className="font-medium">{auction.product.seller.storeName}</div>
                           <div className="text-muted-foreground">
-                            ⭐ {auction.product.seller.rating} ({auction.product.seller.totalSales} sales)
+                            ⭐ {auction.product.seller.rating} ({auction.product.seller.totalSales}{' '}
+                            sales)
                           </div>
                         </div>
 
@@ -192,14 +203,12 @@ export function ActiveAuctions() {
 
                   <CardFooter>
                     <Link href={`/auctions/${auction.id}`} className="w-full">
-                      <Button className="w-full">
-                        Join Auction
-                      </Button>
+                      <Button className="w-full">Join Auction</Button>
                     </Link>
                   </CardFooter>
                 </Card>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -212,5 +221,5 @@ export function ActiveAuctions() {
         </div>
       </div>
     </section>
-  )
+  );
 }

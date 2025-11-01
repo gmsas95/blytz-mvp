@@ -1,34 +1,35 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Livestream } from '@/types'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { api } from '@/lib/api-adapter'
-import { Play, Users, Heart, Clock } from 'lucide-react'
+import { Play, Users, Heart, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { api } from '@/lib/api-adapter';
+import { Livestream } from '@/types';
+
 
 export function LiveStreams() {
-  const [livestreams, setLivestreams] = useState<Livestream[]>([])
-  const [loading, setLoading] = useState(true)
+  const [livestreams, setLivestreams] = useState<Livestream[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadActiveLivestreams() {
       try {
-        const response = await api.getActiveLivestreams()
+        const response = await api.getActiveLivestreams();
         if (response.success && response.data) {
-          setLivestreams(response.data)
+          setLivestreams(response.data);
         }
       } catch (error) {
-        console.error('Failed to load live streams:', error)
+        console.error('Failed to load live streams:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadActiveLivestreams()
-  }, [])
+    loadActiveLivestreams();
+  }, []);
 
   if (loading) {
     return (
@@ -59,11 +60,11 @@ export function LiveStreams() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   if (livestreams.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -171,5 +172,5 @@ export function LiveStreams() {
         </div>
       </div>
     </section>
-  )
+  );
 }
