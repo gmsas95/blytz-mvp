@@ -227,10 +227,18 @@ function AuctionsPageContent() {
                           />
                         </div>
 
-                        <h2 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                        <h2 className="font-semibold text-lg leading-tight overflow-hidden" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
                           {auction.product.title}
                         </h2>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        <p className="text-sm text-muted-foreground overflow-hidden mt-1" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
                           {auction.product.description}
                         </p>
                       </CardHeader>

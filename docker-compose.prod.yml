@@ -1,0 +1,107 @@
+# Production Docker Compose Override
+# This file is used for production deployment with secrets manager
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # Override frontend for production
+  frontend:
+    environment:
+      - NODE_ENV=production
+      - MODE=remote
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.blytz.app}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://blytz.app}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL:-wss://api.blytz.app}
+      - NEXT_PUBLIC_FIUU_SANDBOX=${NEXT_PUBLIC_FIUU_SANDBOX:-false}
+    env_file:
+      - .env.production
+
+  # Override demo frontend for production
+  demo-frontend:
+    environment:
+      - NODE_ENV=production
+      - MODE=remote
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.blytz.app}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://demo.blytz.app}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL:-wss://api.blytz.app}
+      - NEXT_PUBLIC_FIUU_SANDBOX=${NEXT_PUBLIC_FIUU_SANDBOX:-false}
+    env_file:
+      - .env.production
+
+  # Override seller frontend for production
+  seller-frontend:
+    environment:
+      - NODE_ENV=production
+      - MODE=remote
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.blytz.app}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://seller.blytz.app}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL:-wss://api.blytz.app}
+      - NEXT_PUBLIC_FIUU_SANDBOX=${NEXT_PUBLIC_FIUU_SANDBOX:-false}
+    env_file:
+      - .env.production
+
+  # Override payment service for production
+  payment-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - FIUU_SANDBOX=${FIUU_SANDBOX:-false}
+      - FIUU_MERCHANT_ID=${FIUU_MERCHANT_ID}
+      - FIUU_VERIFY_KEY=${FIUU_VERIFY_KEY}
+      - FIUU_RETURN_URL=${FIUU_RETURN_URL:-https://blytz.app/checkout/success}
+      - FIUU_NOTIFY_URL=${FIUU_NOTIFY_URL:-https://api.blytz.app/api/v1/webhooks/fiuu}
+      - FIUU_CALLBACK_URL=${FIUU_CALLBACK_URL:-https://api.blytz.app/api/v1/webhooks/fiuu}
+      - FIUU_CANCEL_URL=${FIUU_CANCEL_URL:-https://blytz.app/checkout/cancel}
+    env_file:
+      - .env.production
+
+  # Override gateway for production
+  gateway:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - MODE=remote
+    env_file:
+      - .env.production
+
+  # Override all other services for production
+  auth-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
+
+  product-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
+
+  auction-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
+
+  order-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
+
+  logistics-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
+
+  chat-service:
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+    env_file:
+      - .env.production
