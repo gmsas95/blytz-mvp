@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -493,25 +494,25 @@ type RefundResponseLog struct {
 }
 
 type WebhookLog struct {
-	WebhookID string
-	Source    string
-	EventType string
-	SourceID  string
-	Signature string
-	Payload   map[string]interface{}
-	IPAddress string
-	UserAgent string
+	WebhookID  string
+	Source     string
+	EventType  string
+	SourceID   string
+	Signature  string
+	Payload    map[string]interface{}
+	IPAddress  string
+	UserAgent  string
 	ReceivedAt time.Time
 }
 
 type WebhookProcessLog struct {
-	WebhookID     string
-	Source        string
-	EventType     string
-	Status        string
+	WebhookID      string
+	Source         string
+	EventType      string
+	Status         string
 	ProcessingTime time.Duration
-	RetryCount    int
-	Error         error
+	RetryCount     int
+	Error          error
 }
 
 type CircuitBreakerLog struct {
@@ -552,14 +553,14 @@ type SecurityEventLog struct {
 }
 
 type PerformanceAlertLog struct {
-	AlertType  string
-	Metric     string
-	Value      float64
-	Threshold  float64
-	Severity   string
+	AlertType   string
+	Metric      string
+	Value       float64
+	Threshold   float64
+	Severity    string
 	Description string
-	DetectedAt time.Time
-	Dimensions map[string]string
+	DetectedAt  time.Time
+	Dimensions  map[string]string
 }
 
 // Helper functions
