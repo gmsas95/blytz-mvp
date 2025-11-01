@@ -1,0 +1,336 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: blytz-postgres-prod
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-blytz_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-blytz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-blytz} -d ${POSTGRES_DB:-blytz_prod}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: blytz-redis-prod
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Auth Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
+    container_name: blytz-auth-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8084
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - JWT_SECRET=${JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-https://api.blytz.app}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Product Service
+  product-service:
+    build:
+      context: .
+      dockerfile: ./services/product-service/Dockerfile
+    container_name: blytz-product-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8082
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Auction Service
+  auction-service:
+    build:
+      context: .
+      dockerfile: ./services/auction-service/Dockerfile
+    container_name: blytz-auction-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8083
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://blytz-product-prod:8082}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Order Service
+  order-service:
+    build:
+      context: .
+      dockerfile: ./services/order-service/Dockerfile
+    container_name: blytz-order-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8085
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://blytz-product-prod:8082}
+      - AUCTION_SERVICE_URL=${AUCTION_SERVICE_URL:-http://blytz-auction-prod:8083}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      auction-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Payment Service (with Fiuu integration)
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
+    container_name: blytz-payment-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8086
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+      - FIUU_MERCHANT_ID=${FIUU_MERCHANT_ID}
+      - FIUU_VERIFY_KEY=${FIUU_VERIFY_KEY}
+      - FIUU_API_URL=${FIUU_API_URL:-https://api.merchant.fiuu.com.my}
+      - FIUU_RETURN_URL=${FIUU_RETURN_URL:-https://blytz.app/checkout/success}
+      - FIUU_CALLBACK_URL=${FIUU_CALLBACK_URL:-https://api.blytz.app/api/v1/payments/webhook/fiuu}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Chat Service
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    container_name: blytz-chat-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8088
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Logistics Service
+  logistics-service:
+    build:
+      context: .
+      dockerfile: ./services/logistics-service/Dockerfile
+    container_name: blytz-logistics-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8087
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL:-http://blytz-order-prod:8085}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: ./services/gateway/Dockerfile
+    container_name: blytz-gateway-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://blytz-auth-prod:8084}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL:-http://blytz-product-prod:8082}
+      - AUCTION_SERVICE_URL=${AUCTION_SERVICE_URL:-http://blytz-auction-prod:8083}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL:-http://blytz-order-prod:8085}
+      - PAYMENT_SERVICE_URL=${PAYMENT_SERVICE_URL:-http://blytz-payment-prod:8086}
+      - LOGISTICS_SERVICE_URL=${LOGISTICS_SERVICE_URL:-http://blytz-logistics-prod:8087}
+      - CHAT_SERVICE_URL=${CHAT_SERVICE_URL:-http://blytz-chat-prod:8088}
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      auction-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      logistics-service:
+        condition: service_healthy
+      chat-service:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: blytz-frontend-prod
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.blytz.app}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-https://blytz.app}
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dokploy-network:
+    external: true
