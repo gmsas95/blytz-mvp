@@ -62,7 +62,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			})
 
 			// LiveKit token generation (proxy to livekit-service)
-			public.Any("/livekit/*proxyPath", proxyToServiceWithPath("http://livekit-service:8089", "/api/v1/livekit", logger))
+			public.Any("/livekit/*proxyPath", proxyToServiceWithPath("http://livekit-service:8089", "/api/v1", logger))
 		}
 
 		// Auth routes (public)
