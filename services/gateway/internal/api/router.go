@@ -142,6 +142,29 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 
 func proxyToServiceWithPath(targetURL string, targetPath string, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Handle CORS preflight requests
+		if c.Request.Method == "OPTIONS" {
+			origin := c.Request.Header.Get("Origin")
+
+			// Allow specific origins
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				c.Header("Access-Control-Allow-Origin", origin)
+			} else {
+				c.Header("Access-Control-Allow-Origin", "*")
+			}
+
+			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			c.Header("Access-Control-Allow-Credentials", "true")
+			c.Header("Access-Control-Max-Age", "86400")
+
+			c.Status(http.StatusOK)
+			return
+		}
+
 		// Parse the target URL
 		target, err := url.Parse(targetURL)
 		if err != nil {
@@ -181,12 +204,49 @@ func proxyToServiceWithPath(targetURL string, targetPath string, logger *zap.Log
 			req.Host = target.Host
 		}
 
+		// Custom response writer to add CORS headers
+		proxy.ModifyResponse = func(resp *http.Response) error {
+			origin := c.Request.Header.Get("Origin")
+
+			// Allow specific origins
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				resp.Header.Set("Access-Control-Allow-Origin", origin)
+			} else {
+				resp.Header.Set("Access-Control-Allow-Origin", "*")
+			}
+
+			resp.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			resp.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			resp.Header.Set("Access-Control-Allow-Credentials", "true")
+			resp.Header.Set("Access-Control-Max-Age", "86400")
+
+			return nil
+		}
+
 		// Handle proxy errors
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 			logger.Error("Proxy error",
 				zap.String("target", targetURL),
 				zap.String("path", r.URL.Path),
 				zap.Error(err))
+
+			// Add CORS headers to error response
+			origin := c.Request.Header.Get("Origin")
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			} else {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 			w.WriteHeader(http.StatusBadGateway)
 			w.Write([]byte(`{"error": "Service unavailable", "message": "The requested service is not available"}`))
 		}
@@ -203,6 +263,29 @@ func proxyToServiceWithPath(targetURL string, targetPath string, logger *zap.Log
 
 func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Handle CORS preflight requests
+		if c.Request.Method == "OPTIONS" {
+			origin := c.Request.Header.Get("Origin")
+
+			// Allow specific origins
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				c.Header("Access-Control-Allow-Origin", origin)
+			} else {
+				c.Header("Access-Control-Allow-Origin", "*")
+			}
+
+			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			c.Header("Access-Control-Allow-Credentials", "true")
+			c.Header("Access-Control-Max-Age", "86400")
+
+			c.Status(http.StatusOK)
+			return
+		}
+
 		// Parse the target URL
 		target, err := url.Parse(targetURL)
 		if err != nil {
@@ -239,12 +322,49 @@ func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
 			req.Host = target.Host
 		}
 
+		// Custom response writer to add CORS headers
+		proxy.ModifyResponse = func(resp *http.Response) error {
+			origin := c.Request.Header.Get("Origin")
+
+			// Allow specific origins
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				resp.Header.Set("Access-Control-Allow-Origin", origin)
+			} else {
+				resp.Header.Set("Access-Control-Allow-Origin", "*")
+			}
+
+			resp.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			resp.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			resp.Header.Set("Access-Control-Allow-Credentials", "true")
+			resp.Header.Set("Access-Control-Max-Age", "86400")
+
+			return nil
+		}
+
 		// Handle proxy errors
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 			logger.Error("Proxy error",
 				zap.String("target", targetURL),
 				zap.String("path", r.URL.Path),
 				zap.Error(err))
+
+			// Add CORS headers to error response
+			origin := r.Header.Get("Origin")
+			if origin == "https://blytz.app" ||
+				origin == "https://www.blytz.app" ||
+				origin == "https://demo.blytz.app" ||
+				origin == "https://seller.blytz.app" {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			} else {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 			w.WriteHeader(http.StatusBadGateway)
 			w.Write([]byte(`{"error": "Service unavailable", "message": "The requested service is not available"}`))
 		}
