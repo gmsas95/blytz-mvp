@@ -199,6 +199,8 @@ export interface FiuuSeamlessConfig {
   callbackURL: string
   returnURL: string
   backgroundUrl: string
+  sandbox: boolean
+  scriptUrl: string
 }
 
 export interface PaymentRequest {

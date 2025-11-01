@@ -352,7 +352,7 @@ export default function CheckoutPage() {
       {/* Fiuu Script */}
       {fiuuConfig && (
         <script
-          src="https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js"
+          src={fiuuConfig.scriptUrl}
           async
         />
       )}

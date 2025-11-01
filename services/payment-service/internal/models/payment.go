@@ -138,5 +138,6 @@ type FiuuSeamlessConfig struct {
 	LangCode   string                 `json:"mpslangcode"`
 	VCode      string                 `json:"vcode"`
 	Sandbox    bool                   `json:"sandbox"`
+	ScriptURL  string                 `json:"scriptUrl"`
 	Additional map[string]interface{} `json:"additional,omitempty"`
 }

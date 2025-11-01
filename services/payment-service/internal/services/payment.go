@@ -346,6 +346,12 @@ func (s *PaymentService) GetSeamlessConfig(orderID string, amount int64, billNam
 	// Get seamless config from Fiuu client
 	config := s.fiuu.GetSeamlessConfig(orderID, amountFloat, billName, billEmail, billMobile, billDesc, fiuu.Channel(channel))
 
+	// Determine script URL based on sandbox mode
+	scriptURL := "https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js"
+	if !config["sandbox"].(bool) {
+		scriptURL = "https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js"
+	}
+
 	// Convert to our model
 	seamlessConfig := &models.FiuuSeamlessConfig{
 		MerchantID: config["mpsmerchantid"].(string),
@@ -360,6 +366,7 @@ func (s *PaymentService) GetSeamlessConfig(orderID string, amount int64, billNam
 		LangCode:   config["mpslangcode"].(string),
 		VCode:      config["vcode"].(string),
 		Sandbox:    config["sandbox"].(bool),
+		ScriptURL:  scriptURL,
 	}
 
 	return seamlessConfig, nil

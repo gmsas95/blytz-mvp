@@ -402,6 +402,7 @@ export class MockApiAdapter implements ApiAdapter {
 
   async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
     await this.delay()
+    const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false'
     return {
       success: true,
       data: {
@@ -421,7 +422,11 @@ export class MockApiAdapter implements ApiAdapter {
         vcode: 'MOCK_VCODE_123456',
         callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
         returnURL: 'https://blytz.app/checkout/success',
-        backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`
+        backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+        sandbox: isSandbox,
+        scriptUrl: isSandbox 
+          ? 'https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
+          : 'https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
       }
     }
   }

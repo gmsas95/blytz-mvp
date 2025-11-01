@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/api/models"
+	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/payment-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/services/payment-service/pkg/fiuu"
 	"go.uber.org/zap/zaptest"
@@ -428,6 +428,7 @@ func TestPaymentHandler_GetSeamlessConfig_Success(t *testing.T) {
 		"mpslangcode":    "en",
 		"vcode":          "test_vcode",
 		"sandbox":        true,
+		"scriptUrl":      "https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js",
 	}
 
 	mockService.On("GetSeamlessConfig", mock.Anything, "user123", "ORD123", 100.50, "John Doe", "john@example.com", "0123456789", "Test Payment", fiuu.ChannelFPX).Return(expectedConfig, nil)
