@@ -41,4 +41,4 @@ logging:
   json: true
 
 # Development Mode (set to false for production)
-dev: true
+# development: true  # Use 'development' instead of 'dev' for newer LiveKit versions
