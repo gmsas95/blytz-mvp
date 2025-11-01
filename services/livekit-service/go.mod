@@ -9,7 +9,7 @@ require (
 	go.uber.org/zap v1.27.0
 )
 
-replace github.com/gmsas95/blytz-mvp/shared => ./shared
+
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect

@@ -202,7 +202,7 @@ services:
   livekit-service:
     build:
       context: .
-      dockerfile: ./Dockerfile.livekit-token
+      dockerfile: ./services/livekit-service/Dockerfile
     container_name: blytz-livekit-service-prod
     env_file:
       - ./.env
@@ -210,11 +210,16 @@ services:
       - PORT=8089
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - LIVEKIT_URL=${LIVEKIT_URL:-https://livekit.blytz.app}
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      auth-service:
+        condition: service_healthy
     networks:
       - blytz-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8089/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
