@@ -89,6 +89,28 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 				c.JSON(200, gin.H{"message": "test works"})
 			})
 
+			// Handle OPTIONS preflight requests explicitly
+			public.OPTIONS("/*proxyPath", func(c *gin.Context) {
+				origin := c.Request.Header.Get("Origin")
+
+				// Allow specific origins
+				if origin == "https://blytz.app" ||
+					origin == "https://www.blytz.app" ||
+					origin == "https://demo.blytz.app" ||
+					origin == "https://seller.blytz.app" {
+					c.Header("Access-Control-Allow-Origin", origin)
+				} else {
+					c.Header("Access-Control-Allow-Origin", "*")
+				}
+
+				c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+				c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+				c.Header("Access-Control-Allow-Credentials", "true")
+				c.Header("Access-Control-Max-Age", "86400")
+
+				c.Status(http.StatusOK)
+			})
+
 			// LiveKit token generation (proxy to livekit-service)
 			public.Any("/livekit/*proxyPath", proxyToServiceWithPath("http://livekit-service:8089", "/api/v1", logger))
 		}
@@ -96,6 +118,28 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Auth routes (public)
 		auth := api.Group("/auth")
 		{
+			// Handle OPTIONS preflight requests explicitly
+			auth.OPTIONS("/*proxyPath", func(c *gin.Context) {
+				origin := c.Request.Header.Get("Origin")
+
+				// Allow specific origins
+				if origin == "https://blytz.app" ||
+					origin == "https://www.blytz.app" ||
+					origin == "https://demo.blytz.app" ||
+					origin == "https://seller.blytz.app" {
+					c.Header("Access-Control-Allow-Origin", origin)
+				} else {
+					c.Header("Access-Control-Allow-Origin", "*")
+				}
+
+				c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+				c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+				c.Header("Access-Control-Allow-Credentials", "true")
+				c.Header("Access-Control-Max-Age", "86400")
+
+				c.Status(http.StatusOK)
+			})
+
 			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/auth", logger))
 		}
 
@@ -127,6 +171,28 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		protected := api.Group("/v1")
 		protected.Use(shared_auth.GinAuthMiddleware(authClient))
 		{
+			// Handle OPTIONS preflight requests explicitly for protected routes
+			protected.OPTIONS("/*proxyPath", func(c *gin.Context) {
+				origin := c.Request.Header.Get("Origin")
+
+				// Allow specific origins
+				if origin == "https://blytz.app" ||
+					origin == "https://www.blytz.app" ||
+					origin == "https://demo.blytz.app" ||
+					origin == "https://seller.blytz.app" {
+					c.Header("Access-Control-Allow-Origin", origin)
+				} else {
+					c.Header("Access-Control-Allow-Origin", "*")
+				}
+
+				c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+				c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+				c.Header("Access-Control-Allow-Credentials", "true")
+				c.Header("Access-Control-Max-Age", "86400")
+
+				c.Status(http.StatusOK)
+			})
+
 			// Proxy to other services
 			protected.Any("/auctions/*proxyPath", proxyToService("http://auction-service:8083", logger))
 			protected.Any("/products/*proxyPath", proxyToService("http://product-service:8082", logger))
