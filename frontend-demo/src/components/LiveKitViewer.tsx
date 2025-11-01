@@ -59,26 +59,6 @@ export default function LiveKitViewer({
       fetchViewerToken()
     }
   }, [auctionId, token, fetchViewerToken])
-    try {
-      setIsConnecting(true)
-      setConnectionError(null)
-
-      const response = await fetch(`/api/v1/livekit/token?room=${auctionId}&role=viewer`)
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch token: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      setViewerToken(data.token)
-    } catch (error) {
-      console.error('Error fetching viewer token:', error)
-      setConnectionError(error instanceof Error ? error.message : 'Failed to connect')
-      onError?.(error instanceof Error ? error : new Error('Connection failed'))
-    } finally {
-      setIsConnecting(false)
-    }
-  }
 
   const handleConnected = () => {
     setIsConnected(true)
