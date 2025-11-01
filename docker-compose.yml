@@ -114,12 +114,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
       interval: 30s
@@ -146,12 +140,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
       interval: 30s
@@ -178,12 +166,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
       interval: 30s
@@ -210,12 +192,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
       interval: 30s
@@ -242,12 +218,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
       interval: 30s
@@ -317,10 +287,10 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
+      - "traefik.http.routers.frontend.rule=Host(`blytz.app`) || Host(`www.blytz.app`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
@@ -414,10 +384,10 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
+      - "traefik.http.routers.livekit.rule=Host(`livekit.blytz.app`)"
+      - "traefik.http.routers.livekit.entrypoints=websecure"
+      - "traefik.http.routers.livekit.tls.certresolver=letsencrypt"
+      - "traefik.http.services.livekit.loadbalancer.server.port=7880"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7880"]
       interval: 30s
@@ -435,12 +405,6 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api-gateway.rule=Host(`api.blytz.app`)"
-      - "traefik.http.routers.api-gateway.entrypoints=websecure"
-      - "traefik.http.routers.api-gateway.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api-gateway.loadbalancer.server.port=8080"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
