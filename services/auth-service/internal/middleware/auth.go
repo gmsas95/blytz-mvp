@@ -55,6 +55,9 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 			return
 		}
 
+		// Debug logging
+		fmt.Printf("DEBUG: AuthMiddleware - userID: %s, Email: %s\n", claims.UserID, claims.Email)
+
 		c.Set("userID", claims.UserID)
 		c.Next()
 	}

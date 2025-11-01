@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Auth Integration Test</h1>
+    
+    <div class="section">
+        <h2>1. Register User</h2>
+        <input type="email" id="regEmail" placeholder="Email" value="test@example.com"><br><br>
+        <input type="text" id="regName" placeholder="Display Name" value="Test User"><br><br>
+        <input type="password" id="regPassword" placeholder="Password" value="password123"><br><br>
+        <button onclick="register()">Register</button>
+        <div id="registerResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Login User</h2>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@example.com"><br><br>
+        <input type="password" id="loginPassword" placeholder="Password" value="password123"><br><br>
+        <button onclick="login()">Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Get Profile (Protected)</h2>
+        <button onclick="getProfile()">Get Profile</button>
+        <div id="profileResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8084/api/auth';
+        let authToken = '';
+
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const display_name = document.getElementById('regName').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, display_name, password })
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('registerResult');
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Registration successful: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Registration failed: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                document.getElementById('registerResult').className = 'result error';
+                document.getElementById('registerResult').innerHTML = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('loginResult');
+                
+                if (response.ok) {
+                    authToken = data.data.token;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Login successful! Token: ${authToken.substring(0, 50)}...`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Login failed: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                document.getElementById('loginResult').className = 'result error';
+                document.getElementById('loginResult').innerHTML = `❌ Network error: ${error.message}`;
+            }
+        }
+
+        async function getProfile() {
+            if (!authToken) {
+                document.getElementById('profileResult').className = 'result error';
+                document.getElementById('profileResult').innerHTML = '❌ Please login first!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('profileResult');
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ Profile retrieved: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ Profile fetch failed: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                document.getElementById('profileResult').className = 'result error';
+                document.getElementById('profileResult').innerHTML = `❌ Network error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

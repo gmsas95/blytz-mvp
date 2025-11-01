@@ -19,21 +19,6 @@ import (
 func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
-	// CORS middleware
-	router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		c.Header("Access-Control-Allow-Credentials", "true")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
-	})
-
 	// Initialize auth client
 	authClient := shared_auth.NewAuthClient("http://auth-service:8084")
 
@@ -83,7 +68,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Auth routes (public)
 		auth := api.Group("/auth")
 		{
-			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
+			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/auth", logger))
 		}
 
 		// Webhook routes (public - no auth required) - moved before protected routes

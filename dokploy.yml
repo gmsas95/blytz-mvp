@@ -79,6 +79,7 @@ http:
         - web
       middlewares:
         - redirect-to-https
+        - api-cors
 
     api-gateway-router-secure:
       rule: Host(`api.blytz.app`)
@@ -87,6 +88,8 @@ http:
         - websecure
       tls:
         certResolver: letsencrypt
+      middlewares:
+        - api-cors
 
     # LiveKit Server Router (for livekit.blytz.app)
     livekit-router-http:
@@ -173,6 +176,15 @@ http:
           X-Content-Type-Options: "nosniff"
           X-XSS-Protection: "1; mode=block"
           Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+
+    # API CORS middleware
+    api-cors:
+      headers:
+        customResponseHeaders:
+          Access-Control-Allow-Origin: "*"
+          Access-Control-Allow-Methods: "GET, POST, PUT, DELETE, OPTIONS"
+          Access-Control-Allow-Headers: "Content-Type, Authorization"
+          Access-Control-Allow-Credentials: "true"
 
 certificatesResolvers:
   letsencrypt:

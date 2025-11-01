@@ -111,6 +111,7 @@ var (
 	ErrBidTooLow    = ValidationError("BID_TOO_LOW", "Bid amount is too low")
 	// Auth-specific errors
 	ErrInvalidRequestBody = ValidationError("INVALID_REQUEST_BODY", "Invalid request body")
+	ErrNotImplemented     = ServiceError("NOT_IMPLEMENTED", "Feature not implemented")
 	// Product-specific errors
 	ErrInsufficientStock = ConflictError("INSUFFICIENT_STOCK", "Insufficient stock available")
 )

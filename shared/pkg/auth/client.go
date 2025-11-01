@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gin-gonic/gin"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 )
 
 // AuthClient provides authentication client for microservices
@@ -42,7 +42,7 @@ func (c *AuthClient) ValidateToken(ctx context.Context, token string) (*Validate
 	}
 
 	// Create request
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/api/v1/auth/validate", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/api/auth/verify", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -77,7 +77,7 @@ func (c *AuthClient) ValidateToken(ctx context.Context, token string) (*Validate
 // GetUserInfo gets user information from the auth service
 func (c *AuthClient) GetUserInfo(ctx context.Context, token string) (*UserInfo, error) {
 	// Create request
-	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+"/api/v1/auth/me", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+"/api/auth/me", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -127,7 +127,7 @@ func (c *AuthClient) RefreshToken(ctx context.Context, refreshToken string) (str
 	}
 
 	// Create request
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/api/v1/auth/refresh", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/api/auth/refresh", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -152,7 +152,7 @@ func (c *AuthClient) RefreshToken(ctx context.Context, refreshToken string) (str
 
 	// Decode response
 	var result struct {
-		Success bool `json:"success"`
+		Success bool   `json:"success"`
 		Message string `json:"message"`
 		Data    struct {
 			Token string `json:"token"`

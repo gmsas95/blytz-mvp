@@ -12,6 +12,7 @@ import (
 )
 
 func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cfg *config.Config) *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	// Initialize auth client

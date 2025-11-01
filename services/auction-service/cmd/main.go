@@ -44,12 +44,8 @@ func main() {
 	// Initialize services
 	auctionService := services.NewAuctionService(db, logger, cfg)
 
-	// Set Gin to release mode
-	gin.SetMode(gin.ReleaseMode)
-
 	// Create a new Gin router
 	router := api.SetupRouter(auctionService, logger, cfg)
-
 
 	// Create HTTP server
 	srv := &http.Server{
