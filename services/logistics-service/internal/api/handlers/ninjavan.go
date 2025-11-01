@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"io"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	"github.com/gmsas95/blytz-mvp/services/logistics-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/logistics-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
@@ -154,8 +154,55 @@ func (h *NinjaVanHandler) ProcessWebhook(c *gin.Context) {
 	})
 }
 
-func (h *NinjaVanHandler) mapShipmentToResponse(shipment *services.ShipmentResponse) *services.ShipmentResponse {
-	// This is a placeholder - you would implement the actual mapping logic
-	// based on your existing logistics handler mapping
-	return shipment
+func (h *NinjaVanHandler) mapShipmentToResponse(shipment *models.Shipment) *services.ShipmentResponse {
+	// Map models.Shipment to services.ShipmentResponse
+	var estimatedDelivery, actualDelivery *string
+	if shipment.EstimatedDelivery != nil {
+		ed := shipment.EstimatedDelivery.Format("2006-01-02T15:04:05Z07:00")
+		estimatedDelivery = &ed
+	}
+	if shipment.ActualDelivery != nil {
+		ad := shipment.ActualDelivery.Format("2006-01-02T15:04:05Z07:00")
+		actualDelivery = &ad
+	}
+
+	return &services.ShipmentResponse{
+		ID:             shipment.ID,
+		OrderID:        shipment.OrderID,
+		UserID:         shipment.UserID,
+		TrackingNumber: shipment.TrackingNumber,
+		Carrier:        shipment.Carrier,
+		Service:        shipment.Service,
+		Status:         shipment.Status,
+		OriginAddress: services.AddressResponse{
+			Name:        shipment.OriginAddress.Name,
+			Street:      shipment.OriginAddress.Street,
+			City:        shipment.OriginAddress.City,
+			State:       shipment.OriginAddress.State,
+			PostalCode:  shipment.OriginAddress.PostalCode,
+			Country:     shipment.OriginAddress.Country,
+			PhoneNumber: shipment.OriginAddress.PhoneNumber,
+		},
+		DestinationAddress: services.AddressResponse{
+			Name:        shipment.DestinationAddress.Name,
+			Street:      shipment.DestinationAddress.Street,
+			City:        shipment.DestinationAddress.City,
+			State:       shipment.DestinationAddress.State,
+			PostalCode:  shipment.DestinationAddress.PostalCode,
+			Country:     shipment.DestinationAddress.Country,
+			PhoneNumber: shipment.DestinationAddress.PhoneNumber,
+		},
+		Weight: shipment.Weight,
+		Dimensions: services.DimensionsResponse{
+			Length: shipment.Dimensions.Length,
+			Width:  shipment.Dimensions.Width,
+			Height: shipment.Dimensions.Height,
+		},
+		EstimatedDelivery: estimatedDelivery,
+		ActualDelivery:    actualDelivery,
+		Cost:              shipment.Cost,
+		Notes:             shipment.Notes,
+		CreatedAt:         shipment.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt:         shipment.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+	}
 }

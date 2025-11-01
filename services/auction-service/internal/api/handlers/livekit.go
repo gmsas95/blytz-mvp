@@ -75,11 +75,12 @@ func (h *LiveKitHandler) GenerateToken(c *gin.Context) {
 	}
 
 	// Set video grant based on role
+	isBroadcaster := role == "broadcaster"
 	grant := &auth.VideoGrant{
 		RoomJoin:     true,
 		Room:         room,
-		CanPublish:   role == "broadcaster",
-		CanSubscribe: true,
+		CanPublish:   &isBroadcaster,
+		CanSubscribe: &[]bool{true}[0],
 	}
 
 	at.AddGrant(grant)
