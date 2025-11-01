@@ -3,10 +3,16 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Copy the entire repository
+# Copy module files and download dependencies
+COPY go.work go.work.sum ./
+COPY services/logistics-service/go.mod services/logistics-service/go.sum ./services/logistics-service/
+COPY shared/go.mod shared/go.sum ./shared/
+RUN cd services/logistics-service && go mod download
+
+# Copy the rest of the source code
 COPY . .
 
-# Build the application from the correct directory using vendored modules
+# Build the application
 RUN cd services/logistics-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o logistics-service ./cmd/main.go
 
 # Final stage
