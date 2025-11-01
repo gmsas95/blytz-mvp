@@ -3,25 +3,11 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache git
-
-# Copy go mod files and shared directory
-COPY services/livekit-service/go.mod ./
-COPY services/livekit-service/go.sum ./
-COPY shared/ ./shared/
-
-# Download dependencies
-RUN go mod download github.com/gmsas95/blytz-mvp/shared
-
-# Generate go.sum if it doesn't exist (for fresh builds)
-RUN test -f go.sum || go mod tidy
-
-# Copy source code
-COPY services/livekit-service/ .
+# Copy the entire repository
+COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/main.go
+RUN cd services/livekit-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -31,7 +17,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder stage
-COPY --from=builder /app/main .
+COPY --from=builder /app/services/livekit-service/main .
 
 # Expose port
 EXPOSE 8089
