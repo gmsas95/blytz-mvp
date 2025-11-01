@@ -97,6 +97,8 @@ github.com/golang-jwt/jwt/v5
 ## explicit; go 1.9
 # github.com/google/go-cmp v0.5.9
 ## explicit; go 1.21
+# github.com/google/uuid v1.6.0
+## explicit
 # github.com/gorilla/websocket v1.5.3
 ## explicit; go 1.12
 github.com/gorilla/websocket

@@ -16,7 +16,6 @@ import (
 
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/api"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/config"
-	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/repository"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )

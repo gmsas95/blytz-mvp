@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
@@ -36,6 +37,9 @@ func (s *AuthService) RegisterUser(user *models.User) error {
 	if s.userExists(user.Email) {
 		return errors.New("user already exists")
 	}
+
+	// Generate unique ID for user
+	user.ID = uuid.New().String()
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)

@@ -18,7 +18,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
 	// Initialize auth client
-	authClient := shared_auth.NewAuthClient("http://auth-service:8084")
+	authClient := shared_auth.NewAuthClient("http://blytz-auth-test:8084")
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
@@ -42,7 +42,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Auth routes (public)
 		auth := api.Group("/auth")
 		{
-			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
+			auth.Any("/*proxyPath", proxyToServiceWithPath("http://blytz-auth-test:8084", "/api/v1/auth", logger))
 		}
 
 		// Protected routes
