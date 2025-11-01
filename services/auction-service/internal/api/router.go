@@ -16,19 +16,19 @@ func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cf
 	router := gin.Default()
 
 	// Initialize auth client
-	    authClient := auth.NewAuthClient("http://auth-service:8084")
-	
-	    // Initialize Firebase client
-	    firebaseClient := firebase.NewClient(logger)
-	
-	    auctionHandler := handlers.NewAuctionHandler(auctionService, logger, firebaseClient)
+	authClient := auth.NewAuthClient("http://auth-service:8084")
+
+	// Initialize Firebase client
+	firebaseClient := firebase.NewClient(logger)
+
+	auctionHandler := handlers.NewAuctionHandler(auctionService, logger, firebaseClient)
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
 	// Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/auction-metrics", gin.WrapH(promhttp.Handler()))
 
 	// Auction endpoints
 	auctionRoutes := router.Group("/auctions")

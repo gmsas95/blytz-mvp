@@ -29,7 +29,7 @@ func NewRouter(router *gin.Engine, authService *services.AuthService, logger *za
 	})
 
 	// Metrics
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/auth-metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api/v1")

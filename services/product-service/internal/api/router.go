@@ -22,7 +22,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	})
 
 	// Metrics
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/product-metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api/v1")

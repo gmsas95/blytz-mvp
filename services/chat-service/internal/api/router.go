@@ -33,7 +33,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	})
 
 	// Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/chat-metrics", gin.WrapH(promhttp.Handler()))
 
 	// Chat endpoints
 	chatRoutes := router.Group("/api/v1/chat")

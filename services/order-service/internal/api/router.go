@@ -39,7 +39,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	})
 
 	// Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	router.GET("/order-metrics", gin.WrapH(promhttp.Handler()))
 
 	// Order endpoints
 	orderRoutes := router.Group("/api/v1/orders")

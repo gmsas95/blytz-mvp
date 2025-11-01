@@ -90,7 +90,17 @@
       "Bash(cat:*)",
       "Bash(git reset:*)",
       "Bash(do)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(npx husky init:*)",
+      "Bash(npx husky install:*)",
+      "Bash(npm update:*)",
+      "Bash(npm run type-check)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:check)",
+      "Bash(npm run format:*)",
+      "Bash(/home/sas/blytzmvp-clean/frontend/verify-setup.sh:*)",
+      "Bash(npm run build:analyze:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []
