@@ -40,7 +40,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 
 		// Handle preflight requests
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
+			c.Status(http.StatusOK)
 			return
 		}
 
