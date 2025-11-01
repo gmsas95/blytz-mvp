@@ -3,11 +3,14 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Copy the entire repository
+# Copy auth service files
 COPY . .
 
+# Download dependencies
+RUN go mod download
+
 # Build the application
-RUN cd services/auth-service && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-service ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o auth-service ./services/auth-service/cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -32,11 +35,11 @@ RUN chown appuser:appuser auth-service
 USER appuser
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8084
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8084/health || exit 1
 
 # Run the application
 CMD ["./auth-service"]

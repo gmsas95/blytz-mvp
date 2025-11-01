@@ -22,7 +22,7 @@ type User struct {
 	AvatarURL   string    `json:"avatar_url,omitempty"`
 	IsActive    bool      `json:"is_active" gorm:"default:true"`
 	Role        string    `json:"role" gorm:"default:user"`
-	Password    string    `json:"-" gorm:"-"` // Temporary field for auth operations only
+	Password    string    `json:"-" gorm:"not null"` // Hashed password, never returned in JSON
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
