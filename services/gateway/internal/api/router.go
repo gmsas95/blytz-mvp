@@ -24,19 +24,13 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-		c.Header("Access-Control-Allow-Credentials", "true")
 
-		// Handle preflight requests
 		if c.Request.Method == "OPTIONS" {
 			c.Status(http.StatusOK)
 			return
 		}
-
 		c.Next()
 	})
-
-	// Initialize auth client
-	authClient := shared_auth.NewAuthClient("http://auth-service:8084")
 
 	// Root endpoint
 	router.GET("/", func(c *gin.Context) {
@@ -77,24 +71,14 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 				c.JSON(200, gin.H{"status": "ok"})
 			})
 
-			// Test endpoint
 			public.GET("/test", func(c *gin.Context) {
 				c.JSON(200, gin.H{"message": "test works"})
 			})
 
-			// Handle OPTIONS preflight requests explicitly
-			public.OPTIONS("/*proxyPath", func(c *gin.Context) {
-				origin := c.Request.Header.Get("Origin")
-
-				// Allow specific origins
-				if origin == "https://blytz.app" ||
-					origin == "https://www.blytz.app" ||
-					origin == "https://demo.blytz.app" ||
-					origin == "https://seller.blytz.app" {
-					c.Header("Access-Control-Allow-Origin", origin)
-				} else {
-					c.Header("Access-Control-Allow-Origin", "*")
-				}
+			// LiveKit token generation
+			public.GET("/livekit/token", createLiveKitTokenHandler(logger))
+			public.POST("/livekit/token", createLiveKitTokenHandler(logger))
+		}
 
 				c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 				c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
