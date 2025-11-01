@@ -69,7 +69,12 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "gateway"})
+		c.JSON(200, gin.H{"status": "ok", "service": "gateway", "timestamp": time.Now().UTC()})
+	})
+
+	// Simple ping endpoint (no dependencies)
+	router.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
 	})
 
 	// Prometheus metrics endpoint
