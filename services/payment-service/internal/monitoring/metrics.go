@@ -1,7 +1,8 @@
 package monitoring
 
 import (
-	"context"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -239,7 +240,7 @@ func (pm *PaymentMetrics) RecordFiuuCircuitBreakerState(merchantID string, state
 // RecordFiuuRetry records retry attempts for Fiuu requests
 func (pm *PaymentMetrics) RecordFiuuRetry(endpoint, errorType string, attempts int) {
 	fiuuRetryAttempts.With(prometheus.Labels{
-		"endpoint":  endpoint,
+		"endpoint":   endpoint,
 		"error_type": errorType,
 	}).Observe(float64(attempts))
 
