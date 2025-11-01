@@ -72,6 +72,15 @@ http:
       tls:
         certResolver: letsencrypt
 
+    # LiveKit Token API - for demo.blytz.app/api/livekit/token
+    livekit-token-router:
+      rule: Host(`demo.blytz.app`) && PathPrefix(`/api/livekit`)
+      service: livekit-token-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
     # Dokploy Management
     dokploy-router-app:
       rule: Host(`dokploy.docker.localhost`) && PathPrefix(`/`) || Host(`sudo.blytz.app`)
@@ -115,6 +124,13 @@ http:
       loadBalancer:
         servers:
           - url: http://blytz-seller-prod:3002
+        passHostHeader: true
+
+    # LiveKit Token Service
+    livekit-token-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-livekit-service-prod:8089
         passHostHeader: true
 
     dokploy-service-app:
