@@ -200,7 +200,9 @@ services:
 
   # LiveKit Token Service
   livekit-service:
-    image: livekit-token-service
+    build:
+      context: .
+      dockerfile: ./Dockerfile.livekit-token
     container_name: blytz-livekit-service-prod
     env_file:
       - ./.env
@@ -212,7 +214,7 @@ services:
       - blytz-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/api/v1/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8089/health"]
       interval: 30s
       timeout: 10s
       retries: 3
