@@ -90,9 +90,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 
 				proxy.ServeHTTP(c.Writer, c.Request)
 			})
-			webhooks.GET("/test", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "webhook test route works"})
-			})
+
 		}
 
 		// Protected routes
