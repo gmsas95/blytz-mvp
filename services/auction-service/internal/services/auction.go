@@ -7,12 +7,11 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/repository"
 	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 )
-
 
 type AuctionService struct {
 	db     *sql.DB
@@ -96,4 +95,24 @@ func (s *AuctionService) PlaceBid(ctx context.Context, bid *models.Bid) error {
 	}
 
 	return nil
+}
+
+func (s *AuctionService) ListAuctions(ctx context.Context) ([]*models.Auction, error) {
+	repo := repository.NewPostgresRepo(s.db, s.logger)
+	auctions, err := repo.List(ctx)
+	if err != nil {
+		s.logger.Error("Failed to list auctions", zap.Error(err))
+		return nil, shared_errors.ErrInternalServer
+	}
+	return auctions, nil
+}
+
+func (s *AuctionService) GetActiveAuctions(ctx context.Context) ([]*models.Auction, error) {
+	repo := repository.NewPostgresRepo(s.db, s.logger)
+	auctions, err := repo.GetActive(ctx)
+	if err != nil {
+		s.logger.Error("Failed to get active auctions", zap.Error(err))
+		return nil, shared_errors.ErrInternalServer
+	}
+	return auctions, nil
 }

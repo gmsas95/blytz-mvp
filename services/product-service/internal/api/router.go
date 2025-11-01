@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -36,9 +35,6 @@ func SetupRouter(db *gorm.DB, logger *zap.Logger, cfg *config.Config) *gin.Engin
 			"timestamp": time.Now().Unix(),
 		})
 	})
-
-	// Metrics
-	router.GET("/product-metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api/v1")

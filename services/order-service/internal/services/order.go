@@ -27,6 +27,11 @@ func NewOrderService(db *gorm.DB, logger *zap.Logger, config *config.Config) *Or
 	}
 }
 
+// GetDB returns the database connection for use by handlers
+func (s *OrderService) GetDB() *gorm.DB {
+	return s.db
+}
+
 func (s *OrderService) CreateOrder(ctx context.Context, userID string, req *CreateOrderRequest) (*models.Order, error) {
 	s.logger.Info("Creating order", zap.String("user_id", userID), zap.String("product_id", req.ProductID))
 
@@ -40,16 +45,16 @@ func (s *OrderService) CreateOrder(ctx context.Context, userID string, req *Crea
 
 	// Create order
 	order := &models.Order{
-		UserID:       userID,
-		AuctionID:    req.AuctionID,
-		ProductID:    req.ProductID,
-		ProductName:  req.ProductName,
-		ProductImage: req.ProductImage,
-		Quantity:     req.Quantity,
-		Price:        req.Price,
-		TotalAmount:  totalAmount,
-		Currency:     req.Currency,
-		Status:       string(models.OrderStatusPending),
+		UserID:        userID,
+		AuctionID:     req.AuctionID,
+		ProductID:     req.ProductID,
+		ProductName:   req.ProductName,
+		ProductImage:  req.ProductImage,
+		Quantity:      req.Quantity,
+		Price:         req.Price,
+		TotalAmount:   totalAmount,
+		Currency:      req.Currency,
+		Status:        string(models.OrderStatusPending),
 		PaymentStatus: string(models.PaymentStatusPending),
 		ShippingAddress: models.Address{
 			Name:        req.ShippingAddress.Name,

@@ -45,7 +45,7 @@ export default function LiveKitViewer({
       setIsConnecting(true)
       setConnectionError(null)
 
-      const response = await fetch(`/api/livekit/token?room=${auctionId}&role=viewer`)
+      const response = await fetch(`/api/v1/livekit/token?room=${auctionId}&role=viewer`)
       
       if (!response.ok) {
         throw new Error(`Failed to fetch token: ${response.statusText}`)

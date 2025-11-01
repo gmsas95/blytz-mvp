@@ -615,37 +615,37 @@ export class RemoteApiAdapter implements ApiAdapter {
     if (filter?.sortBy) params.append('sortBy', filter.sortBy);
     if (filter?.sortOrder) params.append('sortOrder', filter.sortOrder);
 
-    return this.fetchApi(`/products?${params}`);
+    return this.fetchApi(`/api/v1/products?${params}`);
   }
 
   async getProduct(id: string): Promise<ApiResponse<Product>> {
-    return this.fetchApi(`/products/${id}`);
+    return this.fetchApi(`/api/v1/products/${id}`);
   }
 
   async getFeaturedProducts(): Promise<ApiResponse<Product[]>> {
-    return this.fetchApi('/products/featured');
+    return this.fetchApi('/api/v1/products/featured');
   }
 
   async getAuctions(filter?: AuctionFilter): Promise<ApiResponse<PaginatedResponse<Auction>>> {
     const params = new URLSearchParams();
     if (filter?.status) params.append('status', filter.status);
 
-    return this.fetchApi(`/auctions?${params}`);
+    return this.fetchApi(`/api/v1/auctions?${params}`);
   }
 
   async getAuction(id: string): Promise<ApiResponse<Auction>> {
-    return this.fetchApi(`/auctions/${id}`);
+    return this.fetchApi(`/api/v1/auctions/${id}`);
   }
 
   async placeBid(auctionId: string, amount: number): Promise<ApiResponse<Bid>> {
-    return this.fetchApi(`/auctions/${auctionId}/bid`, {
+    return this.fetchApi(`/api/v1/auctions/${auctionId}/bids`, {
       method: 'POST',
       body: JSON.stringify({ amount }),
     });
   }
 
   async getActiveAuctions(): Promise<ApiResponse<Auction[]>> {
-    return this.fetchApi('/auctions/active');
+    return this.fetchApi('/api/v1/auctions/active');
   }
 
   async getLivestreams(
@@ -654,19 +654,19 @@ export class RemoteApiAdapter implements ApiAdapter {
     const params = new URLSearchParams();
     if (filter?.status) params.append('status', filter.status);
 
-    return this.fetchApi(`/livestreams?${params}`);
+    return this.fetchApi(`/api/v1/livestreams?${params}`);
   }
 
   async getLivestream(id: string): Promise<ApiResponse<Livestream>> {
-    return this.fetchApi(`/livestreams/${id}`);
+    return this.fetchApi(`/api/v1/livestreams/${id}`);
   }
 
   async getActiveLivestreams(): Promise<ApiResponse<Livestream[]>> {
-    return this.fetchApi('/livestreams/active');
+    return this.fetchApi('/api/v1/livestreams/active');
   }
 
   async getCart(): Promise<ApiResponse<Cart>> {
-    return this.fetchApi('/cart');
+    return this.fetchApi('/api/v1/cart/');
   }
 
   async addToCart(
@@ -674,52 +674,52 @@ export class RemoteApiAdapter implements ApiAdapter {
     quantity: number,
     auctionId?: string
   ): Promise<ApiResponse<Cart>> {
-    return this.fetchApi('/cart/add', {
+    return this.fetchApi('/api/v1/cart/add', {
       method: 'POST',
       body: JSON.stringify({ productId, quantity, auctionId }),
     });
   }
 
   async removeFromCart(itemId: string): Promise<ApiResponse<Cart>> {
-    return this.fetchApi(`/cart/remove/${itemId}`, { method: 'DELETE' });
+    return this.fetchApi(`/api/v1/cart/remove/${itemId}`, { method: 'DELETE' });
   }
 
   async updateCartItemQuantity(itemId: string, quantity: number): Promise<ApiResponse<Cart>> {
-    return this.fetchApi(`/cart/update/${itemId}`, {
+    return this.fetchApi(`/api/v1/cart/update/${itemId}`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
     });
   }
 
   async clearCart(): Promise<ApiResponse<Cart>> {
-    return this.fetchApi('/cart/clear', { method: 'DELETE' });
+    return this.fetchApi('/api/v1/cart/clear', { method: 'DELETE' });
   }
 
   async login(email: string, password: string): Promise<ApiResponse<User>> {
-    return this.fetchApi('/auth/login', {
+    return this.fetchApi('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
   }
 
   async register(userData: Partial<User>): Promise<ApiResponse<User>> {
-    return this.fetchApi('/auth/register', {
+    return this.fetchApi('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   }
 
   async logout(): Promise<ApiResponse<void>> {
-    return this.fetchApi('/auth/logout', { method: 'POST' });
+    return this.fetchApi('/api/auth/logout', { method: 'POST' });
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.fetchApi('/auth/me');
+    return this.fetchApi('/api/auth/me');
   }
 
   // Payment methods
   async getPaymentMethods(): Promise<ApiResponse<PaymentMethodInfo[]>> {
-    return this.fetchApi('/payments/methods');
+    return this.fetchApi('/api/v1/payments/methods');
   }
 
   async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
@@ -747,14 +747,14 @@ export class RemoteApiAdapter implements ApiAdapter {
   }
 
   async createPayment(paymentRequest: PaymentRequest): Promise<ApiResponse<PaymentResponse>> {
-    return this.fetchApi('/payments/create', {
+    return this.fetchApi('/api/v1/payments/create', {
       method: 'POST',
       body: JSON.stringify(paymentRequest),
     });
   }
 
   async getPaymentStatus(paymentId: string): Promise<ApiResponse<PaymentResponse>> {
-    return this.fetchApi(`/payments/${paymentId}/status`);
+    return this.fetchApi(`/api/v1/payments/${paymentId}/status`);
   }
 }
 

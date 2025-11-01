@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/chat-service/internal/services"
@@ -33,7 +32,6 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	})
 
 	// Prometheus metrics endpoint
-	router.GET("/chat-metrics", gin.WrapH(promhttp.Handler()))
 
 	// Chat endpoints
 	chatRoutes := router.Group("/api/v1/chat")

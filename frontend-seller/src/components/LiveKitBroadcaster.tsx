@@ -54,7 +54,7 @@ export default function LiveKitBroadcaster({
       setIsConnecting(true)
       setConnectionError(null)
 
-      const response = await fetch(`/api/livekit/token?room=${auctionId}&role=broadcaster`)
+      const response = await fetch(`/api/v1/livekit/token?room=${auctionId}&role=broadcaster`)
       
       if (!response.ok) {
         throw new Error(`Failed to fetch token: ${response.statusText}`)

@@ -38,3 +38,28 @@ test-results/
 # Documentation
 README.md
 docs/
+
+# Include only necessary directories for build
+!services/product-service/**
+!shared/
+!go.work
+!go.work.sum
+
+# Exclude other services and frontend
+services/auction-service/
+services/auth-service/
+services/chat-service/
+services/gateway/
+services/livekit-service/
+services/logistics-service/
+services/order-service/
+services/payment-service/
+frontend/
+frontend-demo/
+frontend-seller/
+tests/
+scripts/
+infra/
+*.yml
+*.yaml
+*.json

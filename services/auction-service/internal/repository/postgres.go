@@ -12,7 +12,6 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/models"
 )
 
-
 type PostgresRepo struct {
 	db     DBTX
 	logger *zap.Logger
@@ -51,6 +50,44 @@ func (r *PostgresRepo) GetByID(ctx context.Context, id string) (*models.Auction,
 	return auction, nil
 }
 
+func (r *PostgresRepo) List(ctx context.Context) ([]*models.Auction, error) {
+	r.logger.Info("Getting all auctions from database")
+
+	query := `
+		SELECT auction_id, product_id, seller_id, title, description,
+			starting_price, current_price, reserve_price, min_bid_increment,
+			start_time, end_time, status, type, is_active, created_at, updated_at
+		FROM auctions
+		ORDER BY created_at DESC
+		LIMIT 100
+	`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		r.logger.Error("Failed to query auctions", zap.Error(err))
+		return nil, fmt.Errorf("failed to query auctions: %w", err)
+	}
+	defer rows.Close()
+
+	var auctions []*models.Auction
+	for rows.Next() {
+		var auction models.Auction
+		err := rows.Scan(
+			&auction.AuctionID, &auction.ProductID, &auction.SellerID, &auction.Title, &auction.Description,
+			&auction.StartingPrice, &auction.CurrentPrice, &auction.ReservePrice, &auction.MinBidIncrement,
+			&auction.StartTime, &auction.EndTime, &auction.Status, &auction.Type, &auction.IsActive,
+			&auction.CreatedAt, &auction.UpdatedAt,
+		)
+		if err != nil {
+			r.logger.Error("Failed to scan auction", zap.Error(err))
+			return nil, fmt.Errorf("failed to scan auction: %w", err)
+		}
+		auctions = append(auctions, &auction)
+	}
+
+	return auctions, nil
+}
+
 func (r *PostgresRepo) UpdateAuctionPrice(ctx context.Context, id string, price float64) error {
 	query := `UPDATE auctions SET current_price = $1 WHERE auction_id = $2`
 	_, err := r.db.ExecContext(ctx, query, price, id)
@@ -62,7 +99,6 @@ func (r *PostgresRepo) CreateBid(ctx context.Context, bid *models.Bid) error {
 	_, err := r.db.ExecContext(ctx, query, bid.BidID, bid.AuctionID, bid.BidderID, bid.Amount, bid.IsWinning, bid.BidTime, bid.CreatedAt)
 	return err
 }
-
 
 func (r *PostgresRepo) GetBids(ctx context.Context, auctionID string) (*models.BidsResponse, error) {
 	r.logger.Info("Getting bids from database", zap.String("auction_id", auctionID))
@@ -138,7 +174,7 @@ func (r *PostgresRepo) UpdateAuctionStatus(ctx context.Context, auctionID string
 	return nil
 }
 
-func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]models.Auction, error) {
+func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]*models.Auction, error) {
 	r.logger.Info("Getting active auctions from database")
 
 	query := `
@@ -157,7 +193,7 @@ func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]models.Auction,
 	}
 	defer rows.Close()
 
-	var auctions []models.Auction
+	var auctions []*models.Auction
 	for rows.Next() {
 		var auction models.Auction
 		err := rows.Scan(
@@ -170,7 +206,7 @@ func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]models.Auction,
 			r.logger.Error("Failed to scan auction", zap.Error(err))
 			return nil, fmt.Errorf("failed to scan auction: %w", err)
 		}
-		auctions = append(auctions, auction)
+		auctions = append(auctions, &auction)
 	}
 
 	return auctions, nil

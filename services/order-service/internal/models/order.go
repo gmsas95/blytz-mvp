@@ -1,8 +1,8 @@
 package models
 
 import (
-	"time"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Order struct {
@@ -13,7 +13,7 @@ type Order struct {
 	ProductName     string         `json:"product_name" gorm:"not null"`
 	ProductImage    string         `json:"product_image,omitempty"`
 	Quantity        int            `json:"quantity" gorm:"not null;default:1"`
-	Price           int64          `json:"price" gorm:"not null"` // Price in cents
+	Price           int64          `json:"price" gorm:"not null"`        // Price in cents
 	TotalAmount     int64          `json:"total_amount" gorm:"not null"` // Total in cents
 	Currency        string         `json:"currency" gorm:"not null;default:'USD'"`
 	Status          string         `json:"status" gorm:"not null;default:'pending'"`
@@ -43,7 +43,7 @@ type OrderItem struct {
 	ProductID   string    `json:"product_id" gorm:"not null"`
 	ProductName string    `json:"product_name" gorm:"not null"`
 	Quantity    int       `json:"quantity" gorm:"not null"`
-	Price       int64     `json:"price" gorm:"not null"` // Price per unit in cents
+	Price       int64     `json:"price" gorm:"not null"`       // Price per unit in cents
 	TotalPrice  int64     `json:"total_price" gorm:"not null"` // Total for this item in cents
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -70,3 +70,26 @@ const (
 	PaymentStatusRefunded  PaymentStatus = "refunded"
 	PaymentStatusCancelled PaymentStatus = "cancelled"
 )
+
+// Cart models
+type Cart struct {
+	ID        string     `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	UserID    string     `json:"user_id" gorm:"not null;uniqueIndex"`
+	Items     []CartItem `json:"items" gorm:"foreignKey:CartID"`
+	Total     int64      `json:"total" gorm:"not null;default:0"` // Total in cents
+	ItemCount int        `json:"item_count" gorm:"not null;default:0"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+}
+
+type CartItem struct {
+	ID        string    `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	CartID    string    `json:"cart_id" gorm:"not null;index"`
+	ProductID string    `json:"product_id" gorm:"not null"`
+	AuctionID *string   `json:"auction_id,omitempty" gorm:"index"`
+	Quantity  int       `json:"quantity" gorm:"not null;default:1"`
+	Price     int64     `json:"price" gorm:"not null"` // Price per unit in cents
+	Total     int64     `json:"total" gorm:"not null"` // Total for this item in cents
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

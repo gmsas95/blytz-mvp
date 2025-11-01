@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
 	shared_auth "github.com/gmsas95/blytz-mvp/shared/pkg/auth"
@@ -43,7 +42,6 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	})
 
 	// Prometheus metrics endpoint
-	router.GET("/gateway-metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api")

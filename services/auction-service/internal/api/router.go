@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/api/handlers"
@@ -22,17 +21,18 @@ func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cf
 	firebaseClient := firebase.NewClient(logger)
 
 	auctionHandler := handlers.NewAuctionHandler(auctionService, logger, firebaseClient)
+	livekitHandler := handlers.NewLiveKitHandler(logger)
+
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// Prometheus metrics endpoint
-	router.GET("/auction-metrics", gin.WrapH(promhttp.Handler()))
-
 	// Auction endpoints
-	auctionRoutes := router.Group("/auctions")
+	auctionRoutes := router.Group("/api/v1/auctions")
 	{
+		auctionRoutes.GET("/", auctionHandler.ListAuctions)
+		auctionRoutes.GET("/active", auctionHandler.GetActiveAuctions)
 		auctionRoutes.GET("/:id", auctionHandler.GetAuction)
 
 		// Protected routes
@@ -42,6 +42,13 @@ func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cf
 			protected.POST("/", auctionHandler.CreateAuction)
 			protected.POST("/:id/bids", auctionHandler.PlaceBid)
 		}
+	}
+
+	// LiveKit token endpoint
+	livekitRoutes := router.Group("/api/v1/livekit")
+	livekitRoutes.Use(auth.GinAuthMiddleware(authClient))
+	{
+		livekitRoutes.GET("/token", livekitHandler.GenerateToken)
 	}
 
 	return router

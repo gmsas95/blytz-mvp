@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/gmsas95/blytz-mvp/shared v0.0.0
 	github.com/lib/pq v1.10.9
+	github.com/livekit/protocol v1.2.8
 	github.com/prometheus/client_golang v1.23.2
 	go.uber.org/zap v1.26.0
 )

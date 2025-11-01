@@ -10,10 +10,9 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/services/auction-service/pkg/firebase"
-	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
-
 
 type AuctionHandler struct {
 	auctionService *services.AuctionService
@@ -74,4 +73,30 @@ func (h *AuctionHandler) PlaceBid(c *gin.Context) {
 	}()
 
 	utils.SendSuccessResponse(c, http.StatusCreated, bid)
+}
+
+func (h *AuctionHandler) ListAuctions(c *gin.Context) {
+	auctions, err := h.auctionService.ListAuctions(c.Request.Context())
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, gin.H{
+		"items":      auctions,
+		"total":      len(auctions),
+		"page":       1,
+		"limit":      20,
+		"totalPages": 1,
+	})
+}
+
+func (h *AuctionHandler) GetActiveAuctions(c *gin.Context) {
+	auctions, err := h.auctionService.GetActiveAuctions(c.Request.Context())
+	if err != nil {
+		utils.SendErrorResponse(c, err)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, auctions)
 }

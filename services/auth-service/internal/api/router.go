@@ -6,7 +6,6 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/api/handlers"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +28,6 @@ func NewRouter(router *gin.Engine, authService *services.AuthService, logger *za
 	})
 
 	// Metrics
-	router.GET("/auth-metrics", gin.WrapH(promhttp.Handler()))
 
 	// API routes
 	api := router.Group("/api/v1")

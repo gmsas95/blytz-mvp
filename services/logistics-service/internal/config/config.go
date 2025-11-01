@@ -21,6 +21,13 @@ type Config struct {
 	AuthServiceURL   string
 	JWTSecret        string
 	LogLevel         string
+
+	// Ninja Van configuration
+	NinjaVanClientID     string `env:"NINJAVAN_CLIENT_ID"`
+	NinjaVanClientKey    string `env:"NINJAVAN_CLIENT_KEY"`    // Client Key for webhook signature verification
+	NinjaVanClientSecret string `env:"NINJAVAN_CLIENT_SECRET"` // Client Secret for OAuth authentication
+	NinjaVanEnvironment  string `env:"NINJAVAN_ENVIRONMENT"`   // "sandbox" or "production"
+	NinjaVanCountryCode  string `env:"NINJAVAN_COUNTRY_CODE"`  // e.g., "sg", "my", "id"
 }
 
 func LoadConfig() *Config {
@@ -37,6 +44,13 @@ func LoadConfig() *Config {
 		AuthServiceURL:   getEnv("AUTH_SERVICE_URL", "http://auth-service:8084"),
 		JWTSecret:        getEnv("JWT_SECRET", "your-secret-key"),
 		LogLevel:         getEnv("LOG_LEVEL", "info"),
+
+		// Ninja Van configuration
+		NinjaVanClientID:     getEnv("NINJAVAN_CLIENT_ID", ""),
+		NinjaVanClientKey:    getEnv("NINJAVAN_CLIENT_KEY", ""),
+		NinjaVanClientSecret: getEnv("NINJAVAN_CLIENT_SECRET", ""),
+		NinjaVanEnvironment:  getEnv("NINJAVAN_ENVIRONMENT", "sandbox"),
+		NinjaVanCountryCode:  getEnv("NINJAVAN_COUNTRY_CODE", "sg"),
 	}
 
 	// Construct the database URL

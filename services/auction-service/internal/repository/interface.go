@@ -16,6 +16,8 @@ type DBTX interface {
 type AuctionRepo interface {
 	Create(ctx context.Context, auction *models.Auction) error
 	GetByID(ctx context.Context, id string) (*models.Auction, error)
+	List(ctx context.Context) ([]*models.Auction, error)
+	GetActive(ctx context.Context) ([]*models.Auction, error)
 	UpdateAuctionPrice(ctx context.Context, id string, price float64) error
 	CreateBid(ctx context.Context, bid *models.Bid) error
 	BeginTx(ctx context.Context) (*sql.Tx, error)
