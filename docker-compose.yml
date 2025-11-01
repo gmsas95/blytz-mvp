@@ -198,6 +198,32 @@ services:
       timeout: 10s
       retries: 3
 
+  # LiveKit Token Service
+  livekit-service:
+    build:
+      context: .
+      dockerfile: ./services/livekit-service/Dockerfile
+    container_name: blytz-livekit-service-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8089
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - LIVEKIT_URL=https://livekit.blytz.app
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      auth-service:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Logistics Service
   logistics-service:
     build:
@@ -241,6 +267,7 @@ services:
       - PAYMENT_SERVICE_URL=http://payment-service:8086
       - CHAT_SERVICE_URL=http://chat-service:8088
       - LOGISTICS_SERVICE_URL=http://logistics-service:8087
+      - LIVEKIT_SERVICE_URL=http://livekit-service:8089
     depends_on:
       - auction-service
       - auth-service
@@ -249,6 +276,7 @@ services:
       - payment-service
       - chat-service
       - logistics-service
+      - livekit-service
     networks:
       - blytz-network
     restart: unless-stopped

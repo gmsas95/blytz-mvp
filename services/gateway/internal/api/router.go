@@ -1,8 +1,6 @@
 package api
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -11,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
@@ -60,7 +57,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			})
 
 			// LiveKit token generation (public for demo purposes)
-			public.GET("/livekit/token", generateLiveKitToken(logger))
+			public.Any("/livekit/token", proxyToService("http://livekit-service:8089", logger))
 		}
 
 		// Auth routes (public)
@@ -226,93 +223,5 @@ func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
 
 		// Serve the request through the proxy
 		proxy.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-// LiveKit token generation
-func generateLiveKitToken(logger *zap.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		room := c.Query("room")
-		role := c.Query("role")
-
-		if room == "" {
-			c.JSON(400, gin.H{"error": "room parameter is required"})
-			return
-		}
-
-		if role == "" {
-			role = "viewer" // Default role
-		}
-
-		// Validate role
-		if role != "viewer" && role != "broadcaster" {
-			c.JSON(400, gin.H{"error": "role must be 'viewer' or 'broadcaster'"})
-			return
-		}
-
-		// LiveKit API configuration (should be from environment in production)
-		apiKey := "blytz-demo-key"
-		apiSecret := "demo-secret-key-for-viewers"
-
-		if role == "broadcaster" {
-			apiSecret = "seller-secret-key-for-broadcasters"
-		}
-
-		// Generate random participant name
-		randomBytes := make([]byte, 8)
-		rand.Read(randomBytes)
-		participantName := fmt.Sprintf("%s_%s", role, base64.URLEncoding.EncodeToString(randomBytes)[:8])
-
-		// Create JWT token for LiveKit
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"iss": apiKey,
-			"sub": participantName,
-			"iat": time.Now().Unix(),
-			"exp": time.Now().Add(24 * time.Hour).Unix(), // 24 hour expiry
-			"video": map[string]interface{}{
-				"room":     room,
-				"roomJoin": true,
-			},
-		})
-
-		// Add permissions based on role
-		if role == "broadcaster" {
-			token.Claims.(jwt.MapClaims)["video"] = map[string]interface{}{
-				"room":         room,
-				"roomJoin":     true,
-				"roomCreate":   true,
-				"roomAdmin":    true,
-				"canPublish":   true,
-				"canSubscribe": false,
-			}
-		} else {
-			token.Claims.(jwt.MapClaims)["video"] = map[string]interface{}{
-				"room":         room,
-				"roomJoin":     true,
-				"canPublish":   false,
-				"canSubscribe": true,
-			}
-		}
-
-		// Sign token
-		tokenString, err := token.SignedString([]byte(apiSecret))
-		if err != nil {
-			logger.Error("Failed to generate LiveKit token", zap.Error(err))
-			c.JSON(500, gin.H{"error": "Failed to generate token"})
-			return
-		}
-
-		logger.Info("Generated LiveKit token",
-			zap.String("room", room),
-			zap.String("role", role),
-			zap.String("participant", participantName))
-
-		c.JSON(200, gin.H{
-			"token":           tokenString,
-			"room":            room,
-			"role":            role,
-			"participantName": participantName,
-			"serverUrl":       "wss://livekit.blytz.app",
-		})
 	}
 }
