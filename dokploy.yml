@@ -88,6 +88,25 @@ http:
       tls:
         certResolver: letsencrypt
 
+    # LiveKit Server Router (for livekit.blytz.app)
+    livekit-router-http:
+      rule: Host(`livekit.blytz.app`)
+      service: livekit-service
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    livekit-router-secure:
+      rule: Host(`livekit.blytz.app`)
+      service: livekit-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - cors-headers
+
   services:
     # Main Frontend Service
     frontend-service:
@@ -101,6 +120,13 @@ http:
       loadBalancer:
         servers:
           - url: http://blytz-gateway-prod:8080
+        passHostHeader: true
+
+    # LiveKit Server Service
+    livekit-service:
+      loadBalancer:
+        servers:
+          - url: http://blytz-livekit-prod:7880
         passHostHeader: true
 
     # Demo Frontend Service - Viewer Platform
