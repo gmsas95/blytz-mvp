@@ -4,12 +4,13 @@ go 1.23
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/livekit/livekit-go v1.25.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/joho/godotenv v1.5.1
 	go.uber.org/zap v1.27.0
-	github.com/gmsas95/blytz-mvp/shared/pkg/auth v0.0.0
+	github.com/gmsas95/blytz-mvp/shared v0.0.0
 )
+
+replace github.com/gmsas95/blytz-mvp/shared => ../../shared
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect

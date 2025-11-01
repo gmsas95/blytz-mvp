@@ -1,18 +1,3 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/health/route": "app/api/health/route.js",
-  "/accessibility-test/page": "app/accessibility-test/page.js",
-  "/auctions/[id]/page": "app/auctions/[id]/page.js",
-  "/auctions/page": "app/auctions/page.js",
-  "/cart/page": "app/cart/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/checkout/cancel/page": "app/checkout/cancel/page.js",
-  "/checkout/page": "app/checkout/page.js",
-  "/livestream/[id]/page": "app/livestream/[id]/page.js",
-  "/livestream/page": "app/livestream/page.js",
-  "/checkout/success/page": "app/checkout/success/page.js",
-  "/page": "app/page.js",
-  "/product/[id]/page": "app/product/[id]/page.js",
-  "/products/page": "app/products/page.js",
-  "/profile/page": "app/profile/page.js"
+  "/page": "app/page.js"
 }

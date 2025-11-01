@@ -1,0 +1,301 @@
+{
+  "config": {
+    "configFile": "/home/sas/blytzmvp-clean/frontend/playwright.config.ts",
+    "rootDir": "/home/sas/blytzmvp-clean/frontend/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/home/sas/blytzmvp-clean/frontend/tests/global-setup.ts",
+    "globalTeardown": "/home/sas/blytzmvp-clean/frontend/tests/global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "Test Environment": "E2E Testing",
+      "Application": "Blytz Auction Platform",
+      "Browser Support": [
+        "Chromium",
+        "Firefox",
+        "WebKit",
+        "Mobile"
+      ]
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "on-failure"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [
+          "**/*.mobile.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [
+          "**/*.mobile.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [
+          "**/*.mobile.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.mobile.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.mobile.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [
+          "**/*.mobile.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "accessibility",
+        "name": "accessibility",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.a11y.spec.ts"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/sas/blytzmvp-clean/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "Test Environment": "E2E Testing",
+          "Application": "Blytz Auction Platform",
+          "Browser Support": [
+            "Chromium",
+            "Firefox",
+            "WebKit",
+            "Mobile"
+          ]
+        },
+        "id": "visual-regression",
+        "name": "visual-regression",
+        "testDir": "/home/sas/blytzmvp-clean/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 8,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',",
+      "stack": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/pages/auth.page.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/accessibility/auth.a11y.spec.ts:2:1)",
+      "location": {
+        "file": "/home/sas/blytzmvp-clean/frontend/tests/accessibility/auth.a11y.spec.ts",
+        "line": 67,
+        "column": 30
+      },
+      "snippet": "\u001b[90m   at \u001b[39maccessibility/auth.a11y.spec.ts:67\n\n  65 |   test('should have accessible error messages', async ({ page }) => {\n  66 |     await authPage.goto();\n> 67 |\n     | ^\n  68 |     // Submit empty form to trigger validation errors\n  69 |     await authPage.submitForm();\n  70 |"
+    },
+    {
+      "message": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',",
+      "stack": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/pages/auth.page.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/fixtures/auth.fixture.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/fixtures/index.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/e2e/auction.spec.ts:1:1)",
+      "location": {
+        "file": "/home/sas/blytzmvp-clean/frontend/tests/e2e/auction.spec.ts",
+        "line": 67,
+        "column": 30
+      },
+      "snippet": "\u001b[90m   at \u001b[39me2e/auction.spec.ts:67\n\n  65 |   });\n  66 |\n> 67 |   test('should display bid history', async ({ page }) => {\n     |                              ^\n  68 |     await auctionPage.goto('auction-1');\n  69 |     await auctionPage.waitForAuctionsToLoad();\n  70 |"
+    },
+    {
+      "message": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',",
+      "stack": "SyntaxError: /home/sas/blytzmvp-clean/frontend/tests/utils/test-helpers.ts: Unexpected token, expected \",\" (67:30)\n\n  65 |    */\n  66 |   async mockApiError(endpoint: string, status: number = 500, message: string = 'Internal Server Error'): Promise<void> {\n> 67 |     await this.page.route(`**${endpoint}**, async route => {\n     |                               ^\n  68 |       await route.fulfill({\n  69 |         status,\n  70 |         contentType: 'application/json',\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/pages/auth.page.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/fixtures/auth.fixture.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/fixtures/index.ts:2:1)\n    at Object.<anonymous> (/home/sas/blytzmvp-clean/frontend/tests/e2e/auth.spec.ts:1:1)",
+      "location": {
+        "file": "/home/sas/blytzmvp-clean/frontend/tests/e2e/auth.spec.ts",
+        "line": 67,
+        "column": 30
+      },
+      "snippet": "\u001b[90m   at \u001b[39me2e/auth.spec.ts:67\n\n  65 |\n  66 |   test('should redirect to login when accessing protected route without auth', async ({ page }) => {\n> 67 |     // Try to access a protected route\n     |                              ^\n  68 |     await page.goto('/auctions/create');\n  69 |\n  70 |     // Should redirect to login"
+    }
+  ],
+  "stats": {
+    "startTime": "2025-11-01T17:00:04.867Z",
+    "duration": 4141.143,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

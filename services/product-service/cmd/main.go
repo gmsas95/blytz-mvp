@@ -13,6 +13,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gmsas95/blytz-mvp/services/product-service/internal/api"
+	"github.com/gmsas95/blytz-mvp/services/product-service/internal/config"
+	"github.com/gmsas95/blytz-mvp/services/product-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
@@ -24,22 +26,31 @@ func main() {
 	}
 	defer logger.Sync() // flushes buffer, if any
 
-	// Set Gin to release mode
-	gin.SetMode(gin.ReleaseMode)
+	// Load configuration
+	cfg := config.Load()
+
+	// Initialize database connection
+	db, err := config.InitDB(cfg)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", zap.Error(err))
+	}
+
+	// Auto-migrate the Product model
+	if err := db.AutoMigrate(&models.Product{}); err != nil {
+		logger.Fatal("Failed to migrate database", zap.Error(err))
+	}
+
+	// Set Gin mode based on environment
+	if cfg.Environment == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	// Create a new Gin router
-	router := api.SetupRouter(logger)
-
-
-	// Get port from environment variable or use default
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8082"
-	}
+	router := api.SetupRouter(db, logger, cfg)
 
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    ":" + port,
+		Addr:    ":" + cfg.Port,
 		Handler: router,
 	}
 

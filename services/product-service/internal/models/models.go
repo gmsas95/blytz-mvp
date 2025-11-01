@@ -1,16 +1,19 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Product represents a product in the system
 type Product struct {
-	ID          uint           `gorm:"primaryKey" json:"id"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	ID        uint           `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// Basic info
 	ProductID   string `gorm:"uniqueIndex;not null" json:"product_id"`
@@ -20,22 +23,22 @@ type Product struct {
 	Currency    string `gorm:"not null;default:'USD'" json:"currency"`
 
 	// Images and media
-	ImageURL    string `json:"image_url"`
-	Images      string `gorm:"type:text" json:"images"` // JSON array of image URLs
+	ImageURL string `json:"image_url"`
+	Images   string `gorm:"type:text" json:"images"` // JSON array of image URLs
 
 	// Seller info
-	SellerID    string `gorm:"not null;index" json:"seller_id"`
-	SellerName  string `json:"seller_name"`
+	SellerID   string `gorm:"not null;index" json:"seller_id"`
+	SellerName string `json:"seller_name"`
 
 	// Inventory
-	Stock       int    `gorm:"default:0" json:"stock"`
-	Reserved    int    `gorm:"default:0" json:"reserved"`
-	Available   int    `gorm:"-" json:"available"` // Calculated field
+	Stock     int `gorm:"default:0" json:"stock"`
+	Reserved  int `gorm:"default:0" json:"reserved"`
+	Available int `gorm:"-" json:"available"` // Calculated field
 
 	// Status
-	Status      string `gorm:"default:'active'" json:"status"`
-	IsFeatured  bool   `gorm:"default:false" json:"is_featured"`
-	IsActive    bool   `gorm:"default:true" json:"is_active"`
+	Status     string `gorm:"default:'active'" json:"status"`
+	IsFeatured bool   `gorm:"default:false" json:"is_featured"`
+	IsActive   bool   `gorm:"default:true" json:"is_active"`
 
 	// Categories
 	Category    string `json:"category"`
@@ -43,7 +46,60 @@ type Product struct {
 	Tags        string `gorm:"type:text" json:"tags"` // JSON array
 
 	// Metadata
-	Metadata    string `gorm:"type:text" json:"metadata,omitempty"`
+	Metadata string `gorm:"type:text" json:"metadata,omitempty"`
+}
+
+// BeforeCreate hook to generate ProductID
+func (p *Product) BeforeCreate(tx *gorm.DB) error {
+	if p.ProductID == "" {
+		p.ProductID = uuid.New().String()
+	}
+	return nil
+}
+
+// GetAvailable calculates available stock
+func (p *Product) GetAvailable() int {
+	return p.Stock - p.Reserved
+}
+
+// GetImagesArray returns images as string array
+func (p *Product) GetImagesArray() []string {
+	if p.Images == "" {
+		return []string{}
+	}
+	var images []string
+	json.Unmarshal([]byte(p.Images), &images)
+	return images
+}
+
+// SetImagesArray sets images from string array
+func (p *Product) SetImagesArray(images []string) {
+	if len(images) == 0 {
+		p.Images = ""
+		return
+	}
+	data, _ := json.Marshal(images)
+	p.Images = string(data)
+}
+
+// GetTagsArray returns tags as string array
+func (p *Product) GetTagsArray() []string {
+	if p.Tags == "" {
+		return []string{}
+	}
+	var tags []string
+	json.Unmarshal([]byte(p.Tags), &tags)
+	return tags
+}
+
+// SetTagsArray sets tags from string array
+func (p *Product) SetTagsArray(tags []string) {
+	if len(tags) == 0 {
+		p.Tags = ""
+		return
+	}
+	data, _ := json.Marshal(tags)
+	p.Tags = string(data)
 }
 
 // ProductStatus constants
@@ -56,15 +112,15 @@ const (
 
 // CreateProductRequest represents a product creation request
 type CreateProductRequest struct {
-	Name        string  `json:"name" binding:"required,min=3,max=200"`
-	Description string  `json:"description" binding:"required,min=10,max=2000"`
-	Price       int64   `json:"price" binding:"required,gt=0"`
-	Currency    string  `json:"currency" binding:"required,len=3"`
-	ImageURL    string  `json:"image_url" binding:"required,url"`
+	Name        string   `json:"name" binding:"required,min=3,max=200"`
+	Description string   `json:"description" binding:"required,min=10,max=2000"`
+	Price       int64    `json:"price" binding:"required,gt=0"`
+	Currency    string   `json:"currency" binding:"required,len=3"`
+	ImageURL    string   `json:"image_url" binding:"required,url"`
 	Images      []string `json:"images"`
-	Stock       int     `json:"stock" binding:"required,min=0"`
-	Category    string  `json:"category" binding:"required"`
-	Subcategory string  `json:"subcategory"`
+	Stock       int      `json:"stock" binding:"required,min=0"`
+	Category    string   `json:"category" binding:"required"`
+	Subcategory string   `json:"subcategory"`
 	Tags        []string `json:"tags"`
 }
 

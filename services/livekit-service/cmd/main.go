@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -11,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/livekit/livekit-go"
 	"go.uber.org/zap"
 )
 
@@ -158,31 +156,32 @@ func createTokenHandler(config *Config) gin.HandlerFunc {
 }
 
 func createLiveKitToken(config *Config, room, role, identity, name string) (string, error) {
-	// Create JWT claims
-	claims := &jwt.MapClaims{
-		"iss": config.LiveKitAPIKey,
-		"nbf": time.Now().Unix(),
-		"exp": time.Now().Add(6 * time.Hour).Unix(), // 6 hours
-		"sub": identity,
-		"jti": fmt.Sprintf("%s_%d", identity, time.Now().Unix()),
-		"video": map[string]interface{}{
-			"room":     room,
-			"roomJoin": true,
-		},
-		"metadata": fmt.Sprintf(`{"role":"%s","name":"%s","room":"%s"}`, role, name, room),
+	// Set role-specific permissions
+	videoClaims := map[string]interface{}{
+		"room":     room,
+		"roomJoin": true,
 	}
 
-	// Set role-specific permissions
 	switch role {
 	case "host", "broadcaster":
-		claims["video"].(map[string]interface{})["roomAdmin"] = true
-		claims["video"].(map[string]interface{})["canPublish"] = true
-		claims["video"].(map[string]interface{})["canPublishData"] = true
-		claims["video"].(map[string]interface{})["canSubscribe"] = true
+		videoClaims["roomAdmin"] = true
+		videoClaims["canPublish"] = true
+		videoClaims["canPublishData"] = true
+		videoClaims["canSubscribe"] = true
 	default: // viewer
-		claims["video"].(map[string]interface{})["canPublish"] = false
-		claims["video"].(map[string]interface{})["canPublishData"] = false
-		claims["video"].(map[string]interface{})["canSubscribe"] = true
+		videoClaims["canPublish"] = false
+		videoClaims["canPublishData"] = false
+		videoClaims["canSubscribe"] = true
+	}
+
+	// Create JWT claims
+	claims := jwt.MapClaims{
+		"iss":      config.LiveKitAPIKey,
+		"sub":      identity,
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(6 * time.Hour).Unix(), // 6 hours
+		"video":    videoClaims,
+		"metadata": fmt.Sprintf(`{"role":"%s","name":"%s","room":"%s"}`, role, name, room),
 	}
 
 	// Create token

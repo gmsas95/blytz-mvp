@@ -97,20 +97,22 @@ func RateLimitError(code, message string) *AppError {
 
 // Common error instances
 var (
-	ErrInvalidRequest    = ValidationError("INVALID_REQUEST", "Invalid request data")
-	ErrUnauthorized      = AuthenticationError("UNAUTHORIZED", "Authentication required")
-	ErrForbidden         = AuthorizationError("FORBIDDEN", "Insufficient permissions")
-	ErrNotFound          = NotFoundError("NOT_FOUND", "Resource not found")
-	ErrConflict          = ConflictError("CONFLICT", "Resource conflict")
-	ErrInternalServer    = InternalError("INTERNAL_ERROR", "Internal server error")
+	ErrInvalidRequest     = ValidationError("INVALID_REQUEST", "Invalid request data")
+	ErrUnauthorized       = AuthenticationError("UNAUTHORIZED", "Authentication required")
+	ErrForbidden          = AuthorizationError("FORBIDDEN", "Insufficient permissions")
+	ErrNotFound           = NotFoundError("NOT_FOUND", "Resource not found")
+	ErrConflict           = ConflictError("CONFLICT", "Resource conflict")
+	ErrInternalServer     = InternalError("INTERNAL_ERROR", "Internal server error")
 	ErrServiceUnavailable = ServiceError("SERVICE_UNAVAILABLE", "Service temporarily unavailable")
-	ErrDatabaseError     = DatabaseError("DATABASE_ERROR", "Database operation failed")
-	ErrRateLimitExceeded = RateLimitError("RATE_LIMIT_EXCEEDED", "Rate limit exceeded")
+	ErrDatabaseError      = DatabaseError("DATABASE_ERROR", "Database operation failed")
+	ErrRateLimitExceeded  = RateLimitError("RATE_LIMIT_EXCEEDED", "Rate limit exceeded")
 	// Auction-specific errors
 	ErrAuctionEnded = ConflictError("AUCTION_ENDED", "Auction has already ended")
 	ErrBidTooLow    = ValidationError("BID_TOO_LOW", "Bid amount is too low")
 	// Auth-specific errors
 	ErrInvalidRequestBody = ValidationError("INVALID_REQUEST_BODY", "Invalid request body")
+	// Product-specific errors
+	ErrInsufficientStock = ConflictError("INSUFFICIENT_STOCK", "Insufficient stock available")
 )
 
 // WrapError wraps an existing error with additional context

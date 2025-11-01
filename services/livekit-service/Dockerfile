@@ -6,12 +6,15 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files
-COPY go.mod go.sum ./
-COPY ../../shared ./shared
+# Copy go mod files first to leverage Docker layer caching
+COPY go.mod ./
+COPY go.sum ./
 
 # Download dependencies
 RUN go mod download
+
+# Generate go.sum if it doesn't exist (for fresh builds)
+RUN test -f go.sum || go mod tidy
 
 # Copy source code
 COPY . .

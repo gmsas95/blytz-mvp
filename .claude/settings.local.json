@@ -100,7 +100,13 @@
       "Bash(npm run format:*)",
       "Bash(/home/sas/blytzmvp-clean/frontend/verify-setup.sh:*)",
       "Bash(npm run build:analyze:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(sudo npx:*)",
+      "Bash(npx playwright test:*)",
+      "mcp__playwright__browser_navigate",
+      "Bash(npm run test:*)",
+      "Bash(PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install:*)"
     ],
     "deny": [],
     "ask": []

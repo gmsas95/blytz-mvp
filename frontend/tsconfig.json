@@ -66,7 +66,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "jest.config.js",
-    "jest.setup.ts"
+    "jest.setup.ts",
+    "tests/**/*.ts",
+    "playwright.config.ts"
   ],
   "exclude": ["node_modules", ".next", "out", "build", "dist", "coverage"]
 }
