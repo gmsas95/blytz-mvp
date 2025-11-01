@@ -218,6 +218,12 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.livekit-token-service.rule=Host(`demo.blytz.app`) && PathPrefix(`/api/livekit`)"
+      - "traefik.http.routers.livekit-token-service.entrypoints=websecure"
+      - "traefik.http.routers.livekit-token-service.tls.certresolver=letsencrypt"
+      - "traefik.http.services.livekit-token-service.loadbalancer.server.port=8089"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8089/api/v1/health"]
       interval: 30s
