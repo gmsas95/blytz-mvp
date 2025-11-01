@@ -48,7 +48,8 @@ export default function LiveKitBroadcaster({
       setIsConnecting(true)
       setConnectionError(null)
 
-      const response = await fetch(`/api/v1/livekit/token?room=${auctionId}&role=broadcaster`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.blytz.app'
+      const response = await fetch(`${apiUrl}/api/public/livekit/token?room=${auctionId}&role=broadcaster`)
       
       if (!response.ok) {
         throw new Error(`Failed to fetch token: ${response.statusText}`)

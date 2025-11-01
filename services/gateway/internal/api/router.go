@@ -1,13 +1,16 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 
 	shared_auth "github.com/gmsas95/blytz-mvp/shared/pkg/auth"
@@ -53,8 +56,13 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 				c.JSON(200, gin.H{"status": "ok"})
 			})
 
-			// LiveKit token generation (public for demo purposes)
-			public.Any("/livekit/token", proxyToService("http://livekit-service:8089", logger))
+			// Test endpoint
+			public.GET("/test", func(c *gin.Context) {
+				c.JSON(200, gin.H{"message": "test works"})
+			})
+
+			// LiveKit token generation (proxy to livekit-service)
+			public.Any("/livekit/*proxyPath", proxyToServiceWithPath("http://livekit-service:8089", "/api/v1/livekit", logger))
 		}
 
 		// Auth routes (public)
@@ -221,4 +229,60 @@ func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
 		// Serve the request through the proxy
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
+}
+
+func createLiveKitToken(room, role, identity, name string) (string, error) {
+	// Get LiveKit credentials from environment
+	apiKey := getEnv("LIVEKIT_API_KEY", "")
+	apiSecret := getEnv("LIVEKIT_API_SECRET", "")
+
+	if apiKey == "" || apiSecret == "" {
+		return "", fmt.Errorf("LiveKit API key and secret are required")
+	}
+
+	// Set role-specific permissions
+	videoClaims := map[string]interface{}{
+		"room":     room,
+		"roomJoin": true,
+	}
+
+	switch role {
+	case "host", "broadcaster":
+		videoClaims["roomAdmin"] = true
+		videoClaims["canPublish"] = true
+		videoClaims["canPublishData"] = true
+		videoClaims["canSubscribe"] = true
+	default: // viewer
+		videoClaims["canPublish"] = false
+		videoClaims["canPublishData"] = false
+		videoClaims["canSubscribe"] = true
+	}
+
+	// Create JWT claims
+	claims := jwt.MapClaims{
+		"iss":      apiKey,
+		"sub":      identity,
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(6 * time.Hour).Unix(), // 6 hours
+		"video":    videoClaims,
+		"metadata": fmt.Sprintf(`{"role":"%s","name":"%s","room":"%s"}`, role, name, room),
+	}
+
+	// Create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Sign token with LiveKit secret
+	tokenString, err := token.SignedString([]byte(apiSecret))
+	if err != nil {
+		return "", fmt.Errorf("failed to sign token: %w", err)
+	}
+
+	return tokenString, nil
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }

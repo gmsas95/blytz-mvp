@@ -274,6 +274,9 @@ services:
       - CHAT_SERVICE_URL=http://chat-service:8088
       - LOGISTICS_SERVICE_URL=http://logistics-service:8087
       - LIVEKIT_SERVICE_URL=http://livekit-service:8089
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - LIVEKIT_URL=${LIVEKIT_URL:-https://livekit.blytz.app}
     depends_on:
       - auction-service
       - auth-service

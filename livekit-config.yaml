@@ -30,10 +30,10 @@ room:
   departure_timeout: 20
 
 # WebHook Configuration (optional)
-webhook:
-  api_key: blytz-webhook-key-32chars-minimum
-  urls:
-    - https://api.blytz.app/webhooks/livekit
+# webhook:
+#   api_key: blytz-webhook-key-32chars-minimum
+#   urls:
+#     - https://api.blytz.app/webhooks/livekit
 
 # Logging
 logging:
