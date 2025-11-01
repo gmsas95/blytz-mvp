@@ -405,9 +405,9 @@ export class MockApiAdapter implements ApiAdapter {
         remark: 'Payment for auction items',
         lang: 'en',
         vcode: 'MOCK_VCODE_123456',
-        callbackURL: 'https://your-domain.com/api/payments/webhook',
-        returnURL: 'https://your-domain.com/checkout/success',
-        backgroundUrl: 'https://your-domain.com/api/payments/webhook'
+        callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+        returnURL: 'https://blytz.app/checkout/success',
+        backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`
       }
     }
   }
@@ -427,7 +427,7 @@ export class MockApiAdapter implements ApiAdapter {
         currency: 'MYR',
         status: 'pending',
         paymentMethod: paymentRequest.paymentMethod,
-        redirectUrl: `https://your-domain.com/checkout/success?payment_id=${paymentId}`,
+        redirectUrl: `https://blytz.app/checkout/success?payment_id=${paymentId}`,
         createdAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       }
