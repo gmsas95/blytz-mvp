@@ -60,22 +60,23 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: 🏗️ Install Dependencies
-        working-directory: ${{ matrix.service.path }}
         run: |
           echo "📦 Installing dependencies for ${{ matrix.service.name }}..."
+          go work sync
+          cd ${{ matrix.service.path }}
           go mod download
           go mod tidy
 
       - name: 🔨 Build Service
-        working-directory: ${{ matrix.service.path }}
         run: |
           echo "🔨 Building ${{ matrix.service.name }}..."
+          cd ${{ matrix.service.path }}
           go build -v ./...
 
       - name: 🧪 Run Tests
-        working-directory: ${{ matrix.service.path }}
         run: |
           echo "🧪 Testing ${{ matrix.service.name }}..."
+          cd ${{ matrix.service.path }}
           go test ./... -v -race -coverprofile=coverage.out
           go tool cover -func=coverage.out
 
