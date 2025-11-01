@@ -18,7 +18,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
 	// Initialize auth client
-	authClient := shared_auth.NewAuthClient("http://blytz-auth-prod:8084")
+	authClient := shared_auth.NewAuthClient("http://auth-service:8084")
 
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
@@ -42,7 +42,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Auth routes (public)
 		auth := api.Group("/auth")
 		{
-			auth.Any("/*proxyPath", proxyToServiceWithPath("http://blytz-auth-prod:8084", "/api/v1/auth", logger))
+			auth.Any("/*proxyPath", proxyToServiceWithPath("http://auth-service:8084", "/api/v1/auth", logger))
 		}
 
 		// Protected routes
@@ -50,12 +50,12 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		protected.Use(shared_auth.GinAuthMiddleware(authClient))
 		{
 			// Proxy to other services
-			protected.Any("/auctions/*proxyPath", proxyToService("http://blytz-auction-prod:8083", logger))
-			protected.Any("/products/*proxyPath", proxyToService("http://blytz-product-prod:8082", logger))
-			protected.Any("/orders/*proxyPath", proxyToService("http://blytz-order-prod:8085", logger))
-			protected.Any("/payments/*proxyPath", proxyToService("http://blytz-payment-prod:8086", logger))
-			protected.Any("/logistics/*proxyPath", proxyToService("http://blytz-logistics-prod:8087", logger))
-			protected.Any("/chat/*proxyPath", proxyToService("http://blytz-chat-prod:8088", logger))
+			protected.Any("/auctions/*proxyPath", proxyToService("http://auction-service:8083", logger))
+			protected.Any("/products/*proxyPath", proxyToService("http://product-service:8082", logger))
+			protected.Any("/orders/*proxyPath", proxyToService("http://order-service:8085", logger))
+			protected.Any("/payments/*proxyPath", proxyToService("http://payment-service:8086", logger))
+			protected.Any("/logistics/*proxyPath", proxyToService("http://logistics-service:8087", logger))
+			protected.Any("/chat/*proxyPath", proxyToService("http://chat-service:8088", logger))
 		}
 	}
 
