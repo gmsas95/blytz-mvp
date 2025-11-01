@@ -131,7 +131,7 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 
 	// Map products to responses
 	productResponses := make([]models.ProductResponse, len(response.Products))
-	for i, product := range response.Products {
+	for i := range response.Products {
 		productResponses[i] = *h.mapProductToResponse(&response.Products[i])
 	}
 
@@ -162,7 +162,7 @@ func (h *ProductHandler) GetFeaturedProducts(c *gin.Context) {
 
 	// Map products to responses
 	productResponses := make([]models.ProductResponse, len(products))
-	for i, product := range products {
+	for i := range products {
 		productResponses[i] = *h.mapProductToResponse(&products[i])
 	}
 
@@ -302,7 +302,7 @@ func (h *ProductHandler) GetMyProducts(c *gin.Context) {
 
 	// Map products to responses
 	productResponses := make([]models.ProductResponse, len(response.Products))
-	for i, product := range response.Products {
+	for i := range response.Products {
 		productResponses[i] = *h.mapProductToResponse(&response.Products[i])
 	}
 
