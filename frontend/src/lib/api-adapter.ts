@@ -667,8 +667,8 @@ export class RemoteApiAdapter implements ApiAdapter {
 
   async getFiuuSeamlessConfig(): Promise<ApiResponse<FiuuSeamlessConfig>> {
     try {
-      // Call payment service directly on localhost for production
-      const response = await fetch(`http://localhost:8086/api/v1/public/seamless/config?order_id=TEST123&amount=10000&bill_name=Test%20User&bill_email=test@example.com&bill_mobile=01234567890&bill_desc=Test%20Payment&channel=FPX`)
+      // Call payment service directly using container name in Docker network
+      const response = await fetch(`http://blytz-payment-prod:8086/api/v1/public/seamless/config?order_id=TEST123&amount=10000&bill_name=Test%20User&bill_email=test@example.com&bill_mobile=01234567890&bill_desc=Test%20Payment&channel=FPX`)
       const data = await response.json()
       
       if (data.success) {
