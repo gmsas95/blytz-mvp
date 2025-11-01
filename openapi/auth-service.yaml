@@ -4,9 +4,26 @@ info:
   version: "1.0.0"
   description: Handles user registration, login, token management, and profile services for the Blytz platform.
 servers:
-  - url: /api/v1
+  - url: http://localhost:8084
 paths:
-  /auth/register:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+
+  /api/auth/register:
     post:
       summary: Register a new user
       tags:
@@ -18,7 +35,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
       responses:
-        '200':
+        '201':
           description: User registered successfully. Returns the new user object.
           content:
             application/json:
@@ -31,7 +48,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/login:
+  /api/auth/login:
     post:
       summary: Authenticate a user
       tags:
@@ -56,7 +73,57 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/refresh:
+  /api/auth/signup:
+    post:
+      summary: Sign up a new user (alternative to register)
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User signed up successfully. Returns the new user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request data or user already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verify:
+    post:
+      summary: Validate a JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateTokenRequest'
+      responses:
+        '200':
+          description: Token validation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateTokenResponse'
+        '401':
+          description: Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh:
     post:
       summary: Refresh an access token
       tags:
@@ -78,6 +145,9 @@ paths:
                   token:
                     type: string
                     example: "new.jwt.token"
+                  refreshToken:
+                    type: string
+                    example: "refresh.token.here"
         '401':
           description: Invalid or expired refresh token.
           content:
@@ -85,9 +155,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /auth/me:
+  /api/auth/logout:
+    post:
+      summary: Logout user (invalidate token)
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Logout successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Logout successful"
+        '401':
+          description: Invalid token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/protected/profile:
     get:
       summary: Get current user's profile
+      tags:
+        - User Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/me:
+    get:
+      summary: Get current user's profile (alternative endpoint)
       tags:
         - User Profile
       security:
@@ -124,7 +249,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profile updated successfully"
         '400':
           description: Invalid request data.
           content:
@@ -145,7 +277,6 @@ components:
       properties:
         id:
           type: string
-          format: uuid
         email:
           type: string
           format: email
@@ -199,6 +330,23 @@ components:
       properties:
         refresh_token:
           type: string
+    ValidateTokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    ValidateTokenResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        user_id:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
     UpdateProfileRequest:
       type: object
       properties:
@@ -225,14 +373,13 @@ components:
         success:
           type: boolean
           example: true
-        data:
-          type: object
-          properties:
-            user:
-              $ref: '#/components/schemas/User'
-            token:
-              type: string
-              example: "your.jwt.token"
+        message:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          example: "your.jwt.token"
     ErrorResponse:
       type: object
       properties:
@@ -245,6 +392,16 @@ components:
         message:
           type: string
           example: "The request data was invalid."
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
   securitySchemes:
     bearerAuth:
       type: http

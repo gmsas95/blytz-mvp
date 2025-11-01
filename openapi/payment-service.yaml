@@ -2,28 +2,638 @@ openapi: 3.1.0
 info:
   title: Blytz Payment Service
   version: 1.0.0
+  description: Comprehensive payment processing service with multiple payment providers and methods.
+servers:
+  - url: http://localhost:8086
 paths:
-  /payment/intent:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  service:
+                    type: string
+                    example: "payment"
+
+  /metrics:
+    get:
+      summary: Prometheus metrics endpoint
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/payments/process:
     post:
-      summary: Create payment intent
+      summary: Process a payment
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                orderId: { type: string }
-                amount: { type: number }
-                method: { type: string }
+              $ref: '#/components/schemas/ProcessPaymentRequest'
       responses:
-        "200": { description: Payment intent created }
+        '200':
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /payment/webhook:
+  /api/v1/payments/{id}:
+    get:
+      summary: Get a specific payment by ID
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Payment ID
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/payments/{id}/refund:
     post:
-      summary: Handle payment gateway webhook
+      summary: Process a refund for a payment
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Payment ID
       requestBody:
+        required: true
         content:
           application/json:
-            schema: { type: object }
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
       responses:
-        "200": { description: Payment event received }
+        '200':
+          description: Refund processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Invalid refund request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/payments/history:
+    get:
+      summary: Get payment history for authenticated user
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Maximum number of payments to retrieve
+      responses:
+        '200':
+          description: Payment history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentHistoryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/payments/methods:
+    get:
+      summary: Get available payment methods
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payment methods retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/payments/seamless/config:
+    get:
+      summary: Get Fiuu seamless configuration for frontend (authenticated)
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Order ID
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Amount in cents
+        - name: bill_name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing name
+        - name: bill_email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+          description: Billing email
+        - name: bill_mobile
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing mobile number
+        - name: bill_desc
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing description
+        - name: channel
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Payment channel
+      responses:
+        '200':
+          description: Seamless configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FiuuSeamlessConfig'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/public/seamless/config:
+    get:
+      summary: Get Fiuu seamless configuration for frontend (public endpoint)
+      tags:
+        - Payments
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Order ID
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Amount in cents
+        - name: bill_name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing name
+        - name: bill_email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+          description: Billing email
+        - name: bill_mobile
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing mobile number
+        - name: bill_desc
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Billing description
+        - name: channel
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Payment channel
+      responses:
+        '200':
+          description: Seamless configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FiuuSeamlessConfig'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/webhooks/fiuu:
+    post:
+      summary: Handle Fiuu payment gateway webhook
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FiuuWebhookRequest'
+      responses:
+        '200':
+          description: Webhook processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+        '400':
+          description: Invalid webhook payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid webhook payload"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to process webhook"
+
+components:
+  schemas:
+    ProcessPaymentRequest:
+      type: object
+      required: [order_id, amount, currency, payment_method, provider, token]
+      properties:
+        order_id:
+          type: string
+          description: Order ID
+        amount:
+          type: integer
+          minimum: 1
+          description: Amount in cents
+        currency:
+          type: string
+          length: 3
+          description: Currency code (e.g., MYR, USD)
+        payment_method:
+          type: string
+          enum: [card, bank_transfer, paypal, apple_pay, google_pay, fpx, ewallet, bnpl, qr]
+          description: Payment method
+        provider:
+          type: string
+          description: Payment provider (e.g., fiuu, stripe)
+        channel:
+          type: string
+          description: Payment channel (for Fiuu)
+        token:
+          type: string
+          description: Payment token
+        bill_name:
+          type: string
+          description: Billing name
+        bill_email:
+          type: string
+          format: email
+          description: Billing email
+        bill_mobile:
+          type: string
+          description: Billing mobile number
+        bill_desc:
+          type: string
+          description: Billing description
+
+    RefundRequest:
+      type: object
+      required: [amount, reason]
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+          description: Refund amount in cents
+        reason:
+          type: string
+          description: Refund reason
+
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Payment ID
+        user_id:
+          type: string
+          description: User ID
+        order_id:
+          type: string
+          description: Order ID
+        amount:
+          type: integer
+          description: Amount in cents
+        currency:
+          type: string
+          description: Currency code
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, refunded, cancelled]
+          description: Payment status
+        payment_method:
+          type: string
+          description: Payment method used
+        provider:
+          type: string
+          description: Payment provider
+        provider_id:
+          type: string
+          description: Provider transaction ID
+        failure_reason:
+          type: string
+          description: Payment failure reason
+        refunded_amount:
+          type: integer
+          description: Refunded amount in cents
+        refunded_at:
+          type: string
+          format: date-time
+          description: Refund timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Payment creation time
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update time
+
+    PaymentHistoryResponse:
+      type: object
+      properties:
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentResponse'
+        total:
+          type: integer
+          description: Total number of payments
+
+    PaymentMethodsResponse:
+      type: object
+      properties:
+        methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethodInfo'
+
+    PaymentMethodInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Payment method ID
+        name:
+          type: string
+          description: Payment method name
+        type:
+          type: string
+          description: Payment method type
+        description:
+          type: string
+          description: Payment method description
+        enabled:
+          type: boolean
+          description: Whether the method is enabled
+        channel:
+          type: string
+          description: Channel code (for Fiuu)
+        currency:
+          type: string
+          description: Supported currency
+
+    FiuuSeamlessConfig:
+      type: object
+      properties:
+        mpsmerchantid:
+          type: string
+          description: Merchant ID
+        mpschannel:
+          type: string
+          description: Payment channel
+        mpsamount:
+          type: string
+          description: Payment amount
+        mpsorderid:
+          type: string
+          description: Order ID
+        mpsbill_name:
+          type: string
+          description: Billing name
+        mpsbill_email:
+          type: string
+          description: Billing email
+        mpsbill_mobile:
+          type: string
+          description: Billing mobile
+        mpsbill_desc:
+          type: string
+          description: Billing description
+        mpscurrency:
+          type: string
+          description: Currency
+        mpslangcode:
+          type: string
+          description: Language code
+        vcode:
+          type: string
+          description: Verification code
+        sandbox:
+          type: boolean
+          description: Sandbox mode flag
+        scriptUrl:
+          type: string
+          description: Script URL
+        additional:
+          type: object
+          description: Additional configuration
+
+    FiuuWebhookRequest:
+      type: object
+      properties:
+        tranID:
+          type: string
+          description: Transaction ID
+        order_id:
+          type: string
+          description: Order ID
+        amount:
+          type: string
+          description: Amount
+        currency:
+          type: string
+          description: Currency
+        payment_status:
+          type: string
+          description: Payment status
+        payment_channel:
+          type: string
+          description: Payment channel
+        channel_code:
+          type: string
+          description: Channel code
+        payment_ref_id:
+          type: string
+          description: Payment reference ID
+        pay_date:
+          type: string
+          description: Payment date
+        pay_time:
+          type: string
+          description: Payment time
+        error_code:
+          type: string
+          description: Error code
+        error_desc:
+          type: string
+          description: Error description
+        signature:
+          type: string
+          description: Webhook signature
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          example: "The request data was invalid."
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
