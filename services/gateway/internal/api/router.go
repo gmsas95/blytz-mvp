@@ -111,7 +111,11 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 				c.Status(http.StatusOK)
 			})
 
-			// LiveKit token generation (proxy to livekit-service)
+			// LiveKit token generation (direct implementation with fallback)
+			public.GET("/livekit/token", createLiveKitTokenHandler(logger))
+			public.POST("/livekit/token", createLiveKitTokenHandler(logger))
+
+			// Fallback proxy to livekit-service
 			public.Any("/livekit/*proxyPath", proxyToServiceWithPath("http://livekit-service:8089", "/api/v1", logger))
 		}
 
@@ -442,6 +446,57 @@ func proxyToService(targetURL string, logger *zap.Logger) gin.HandlerFunc {
 
 		// Serve the request through the proxy
 		proxy.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func createLiveKitTokenHandler(logger *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get query parameters
+		room := c.Query("room")
+		role := c.DefaultQuery("role", "viewer")
+		name := c.Query("name")
+
+		if room == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Room name is required",
+			})
+			return
+		}
+
+		// Validate role
+		if role != "viewer" && role != "host" && role != "broadcaster" {
+			role = "viewer"
+		}
+
+		// Generate unique identity
+		identity := fmt.Sprintf("%s_%d_%d", role, time.Now().Unix(), time.Now().Nanosecond())
+
+		// Set default name if not provided
+		if name == "" {
+			name = identity
+		}
+
+		// Create LiveKit token
+		token, err := createLiveKitToken(room, role, identity, name)
+		if err != nil {
+			logger.Error("Failed to create LiveKit token", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to generate token",
+			})
+			return
+		}
+
+		// Get LiveKit URL from environment
+		livekitURL := getEnv("LIVEKIT_URL", "wss://blytz-live-u5u72ozx.livekit.cloud")
+
+		response := gin.H{
+			"token":    token,
+			"url":      livekitURL,
+			"room":     room,
+			"identity": identity,
+		}
+
+		c.JSON(http.StatusOK, response)
 	}
 }
 
