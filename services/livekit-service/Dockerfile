@@ -6,9 +6,13 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
-# Copy go mod files first to leverage Docker layer caching
+# Copy go mod files and shared directory first
 COPY services/livekit-service/go.mod ./
 COPY services/livekit-service/go.sum ./
+COPY shared/ ./shared/
+
+# Fix the replace directive to use the correct path
+RUN sed -i 's|../../shared|./shared|' go.mod
 
 # Download dependencies
 RUN go mod download
