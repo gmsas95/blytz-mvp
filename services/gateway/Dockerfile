@@ -3,13 +3,7 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-# Copy module files and download dependencies
-COPY go.work go.work.sum ./
-COPY services/gateway/go.mod services/gateway/go.sum ./services/gateway/
-COPY shared/go.mod shared/go.sum ./shared/
-RUN cd services/gateway && go mod download
-
-# Copy the rest of the source code
+# Copy the entire repository
 COPY . .
 
 # Build the application
