@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   LiveKitRoom, 
   VideoConference,
@@ -43,13 +43,7 @@ export default function LiveKitBroadcaster({
   const [viewerCount, setViewerCount] = useState(0)
 
   // Fetch token if not provided
-  useEffect(() => {
-    if (!token && auctionId) {
-      fetchBroadcasterToken()
-    }
-  }, [auctionId, token])
-
-  const fetchBroadcasterToken = async () => {
+  const fetchBroadcasterToken = useCallback(async () => {
     try {
       setIsConnecting(true)
       setConnectionError(null)
@@ -69,7 +63,13 @@ export default function LiveKitBroadcaster({
     } finally {
       setIsConnecting(false)
     }
-  }
+  }, [auctionId, onError])
+
+  useEffect(() => {
+    if (!token && auctionId) {
+      fetchBroadcasterToken()
+    }
+  }, [auctionId, token, fetchBroadcasterToken])
 
   const handleConnected = () => {
     setIsBroadcasting(true)

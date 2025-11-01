@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   LiveKitRoom, 
   VideoConference, 
@@ -34,13 +34,31 @@ export default function LiveKitViewer({
   const [viewerToken, setViewerToken] = useState<string | null>(token || null)
 
   // Fetch token if not provided
+  const fetchViewerToken = useCallback(async () => {
+    try {
+      setIsConnecting(true)
+      setConnectionError(null)
+
+      const response = await fetch(`/api/v1/livekit/token?room=${auctionId}&role=viewer`)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch token: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      setViewerToken(data.token)
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'Failed to fetch token')
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [auctionId])
+
   useEffect(() => {
     if (!token && auctionId) {
       fetchViewerToken()
     }
-  }, [auctionId, token])
-
-  const fetchViewerToken = async () => {
+  }, [auctionId, token, fetchViewerToken])
     try {
       setIsConnecting(true)
       setConnectionError(null)
