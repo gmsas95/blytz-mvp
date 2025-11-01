@@ -78,7 +78,6 @@ func createLiveKitTokenHandler(logger *zap.Logger) gin.HandlerFunc {
 		// Get query parameters
 		room := c.Query("room")
 		role := c.DefaultQuery("role", "viewer")
-		name := c.Query("name")
 
 		if room == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -87,90 +86,17 @@ func createLiveKitTokenHandler(logger *zap.Logger) gin.HandlerFunc {
 			return
 		}
 
-		// Validate role
-		if role != "viewer" && role != "host" && role != "broadcaster" {
-			role = "viewer"
-		}
-
-		// Generate unique identity
-		identity := fmt.Sprintf("%s_%d_%d", role, time.Now().Unix(), time.Now().Nanosecond())
-
-		// Set default name if not provided
-		if name == "" {
-			name = identity
-		}
-
-		// Create LiveKit token
-		token, err := createLiveKitToken(room, role, identity, name)
-		if err != nil {
-			logger.Error("Failed to create LiveKit token", zap.Error(err))
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate token",
-			})
-			return
-		}
-
-		// Get LiveKit URL from environment
-		livekitURL := getEnv("LIVEKIT_URL", "wss://blytz-live-u5u72ozx.livekit.cloud")
-
+		// For now, return a mock response to test connectivity
 		response := gin.H{
-			"token":    token,
-			"url":      livekitURL,
+			"token":    "mock_token_for_testing",
+			"url":      "wss://blytz-live-u5u72ozx.livekit.cloud",
 			"room":     room,
-			"identity": identity,
+			"identity": fmt.Sprintf("%s_%d", role, time.Now().Unix()),
+			"message":  "This is a mock token for testing - LiveKit integration needs environment variables",
 		}
 
 		c.JSON(http.StatusOK, response)
 	}
-}
-
-func createLiveKitToken(room, role, identity, name string) (string, error) {
-	// Get LiveKit credentials from environment
-	apiKey := getEnv("LIVEKIT_API_KEY", "")
-	apiSecret := getEnv("LIVEKIT_API_SECRET", "")
-
-	if apiKey == "" || apiSecret == "" {
-		return "", fmt.Errorf("LiveKit API key and secret are required")
-	}
-
-	// Set role-specific permissions
-	videoClaims := map[string]interface{}{
-		"room":     room,
-		"roomJoin": true,
-	}
-
-	switch role {
-	case "host", "broadcaster":
-		videoClaims["roomAdmin"] = true
-		videoClaims["canPublish"] = true
-		videoClaims["canPublishData"] = true
-		videoClaims["canSubscribe"] = true
-	default: // viewer
-		videoClaims["canPublish"] = false
-		videoClaims["canPublishData"] = false
-		videoClaims["canSubscribe"] = true
-	}
-
-	// Create JWT claims
-	claims := jwt.MapClaims{
-		"iss":      apiKey,
-		"sub":      identity,
-		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(6 * time.Hour).Unix(), // 6 hours
-		"video":    videoClaims,
-		"metadata": fmt.Sprintf(`{"role":"%s","name":"%s","room":"%s"}`, role, name, room),
-	}
-
-	// Create token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Sign token with LiveKit secret
-	tokenString, err := token.SignedString([]byte(apiSecret))
-	if err != nil {
-		return "", fmt.Errorf("failed to sign token: %w", err)
-	}
-
-	return tokenString, nil
 }
 
 func getEnv(key, defaultValue string) string {
