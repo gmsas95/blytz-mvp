@@ -7,8 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy go mod files first to leverage Docker layer caching
-COPY go.mod ./
-COPY go.sum ./
+COPY services/livekit-service/go.mod ./
+COPY services/livekit-service/go.sum ./
 
 # Download dependencies
 RUN go mod download
@@ -17,7 +17,7 @@ RUN go mod download
 RUN test -f go.sum || go mod tidy
 
 # Copy source code
-COPY . .
+COPY services/livekit-service/ .
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/main.go
