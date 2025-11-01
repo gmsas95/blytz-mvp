@@ -174,7 +174,7 @@ func (r *PostgresRepo) UpdateAuctionStatus(ctx context.Context, auctionID string
 	return nil
 }
 
-func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]*models.Auction, error) {
+func (r *PostgresRepo) GetActive(ctx context.Context) ([]*models.Auction, error) {
 	r.logger.Info("Getting active auctions from database")
 
 	query := `
@@ -210,4 +210,8 @@ func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]*models.Auction
 	}
 
 	return auctions, nil
+}
+
+func (r *PostgresRepo) GetActiveAuctions(ctx context.Context) ([]*models.Auction, error) {
+	return r.GetActive(ctx)
 }
