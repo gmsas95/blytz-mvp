@@ -34,6 +34,9 @@ jobs:
           - name: auction-service
             port: 8083
             path: services/auction-service
+          - name: payment-service
+            port: 8086
+            path: services/payment-service
 
     steps:
       - name: 📥 Checkout Code
@@ -104,6 +107,9 @@ jobs:
             context: ./services
           - name: auction-service
             dockerfile: services/auction-service/Dockerfile
+            context: ./services
+          - name: payment-service
+            dockerfile: services/payment-service/Dockerfile
             context: ./services
 
     steps:
@@ -192,6 +198,7 @@ jobs:
             curl -f http://localhost:8081/health || exit 1
             curl -f http://localhost:8082/health || exit 1
             curl -f http://localhost:8083/health || exit 1
+            curl -f http://localhost:8086/health || exit 1
 
             echo "🎉 Deployment successful!"
           ENDSSH
