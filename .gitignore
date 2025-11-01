@@ -329,6 +329,24 @@ tools/
 *.ppt
 *.pptx
 
+# All documentation files in root (keep only in subdirectories)
+/*.md
+!src/**/*.md
+!services/**/*.md
+!frontend/**/*.md
+!frontend-demo/**/*.md
+!frontend-seller/**/*.md
+
+# All shell scripts in root
+/*.sh
+!scripts/**/*.sh
+
+# All config files in root (keep only specific ones)
+docker-compose*.yml
+nginx*.conf
+traefik*.yml
+!docker-compose.yml
+
 # Test artifacts and reports
 test-results/
 playwright-report/
