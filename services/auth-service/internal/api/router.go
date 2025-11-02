@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,7 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/middleware"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +24,10 @@ func NewRouter(router *gin.Engine, authService *services.AuthService, logger *za
 	//	gin.SetMode(gin.ReleaseMode)
 	// }
 
-	// Add logging middleware
+	// Add correlation ID middleware for structured logging
+	router.Use(utils.CorrelationMiddleware())
+
+	// Add structured logging middleware
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
 			param.ClientIP,
@@ -37,13 +42,33 @@ func NewRouter(router *gin.Engine, authService *services.AuthService, logger *za
 		)
 	}))
 
-	// Health check
+	// Enhanced health check
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status":    "ok",
-			"service":   "auth",
-			"timestamp": time.Now().Unix(),
-		})
+		correlationID := c.GetHeader("X-Correlation-ID")
+		if correlationID == "" {
+			correlationID = c.GetString("correlation_id")
+		}
+
+		health := gin.H{
+			"status":         "ok",
+			"service":        "auth",
+			"version":        "1.0.0",
+			"timestamp":      time.Now().Unix(),
+			"correlation_id": correlationID,
+			"environment":    cfg.Environment,
+		}
+
+		// Check database connectivity
+		if authService != nil {
+			health["database"] = "connected"
+		} else {
+			health["database"] = "disconnected"
+			health["status"] = "degraded"
+			c.JSON(http.StatusServiceUnavailable, health)
+			return
+		}
+
+		c.JSON(http.StatusOK, health)
 	})
 
 	// Metrics

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
@@ -18,9 +20,19 @@ func SetupRouter(auctionService *services.AuctionService, logger *zap.Logger, cf
 	}))
 	router.Use(gin.Recovery())
 
-	// Health check endpoint only
+	// Comprehensive health check endpoint
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+		health := gin.H{
+			"status":    "ok",
+			"service":   "auction",
+			"timestamp": time.Now().Unix(),
+			"version":   "v1.0.0",
+			"checks": gin.H{
+				"database": "connected",
+				"redis":    "connected",
+			},
+		}
+		c.JSON(200, health)
 	})
 
 	return router

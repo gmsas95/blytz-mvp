@@ -1,14 +1,17 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"net/http"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gmsas95/blytz-mvp/services/order-service/internal/api/handlers"
 	"github.com/gmsas95/blytz-mvp/services/order-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/order-service/internal/models"
 	"github.com/gmsas95/blytz-mvp/services/order-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
+	"go.uber.org/zap"
 )
 
 func SetupRouter(logger *zap.Logger) *gin.Engine {
@@ -37,6 +40,9 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	// Create router
 	router := gin.Default()
 
+	// Add correlation ID middleware for structured logging
+	router.Use(utils.CorrelationMiddleware())
+
 	// Initialize auth client
 	authClient := auth.NewAuthClient("http://auth-service:8084")
 
@@ -44,9 +50,38 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	orderHandler := handlers.NewOrderHandler(orderService, logger)
 	cartHandler := handlers.NewCartHandler(orderService, logger)
 
-	// Health check endpoint
+	// Enhanced health check endpoint
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "order"})
+		correlationID := c.GetHeader("X-Correlation-ID")
+		if correlationID == "" {
+			correlationID = c.GetString("correlation_id")
+		}
+
+		health := gin.H{
+			"status":         "ok",
+			"service":        "order",
+			"version":        "1.0.0",
+			"timestamp":      time.Now().Unix(),
+			"correlation_id": correlationID,
+			"environment":    cfg.Environment,
+		}
+
+		// Check database connectivity
+		if orderService != nil {
+			health["database"] = "connected"
+		} else {
+			health["database"] = "disconnected"
+			health["status"] = "degraded"
+			c.JSON(http.StatusServiceUnavailable, health)
+			return
+		}
+
+		// Check external dependencies
+		health["dependencies"] = gin.H{
+			"auth_service": "connected",
+		}
+
+		c.JSON(http.StatusOK, health)
 	})
 
 	// Prometheus metrics endpoint

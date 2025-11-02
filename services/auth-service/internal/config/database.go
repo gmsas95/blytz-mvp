@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,6 +12,11 @@ import (
 
 func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
+
+	// Add SSL mode for production
+	if cfg.Environment == "production" {
+		dsn += "?sslmode=require"
+	}
 
 	gormConfig := &gorm.Config{}
 
@@ -25,6 +31,17 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	log.Println("Database connection established")
+	// Configure connection pool
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	// Set connection pool parameters
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	log.Println("Database connection established with connection pooling")
 	return db, nil
 }

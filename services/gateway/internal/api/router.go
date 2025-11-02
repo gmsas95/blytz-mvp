@@ -7,18 +7,36 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/middleware"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 	"go.uber.org/zap"
 )
 
 func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
+	// Add correlation ID middleware for structured logging
+	router.Use(utils.CorrelationMiddleware())
+
+	// Initialize rate limiter
+	rateLimiter, err := middleware.NewRateLimiter(middleware.RateLimiterConfig{
+		RequestsPerMinute: 60, // 60 requests per minute per IP
+		BurstSize:         10,
+		RedisURL:          "redis:6379",
+		Logger:            logger,
+	})
+	if err != nil {
+		logger.Error("Failed to initialize rate limiter", zap.Error(err))
+	} else {
+		// Apply rate limiting to all API routes
+		router.Use("/api", rateLimiter.RateLimit())
+	}
+
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Correlation-ID")
 
 		if c.Request.Method == "OPTIONS" {
 			c.Status(http.StatusOK)
@@ -41,9 +59,36 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		})
 	})
 
-	// Health check endpoint
+	// Enhanced health check endpoint
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "gateway", "timestamp": time.Now().UTC()})
+		correlationID := c.GetHeader("X-Correlation-ID")
+		if correlationID == "" {
+			correlationID = c.GetString("correlation_id")
+		}
+
+		health := gin.H{
+			"status":         "ok",
+			"service":        "gateway",
+			"version":        "1.0.0",
+			"timestamp":      time.Now().Unix(),
+			"correlation_id": correlationID,
+			"environment":    "production",
+		}
+
+		// Check rate limiter status
+		if rateLimiter != nil {
+			health["rate_limiter"] = "active"
+		} else {
+			health["rate_limiter"] = "inactive"
+			health["status"] = "degraded"
+		}
+
+		// Check external dependencies
+		health["dependencies"] = gin.H{
+			"redis": "configured",
+		}
+
+		c.JSON(http.StatusOK, health)
 	})
 
 	// Simple ping endpoint (no dependencies)
@@ -51,22 +96,41 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		c.String(200, "pong - updated at "+time.Now().Format("2006-01-02 15:04:05"))
 	})
 
-	// API routes
+	// API routes with enhanced rate limiting
 	api := router.Group("/api")
 	{
-		// Public routes
+		// Public routes with stricter rate limiting
 		public := api.Group("/public")
 		{
+			if rateLimiter != nil {
+				// Apply stricter rate limiting to sensitive endpoints
+				public.Use("/livekit/token", rateLimiter.RateLimitByPath(map[string]int{
+					"livekit/token": 10, // 10 requests per minute for token generation
+				}))
+			}
+
 			public.GET("/health", func(c *gin.Context) {
-				c.JSON(200, gin.H{"status": "ok"})
+				correlationID := c.GetString("correlation_id")
+				c.JSON(200, gin.H{
+					"status":         "ok",
+					"service":        "gateway-public",
+					"correlation_id": correlationID,
+				})
 			})
 
 			public.GET("/test", func(c *gin.Context) {
-				c.JSON(200, gin.H{"message": "test works"})
+				correlationID := c.GetString("correlation_id")
+				c.JSON(200, gin.H{
+					"message":        "test works",
+					"correlation_id": correlationID,
+				})
 			})
 
 			// LiveKit token generation
 			public.GET("/livekit/token", createLiveKitTokenHandler(logger))
+
+			// LiveKit proxy routes (removed to avoid conflicts)
+			// public.Any("/livekit/*proxyPath", liveKitProxyHandler(logger))
 		}
 	}
 

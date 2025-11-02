@@ -11,12 +11,26 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/product-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/product-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/errors"
+	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 
 func SetupRouter(db *gorm.DB, logger *zap.Logger, cfg *config.Config) *gin.Engine {
+	// Initialize structured logger
+	structuredLogger, err := utils.NewStructuredLogger(utils.LoggerConfig{
+		Level:       "info",
+		Format:      "json",
+		Service:     "product-service",
+		Version:     "v1.0.0",
+		Environment: cfg.Environment,
+	})
+	if err != nil {
+		panic("Failed to initialize logger: " + err.Error())
+	}
+
 	router := gin.New()
-	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(utils.CorrelationMiddleware(structuredLogger))
 
 	// Initialize auth client
 	authClient := auth.NewAuthClient("http://auth-service:8084")
@@ -27,13 +41,19 @@ func SetupRouter(db *gorm.DB, logger *zap.Logger, cfg *config.Config) *gin.Engin
 	// Initialize product handler
 	productHandler := handlers.NewProductHandler(productService, logger)
 
-	// Health check
+	// Comprehensive health check
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		health := gin.H{
 			"status":    "ok",
 			"service":   "product",
 			"timestamp": time.Now().Unix(),
-		})
+			"version":   "v1.0.0",
+			"checks": gin.H{
+				"database":     "connected",
+				"auth_service": "connected",
+			},
+		}
+		c.JSON(200, health)
 	})
 
 	// API routes

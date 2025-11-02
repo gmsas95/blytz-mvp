@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,10 +12,14 @@ import (
 )
 
 func InitDB(cfg *Config) (*gorm.DB, error) {
-	// Construct database URL
+	// Construct database URL with SSL for production
 	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
-	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+	sslMode := "disable"
+	if cfg.Environment == "production" {
+		sslMode = "require"
+	}
+	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB, sslMode)
 
 	// Configure GORM logger
 	var gormLogger logger.Interface
@@ -24,7 +29,18 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 		gormLogger = logger.Default.LogMode(logger.Info)
 	}
 
-	// Open database connection
+	// Configure connection pool
+	maxIdleConns := 10
+	maxOpenConns := 100
+	connMaxLifetime := time.Hour
+
+	if cfg.Environment == "production" {
+		maxIdleConns = 25
+		maxOpenConns = 200
+		connMaxLifetime = 2 * time.Hour
+	}
+
+	// Open database connection with pooling
 	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
 		Logger: gormLogger,
 	})
@@ -32,6 +48,19 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	log.Println("Database connected successfully")
+	// Get underlying SQL DB to configure connection pool
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get underlying SQL DB: %w", err)
+	}
+
+	// Set connection pool parameters
+	sqlDB.SetMaxIdleConns(maxIdleConns)
+	sqlDB.SetMaxOpenConns(maxOpenConns)
+	sqlDB.SetConnMaxLifetime(connMaxLifetime)
+
+	log.Printf("Database connected successfully with pool: maxIdle=%d, maxOpen=%d, lifetime=%v",
+		maxIdleConns, maxOpenConns, connMaxLifetime)
+
 	return db, nil
 }
