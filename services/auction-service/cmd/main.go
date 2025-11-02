@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -44,7 +45,9 @@ func main() {
 	auctionService := services.NewAuctionService(db, logger, cfg)
 
 	// Create a new Gin router
+	fmt.Println("DEBUG: About to setup router")
 	router := api.SetupRouter(auctionService, logger, cfg)
+	fmt.Println("DEBUG: Router setup completed")
 
 	// Create HTTP server
 	srv := &http.Server{
