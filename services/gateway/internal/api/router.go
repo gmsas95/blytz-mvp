@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/middleware"
-	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 	"go.uber.org/zap"
 )
 
@@ -16,7 +15,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
 	// Add correlation ID middleware for structured logging
-	router.Use(utils.CorrelationMiddleware())
+	// Note: Skipping correlation middleware for now to simplify deployment
 
 	// Initialize rate limiter
 	rateLimiter, err := middleware.NewRateLimiter(middleware.RateLimiterConfig{
@@ -29,7 +28,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		logger.Error("Failed to initialize rate limiter", zap.Error(err))
 	} else {
 		// Apply rate limiting to all API routes
-		router.Use("/api", rateLimiter.RateLimit())
+		router.Use(rateLimiter.RateLimit())
 	}
 
 	// CORS middleware
@@ -102,10 +101,11 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Public routes with stricter rate limiting
 		public := api.Group("/public")
 		{
+			// Note: Path-specific rate limiting simplified for deployment
 			if rateLimiter != nil {
 				// Apply stricter rate limiting to sensitive endpoints
-				public.Use("/livekit/token", rateLimiter.RateLimitByPath(map[string]int{
-					"livekit/token": 10, // 10 requests per minute for token generation
+				public.Use(rateLimiter.RateLimitByPath(map[string]int{
+					"/api/public/livekit/token": 10, // 10 requests per minute for token generation
 				}))
 			}
 

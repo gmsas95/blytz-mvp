@@ -10,7 +10,6 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/middleware"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/services"
-	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 	"go.uber.org/zap"
 )
 
@@ -24,8 +23,8 @@ func NewRouter(router *gin.Engine, authService *services.AuthService, logger *za
 	//	gin.SetMode(gin.ReleaseMode)
 	// }
 
-	// Add correlation ID middleware for structured logging
-	router.Use(utils.CorrelationMiddleware())
+	// Note: Correlation middleware temporarily disabled for deployment
+	// router.Use(utils.CorrelationMiddleware())
 
 	// Add structured logging middleware
 	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
