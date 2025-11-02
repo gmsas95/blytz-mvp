@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 extension StringExtensions on String {
@@ -277,5 +278,3 @@ extension ColorExtensions on Color {
     return '#${value.toRadixString(16).padLeft(8, '0').substring(2)}';
   }
 }
-
-import 'dart:math' as math;
