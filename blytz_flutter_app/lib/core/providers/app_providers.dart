@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../network/api_client.dart';
 import '../network/interceptors.dart';
 import '../network/network_info.dart';
@@ -6,6 +9,7 @@ import '../storage/secure_storage.dart';
 import '../storage/local_database.dart';
 import '../storage/preferences.dart';
 import '../utils/logger.dart';
+import '../errors/exceptions.dart';
 import '../../features/auth/data/models/auth_model.dart';
 
 // API Client Provider
@@ -391,16 +395,3 @@ class NotificationSettings {
   }
 }
 
-// Import required dependencies
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../features/auth/data/models/auth_model.dart';
-import '../network/api_client.dart';
-import '../network/interceptors.dart';
-import '../network/network_info.dart';
-import '../storage/secure_storage.dart';
-import '../storage/local_database.dart';
-import '../storage/preferences.dart';
-import '../utils/logger.dart';
-import '../errors/exceptions.dart';

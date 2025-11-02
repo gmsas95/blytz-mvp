@@ -33,7 +33,7 @@ dependencies:
   json_annotation: ^4.8.1
   
   # State Management
-  riverpod: ^2.4.9
+  equatable: ^2.0.5
   
   # Real-time
   web_socket_channel: ^2.4.0
@@ -56,7 +56,7 @@ dependencies:
   form_validator: ^2.1.1
   
   # Utilities
-  intl: ^0.19.0
+  intl: ^0.18.1
   uuid: ^4.2.1
   logger: ^2.0.2+1
   
@@ -109,13 +109,3 @@ flutter:
     - assets/icons/
     - assets/translations/
   
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Poppins-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
