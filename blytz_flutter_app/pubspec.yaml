@@ -1,0 +1,121 @@
+name: blytz_flutter_app
+description: Blytz Live Auction Platform - Flutter Mobile App
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Core Framework
+  flutter_hooks: ^0.20.3
+  flutter_riverpod: ^2.4.9
+  
+  # UI Libraries
+  getwidget: ^4.0.0
+  fl_chart: ^0.68.0
+  velocity_x: ^4.1.1
+  flutter_platform_widgets: ^2.0.0
+  styled_widget: ^0.4.0+3
+  
+  # Navigation
+  go_router: ^12.1.3
+  
+  # Networking
+  dio: ^5.4.0
+  retrofit: ^4.0.3
+  json_annotation: ^4.8.1
+  
+  # State Management
+  riverpod: ^2.4.9
+  
+  # Real-time
+  web_socket_channel: ^2.4.0
+  livekit_client: ^1.1.3
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Authentication
+  flutter_secure_storage: ^9.0.0
+  jwt_decoder: ^2.0.1
+  
+  # Image Handling
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.4
+  
+  # Form Validation
+  form_validator: ^2.1.1
+  
+  # Utilities
+  intl: ^0.19.0
+  uuid: ^4.2.1
+  logger: ^2.0.2+1
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  firebase_analytics: ^10.7.4
+  firebase_messaging: ^14.7.9
+  firebase_performance: ^0.9.3+8
+  
+  # Notifications
+  flutter_local_notifications: ^16.3.0
+  
+  # Internationalization
+  easy_localization: ^3.0.2
+  
+  # Error Handling
+  sentry_flutter: ^7.9.0
+  
+  # Cupertino Icons
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Code Generation
+  build_runner: ^2.4.7
+  retrofit_generator: ^8.0.4
+  json_serializable: ^6.7.1
+  hive_generator: ^2.0.1
+  
+  # Testing
+  mockito: ^5.4.4
+  integration_test:
+    sdk: flutter
+  
+  # Linting
+  flutter_lints: ^3.0.1
+  very_good_analysis: ^5.1.0
+  
+  # Development Tools
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.2
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/translations/
+  
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
