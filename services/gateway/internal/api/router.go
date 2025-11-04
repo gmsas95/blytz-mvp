@@ -4,32 +4,69 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gmsas95/blytz-mvp/shared/pkg/middleware"
 	"go.uber.org/zap"
 )
+
+// Simple in-memory rate limiter for deployment
+type InMemoryRateLimiter struct {
+	requests map[string][]time.Time
+	mutex    sync.RWMutex
+	limit    int
+}
+
+func NewInMemoryRateLimiter(limit int) *InMemoryRateLimiter {
+	return &InMemoryRateLimiter{
+		requests: make(map[string][]time.Time),
+		limit:    limit,
+	}
+}
+
+func (r *InMemoryRateLimiter) Middleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+		now := time.Now()
+
+		r.mutex.Lock()
+		defer r.mutex.Unlock()
+
+		// Clean old requests
+		if requests, exists := r.requests[ip]; exists {
+			var validRequests []time.Time
+			for _, reqTime := range requests {
+				if now.Sub(reqTime) < time.Minute {
+					validRequests = append(validRequests, reqTime)
+				}
+			}
+			r.requests[ip] = validRequests
+		}
+
+		// Check limit
+		if len(r.requests[ip]) >= r.limit {
+			c.JSON(http.StatusTooManyRequests, gin.H{
+				"error": "Rate limit exceeded",
+				"limit": r.limit,
+				"window": "1 minute",
+			})
+			c.Abort()
+			return
+		}
+
+		// Add current request
+		r.requests[ip] = append(r.requests[ip], now)
+		c.Next()
+	}
+}
 
 func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
-	// Add correlation ID middleware for structured logging
-	// Note: Skipping correlation middleware for now to simplify deployment
-
-	// Initialize rate limiter
-	rateLimiter, err := middleware.NewRateLimiter(middleware.RateLimiterConfig{
-		RequestsPerMinute: 60, // 60 requests per minute per IP
-		BurstSize:         10,
-		RedisURL:          "redis:6379",
-		Logger:            logger,
-	})
-	if err != nil {
-		logger.Error("Failed to initialize rate limiter", zap.Error(err))
-	} else {
-		// Apply rate limiting to all API routes
-		router.Use(rateLimiter.RateLimit())
-	}
+	// Add simple rate limiting
+	rateLimiter := NewInMemoryRateLimiter(60) // 60 requests per minute
+	router.Use(rateLimiter.Middleware())
 
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
@@ -74,13 +111,8 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			"environment":    "production",
 		}
 
-		// Check rate limiter status
-		if rateLimiter != nil {
-			health["rate_limiter"] = "active"
-		} else {
-			health["rate_limiter"] = "inactive"
-			health["status"] = "degraded"
-		}
+		// Rate limiter is always active in this implementation
+		health["rate_limiter"] = "active"
 
 		// Check external dependencies
 		health["dependencies"] = gin.H{
@@ -98,16 +130,9 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	// API routes with enhanced rate limiting
 	api := router.Group("/api")
 	{
-		// Public routes with stricter rate limiting
+		// Public routes 
 		public := api.Group("/public")
 		{
-			// Note: Path-specific rate limiting simplified for deployment
-			if rateLimiter != nil {
-				// Apply stricter rate limiting to sensitive endpoints
-				public.Use(rateLimiter.RateLimitByPath(map[string]int{
-					"/api/public/livekit/token": 10, // 10 requests per minute for token generation
-				}))
-			}
 
 			public.GET("/health", func(c *gin.Context) {
 				correlationID := c.GetString("correlation_id")
