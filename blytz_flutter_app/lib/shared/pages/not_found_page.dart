@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class NotFoundPage extends StatelessWidget {
   const NotFoundPage({super.key, this.error});
@@ -39,10 +40,7 @@ class NotFoundPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                '/',
-                (route) => false,
-              ),
+              onPressed: () => context.go('/home'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
