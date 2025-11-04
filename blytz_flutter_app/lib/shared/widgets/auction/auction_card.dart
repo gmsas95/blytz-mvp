@@ -150,11 +150,9 @@ class AuctionCard extends ConsumerWidget {
             flex: 2,
             child: Padding(
               padding: const EdgeInsets.all(12),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   // Title
                   auction.title
                       .text
@@ -171,10 +169,10 @@ class AuctionCard extends ConsumerWidget {
                         .text
                         .color(Theme.of(context).primaryColor)
                         .sm
-                        .make(),
-                  
-                  const Spacer(),
-                  
+                         .make(),
+                   
+                  const SizedBox(height: 8),
+                   
                   // Current Price
                   Row(
                     children: [
@@ -237,7 +235,6 @@ class AuctionCard extends ConsumerWidget {
                     ],
                   ),
                 ],
-                ),
               ),
             ),
           ),
