@@ -14,30 +14,30 @@ dependencies:
     sdk: flutter
   
   # Core Framework
-  flutter_hooks: ^0.20.3
-  flutter_riverpod: ^2.4.9
+  flutter_hooks: ^0.21.3+1
+  flutter_riverpod: ^3.0.3
   
   # UI Libraries
   getwidget: ^7.0.0
-  fl_chart: ^0.68.0
+  fl_chart: ^1.1.1
   velocity_x: ^4.1.2
-  flutter_platform_widgets: ^6.0.0
+  flutter_platform_widgets: ^9.0.0
   styled_widget: ^0.4.1
   
   # Navigation
-  go_router: ^12.1.3
+  go_router: ^16.3.0
   
   # Networking
   dio: ^5.4.0
   retrofit: ^4.0.3
   json_annotation: ^4.8.1
-  connectivity_plus: ^6.0.2
+  connectivity_plus: ^7.0.0
   
   # State Management
   equatable: ^2.0.5
   
   # Real-time
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^3.0.3
   # livekit_client: ^2.2.4
   
   # Local Storage
@@ -62,19 +62,19 @@ dependencies:
   logger: ^2.0.2+1
   
   # Firebase
-  firebase_core: ^2.24.2
-  firebase_analytics: ^10.7.4
-  firebase_messaging: ^14.7.9
-  firebase_performance: ^0.9.3+8
+  firebase_core: ^4.2.1
+  firebase_analytics: ^12.0.4
+  firebase_messaging: ^16.0.4
+  firebase_performance: ^0.11.1+2
   
   # Notifications
-  flutter_local_notifications: ^17.2.3
+  flutter_local_notifications: ^19.5.0
   
   # Internationalization
   easy_localization: ^3.0.2
   
   # Error Handling
-  sentry_flutter: ^7.9.0
+  sentry_flutter: ^9.8.0
   
   # Cupertino Icons
   cupertino_icons: ^1.0.6
@@ -99,11 +99,11 @@ dev_dependencies:
     sdk: flutter
   
   # Linting
-  flutter_lints: ^3.0.1
-  very_good_analysis: ^5.1.0
+  flutter_lints: ^6.0.0
+  very_good_analysis: ^10.0.0
   
   # Development Tools
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.3.2
 
 flutter:
