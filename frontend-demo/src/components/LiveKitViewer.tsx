@@ -144,7 +144,7 @@ export default function LiveKitViewer({
             <p className="text-muted-foreground text-sm mb-4">{connectionError}</p>
           </div>
           <Button
-            onClick={fetchViewerToken}
+            onClick={() => fetchViewerToken()}
             className="gap-2"
           >
             Retry Connection
