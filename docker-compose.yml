@@ -69,6 +69,31 @@ services:
       retries: 5
       start_period: 30s
 
+  # Product Service
+  product-service:
+    build:
+      context: .
+      dockerfile: ./services/product-service/Dockerfile
+    container_name: blytz-product-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8082
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # Auction Service
   auction-service:
     build:
@@ -79,6 +104,7 @@ services:
       - ./.env
     environment:
       - PORT=8083
+      - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
@@ -92,12 +118,268 @@ services:
     networks:
       - blytz-network
     restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
-    #   interval: 30s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 30s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Order Service
+  order-service:
+    build:
+      context: .
+      dockerfile: ./services/order-service/Dockerfile
+    container_name: blytz-order-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8085
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
+    container_name: blytz-payment-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8086
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Chat Service
+  chat-service:
+    build:
+      context: .
+      dockerfile: ./services/chat-service/Dockerfile
+    container_name: blytz-chat-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8088
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Logistics Service
+  logistics-service:
+    build:
+      context: .
+      dockerfile: ./services/logistics-service/Dockerfile
+    container_name: blytz-logistics-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8087
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://auth-service:8084
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # API Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: ./services/gateway/Dockerfile
+    container_name: blytz-gateway-prod
+    env_file:
+      - ./.env
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://auth-service:8084
+      - AUCTION_SERVICE_URL=http://auction-service:8083
+      - PRODUCT_SERVICE_URL=http://product-service:8082
+      - ORDER_SERVICE_URL=http://order-service:8085
+      - PAYMENT_SERVICE_URL=http://payment-service:8086
+      - CHAT_SERVICE_URL=http://chat-service:8088
+      - LOGISTICS_SERVICE_URL=http://logistics-service:8087
+    depends_on:
+      - auth-service
+      - auction-service
+      - product-service
+      - order-service
+      - payment-service
+      - chat-service
+      - logistics-service
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Main Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=https://api.blytz.app
+        - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+        - MODE=remote
+    container_name: blytz-frontend-prod
+    env_file:
+      - ./.env
+    environment:
+      - NEXT_PUBLIC_API_URL=https://api.blytz.app
+      - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+      - MODE=remote
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://0.0.0.0:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Demo Interface - Viewer Platform with LiveKit Client SDK
+  demo-frontend:
+    build:
+      context: ./frontend-demo
+      dockerfile: Dockerfile
+    container_name: blytz-demo-prod
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=https://api.blytz.app
+      - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.blytz.app
+      - DEMO_MODE=viewer
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://0.0.0.0:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Seller Interface - Broadcaster Platform with LiveKit SDK
+  seller-frontend:
+    build:
+      context: ./frontend-seller
+      dockerfile: Dockerfile
+    container_name: blytz-seller-prod
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - NEXT_PUBLIC_API_URL=https://api.blytz.app
+      - NEXT_PUBLIC_WS_URL=wss://api.blytz.app
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.blytz.app
+      - SELLER_MODE=broadcaster
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://0.0.0.0:3002"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # LiveKit Server for WebRTC streaming
+  livekit-server:
+    image: livekit/livekit-server:latest
+    container_name: blytz-livekit-prod
+    command: >
+      --config /etc/livekit.yaml
+      --dev
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882"
+    volumes:
+      - ./livekit-config.yaml:/etc/livekit.yaml
+    networks:
+      - blytz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7880"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # Redis for LiveKit session management
   livekit-redis:
