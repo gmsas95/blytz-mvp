@@ -49,17 +49,37 @@ class _LiveStreamPageState extends ConsumerState<LiveStreamPage>
   }
 
   void _initializeWebSocket() {
-    _channel = WebSocketChannel.connect(
-      Uri.parse('wss://api.blytz.app/ws/live/${widget.streamId}'),
-    );
+    try {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://api.blytz.app/ws/live/${widget.streamId}'),
+      );
 
-    _channel.stream.listen((data) {
-      final message = data as Map<String, dynamic>;
-      setState(() {
-        _viewerCount = (message['viewerCount'] as int?) ?? _viewerCount;
-        // Handle other live updates (bids, chat messages, etc.)
-      });
-    });
+      _channel.stream.listen(
+        (data) {
+          try {
+            final message = data as Map<String, dynamic>;
+            setState(() {
+              _viewerCount = (message['viewerCount'] as int?) ?? _viewerCount;
+              // Handle other live updates (bids, chat messages, etc.)
+            });
+          } catch (e) {
+            // Handle malformed messages
+            print('Error parsing WebSocket message: $e');
+          }
+        },
+        onError: (error) {
+          print('WebSocket error: $error');
+          // Don't crash the app, just continue without WebSocket updates
+        },
+        onDone: () {
+          print('WebSocket connection closed');
+        },
+      );
+    } catch (e) {
+      print('Failed to connect to WebSocket: $e');
+      // Create a dummy channel to prevent crashes
+      _channel = WebSocketChannel.connect(Uri.parse('ws://localhost:0'));
+    }
   }
 
   Future<void> _initializeLiveKit() async {
