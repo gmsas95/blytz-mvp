@@ -12,6 +12,7 @@ import (
 
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/auth-service/internal/models"
+	shared_errors "github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 )
 
 // AuthService provides authentication related services
@@ -35,7 +36,7 @@ func NewAuthService(db *gorm.DB, config *config.Config) *AuthService {
 func (s *AuthService) RegisterUser(user *models.User) error {
 	// Check if user already exists
 	if s.userExists(user.Email) {
-		return errors.New("user already exists")
+		return shared_errors.ConflictError("USER_EXISTS", "User already exists")
 	}
 
 	// Generate unique ID for user
@@ -57,13 +58,13 @@ func (s *AuthService) LoginUser(email, password string) (string, error) {
 	// Get user by email
 	user, err := s.GetUserByEmail(email)
 	if err != nil {
-		return "", err
+		return "", shared_errors.AuthenticationError("INVALID_CREDENTIALS", "Invalid email or password")
 	}
 
 	// Check password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", errors.New("invalid credentials")
+		return "", shared_errors.AuthenticationError("INVALID_CREDENTIALS", "Invalid email or password")
 	}
 
 	// Generate JWT token
@@ -79,7 +80,10 @@ func (s *AuthService) LoginUser(email, password string) (string, error) {
 func (s *AuthService) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, shared_errors.AuthenticationError("INVALID_CREDENTIALS", "Invalid email or password")
+		}
+		return nil, shared_errors.DatabaseError("USER_QUERY_FAILED", "Failed to query user")
 	}
 	return &user, nil
 }
@@ -138,7 +142,10 @@ func (s *AuthService) generateJWT(user *models.User) (string, error) {
 func (s *AuthService) GetUserByID(userID string) (*models.User, error) {
 	var user models.User
 	if err := s.db.Where("id = ?", userID).First(&user).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, shared_errors.NotFoundError("USER_NOT_FOUND", "User not found")
+		}
+		return nil, shared_errors.DatabaseError("USER_QUERY_FAILED", "Failed to query user")
 	}
 	return &user, nil
 }
@@ -147,7 +154,10 @@ func (s *AuthService) GetUserByID(userID string) (*models.User, error) {
 func (s *AuthService) UpdateUserProfile(ctx context.Context, userID string, req *models.UpdateProfileRequest) error {
 	var user models.User
 	if err := s.db.Where("id = ?", userID).First(&user).Error; err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return shared_errors.NotFoundError("USER_NOT_FOUND", "User not found")
+		}
+		return shared_errors.DatabaseError("USER_QUERY_FAILED", "Failed to query user")
 	}
 
 	// Update fields if provided

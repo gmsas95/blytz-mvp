@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"sync"
 	"time"
@@ -157,6 +159,52 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			// LiveKit proxy routes (removed to avoid conflicts)
 			// public.Any("/livekit/*proxyPath", liveKitProxyHandler(logger))
 		}
+
+		// Microservice proxy routes
+		v1 := api.Group("/v1")
+		{
+			// Auth service routes
+			auth := v1.Group("/auth")
+			{
+				createProxyRoutes(auth, "http://blytz-auth-prod:8084", logger)
+			}
+
+			// Product service routes
+			product := v1.Group("/products")
+			{
+				createProxyRoutes(product, "http://blytz-product-prod:8082", logger)
+			}
+
+			// Auction service routes
+			auction := v1.Group("/auctions")
+			{
+				createProxyRoutes(auction, "http://blytz-auction-prod:8083", logger)
+			}
+
+			// Order service routes
+			order := v1.Group("/orders")
+			{
+				createProxyRoutes(order, "http://blytz-order-prod:8085", logger)
+			}
+
+			// Payment service routes
+			payment := v1.Group("/payments")
+			{
+				createProxyRoutes(payment, "http://blytz-payment-prod:8086", logger)
+			}
+
+			// Logistics service routes
+			logistics := v1.Group("/logistics")
+			{
+				createProxyRoutes(logistics, "http://blytz-logistics-prod:8087", logger)
+			}
+
+			// Chat service routes
+			chat := v1.Group("/chat")
+			{
+				createProxyRoutes(chat, "http://blytz-chat-prod:8088", logger)
+			}
+		}
 	}
 
 	return router
@@ -186,6 +234,37 @@ func createLiveKitTokenHandler(logger *zap.Logger) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, response)
 	}
+}
+
+// createProxyRoutes creates reverse proxy routes for a microservice
+func createProxyRoutes(group *gin.RouterGroup, targetURL string, logger *zap.Logger) {
+	target, err := url.Parse(targetURL)
+	if err != nil {
+		logger.Error("Failed to parse target URL", zap.String("url", targetURL), zap.Error(err))
+		return
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Modify director to add headers
+	proxy.Director = func(req *http.Request) {
+		req.Host = target.Host
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
+		req.Header.Set("X-Forwarded-For", req.RemoteAddr)
+		req.Header.Set("X-Forwarded-Proto", "https")
+	}
+
+	// Error handler
+	proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
+		logger.Error("Proxy error", zap.String("path", req.URL.Path), zap.Error(err))
+		rw.WriteHeader(http.StatusBadGateway)
+		rw.Write([]byte(`{"error": "Service unavailable"}`))
+	}
+
+	// Proxy all requests to the microservice
+	group.Any("/*path", gin.WrapH(proxy))
 }
 
 func getEnv(key, defaultValue string) string {
