@@ -92,7 +92,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   }
 
   double get _subtotal => widget.price;
-  double get _shippingCost => _shippingOptions[_selectedShipping]?['price'] ?? 0.0;
+  double get _shippingCost => (_shippingOptions[_selectedShipping]?['price'] as num?)?.toDouble() ?? 0.0;
   double get _tax => _subtotal * 0.08; // 8% tax
   double get _total => _subtotal + _shippingCost + _tax;
 
@@ -174,11 +174,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   TextFormField(
                     controller: _addressController,
                     decoration: const InputDecoration(
-                      
-                      decoration: const InputDecoration(
-                        labelText: 'Street Address',
-                      
-                        border: OutlineInputBorder(),
+                      labelText: 'Street Address',
+                      border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -289,12 +286,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  option['name'].text.semiBold.make(),
-                                  option['days'].text.sm.color(Colors.grey[600]).make(),
+                                  (option['name']?.toString() ?? '').text.semiBold.make(),
+                                  (option['days']?.toString() ?? '').text.sm.color(Colors.grey[600]).make(),
                                 ],
                               ),
                             ),
-                            option['price'].currencyFormat.text.lg.bold.color(Theme.of(context).primaryColor).make(),
+                            '\$${(option['price'] as num? ?? 0).toStringAsFixed(2)}'.text.lg.bold.color(Theme.of(context).primaryColor).make(),
                           ],
                         ),
                       ),
@@ -346,9 +343,9 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                                 color: isSelected ? Theme.of(context).primaryColor : Colors.grey[600],
                               ),
                               12.widthBox,
-                              Icon(method['icon']),
+                              Icon(method['icon'] as IconData? ?? Icons.payment),
                               12.widthBox,
-                              method['name'].text.semiBold.make(),
+                              (method['name']?.toString() ?? '').text.semiBold.make(),
                             ],
                           ),
                         ),

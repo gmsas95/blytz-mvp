@@ -1,8 +1,6 @@
 module github.com/gmsas95/blytz-mvp/services/order-service
 
-go 1.23.2
-
-toolchain go1.24.9
+go 1.25
 
 replace github.com/gmsas95/blytz-mvp/shared => ../../shared
 

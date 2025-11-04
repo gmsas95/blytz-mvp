@@ -1,8 +1,7 @@
+import 'package:blytz_flutter_app/core/constants/api_constants.dart';
+import 'package:blytz_flutter_app/features/auth/data/models/auth_model.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import '../constants/api_constants.dart';
-import '../../features/auth/data/models/auth_model.dart';
-import '../../../data/models/auction_model.dart';
 
 part 'api_client.g.dart';
 

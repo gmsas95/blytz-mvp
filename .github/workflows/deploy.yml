@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: blytz
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.25'
 
 permissions:
   contents: read

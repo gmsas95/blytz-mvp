@@ -1,7 +1,11 @@
+import 'package:blytz_flutter_app/core/constants/route_constants.dart';
+import 'package:blytz_flutter_app/data/models/auction_model.dart';
+import 'package:blytz_flutter_app/shared/navigation/bottom_navigation.dart';
+import 'package:blytz_flutter_app/shared/widgets/auction/auction_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../shared/widgets/auction/auction_card.dart';
-import '../../../../../data/models/auction_model.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:go_router/go_router.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,18 +13,18 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: GFAppBar(
         title: const Text('Blytz Live Auctions'),
         backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
         actions: [
-          IconButton(
+          GFIconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Notifications coming soon!')),
               );
             },
+            type: GFButtonType.transparent,
           ),
         ],
       ),
@@ -30,33 +34,29 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Welcome Section
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade400, Colors.blue.shade600],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
+            GFCard(
+              margin: const EdgeInsets.only(bottom: 24),
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade400, Colors.blue.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Column(
+              borderRadius: BorderRadius.circular(16),
+              content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Welcome to Blytz!',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Discover amazing live auctions from around the world.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
+                  'Welcome to Blytz!'
+                      .text
+                      .white
+                      .xl3
+                      .bold
+                      .make(),
+                  8.heightBox,
+                  'Discover amazing live auctions from around the world.'
+                      .text
+                      .white
+                      .make()
+                      .opacity(value: 0.9),
                 ],
               ),
             ),
@@ -64,41 +64,80 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 24),
             
             // Quick Actions
-            Text(
-              'Quick Actions',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
+            'Quick Actions'
+                .text
+                .xl2
+                .bold
+                .make()
+                .py(8),
+
+            // First Row
             Row(
               children: [
                 Expanded(
                   child: _buildActionCard(
                     context,
-                    Icons.gavel,
-                    'Browse Auctions',
-                    Colors.blue,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening auctions...')),
-                      );
-                    },
+                    Icons.live_tv,
+                    'Watch Live',
+                    Colors.red,
+                    () => context.push(RouteConstants.liveStream.replaceAll(':streamId', '1')),
                   ),
                 ),
-                const SizedBox(width: 16),
+                12.widthBox,
                 Expanded(
                   child: _buildActionCard(
                     context,
-                    Icons.add_circle,
-                    'Create Auction',
+                    Icons.explore,
+                    'Discover',
+                    Colors.purple,
+                    () => context.push(RouteConstants.discovery),
+                  ),
+                ),
+                12.widthBox,
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.category,
+                    'Categories',
+                    Colors.orange,
+                    () => context.push(RouteConstants.categories),
+                  ),
+                ),
+              ],
+            ),
+
+            12.heightBox,
+
+            // Second Row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.people,
+                    'Community',
                     Colors.green,
-                    () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Create auction coming soon!')),
-                      );
-                    },
+                    () => context.push(RouteConstants.community),
+                  ),
+                ),
+                12.widthBox,
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.store,
+                    'Sell',
+                    Colors.blue,
+                    () => context.push(RouteConstants.sellerDashboard),
+                  ),
+                ),
+                12.widthBox,
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    Icons.person,
+                    'Profile',
+                    Colors.indigo,
+                    () => context.push(RouteConstants.profile),
                   ),
                 ),
               ],
@@ -107,13 +146,12 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 24),
             
             // Featured Auctions Preview
-            Text(
-              'Featured Auctions',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
+            'Featured Auctions'
+                .text
+                .xl2
+                .bold
+                .make()
+                .py(8),
             
             // Mock auction cards for preview
             GridView.builder(
@@ -130,9 +168,7 @@ class HomePage extends StatelessWidget {
                 return AuctionCard(
                   auction: _getMockAuction(index),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Auction ${index + 1} details coming soon!')),
-                    );
+                    context.push(RouteConstants.liveStream.replaceAll(':streamId', 'stream_$index'));
                   },
                 );
               },
@@ -141,14 +177,11 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Create auction feature coming soon!')),
-          );
-        },
+        onPressed: () => context.push(RouteConstants.createStream),
         backgroundColor: Theme.of(context).primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.live_tv, color: Colors.white),
       ),
+      bottomNavigationBar: const BottomNavigation(currentIndex: 0),
     );
   }
 
@@ -159,26 +192,25 @@ class HomePage extends StatelessWidget {
     Color color,
     VoidCallback onTap,
   ) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
+    return GestureDetector(
+      onTap: onTap,
+      child: GFCard(
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(20),
         borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+        color: Theme.of(context).cardColor,
+        elevation: 4,
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: color),
+          12.heightBox,
+          title.text
+              .lg
+              .semiBold
+              .make()
+              .centered(),
+        ],
         ),
       ),
     );
@@ -194,16 +226,16 @@ class HomePage extends StatelessWidget {
       id: 'auction_$index',
       title: titles[index % titles.length],
       description: 'Amazing item up for auction',
-      images: [],
-      categories: ['Collectibles'],
+      images: const [],
+      categories: const ['Collectibles'],
       currentBidAmount: prices[index % prices.length],
       startingBid: prices[index % prices.length] * 0.8,
       totalBids: bids[index % bids.length],
       status: 'active',
-      startTime: DateTime.now().subtract(Duration(hours: 2)),
+      startTime: DateTime.now().subtract(const Duration(hours: 2)),
       endTime: DateTime.now().add(Duration(hours: index + 2)),
       isActive: true,
-      isEndingSoon: index % 2 == 0,
+      isEndingSoon: index.isEven,
       timeLeft: '${index + 2}h ${30 - (index * 5)}m',
     );
   }

@@ -2,12 +2,13 @@ import 'package:intl/intl.dart';
 
 class Formatters {
   static final NumberFormat _currencyFormat = NumberFormat.currency(
-    symbol: '\$',
+    symbol: r'$',
     decimalDigits: 2,
   );
 
-  static final NumberFormat _compactCurrencyFormat = NumberFormat.compactCurrency(
-    symbol: '\$',
+  static final NumberFormat _compactCurrencyFormat =
+      NumberFormat.compactCurrency(
+    symbol: r'$',
     decimalDigits: 1,
   );
 
@@ -102,20 +103,20 @@ class Formatters {
   // Phone number formatting
   static String formatPhoneNumber(String phoneNumber) {
     final digits = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (digits.length == 10) {
       return '(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}';
     } else if (digits.length == 11 && digits.startsWith('1')) {
       return '+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}';
     }
-    
+
     return phoneNumber;
   }
 
   // Credit card formatting
   static String formatCreditCard(String cardNumber) {
     final digits = cardNumber.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (digits.length >= 16) {
       final groups = [
         digits.substring(0, 4),
@@ -125,7 +126,7 @@ class Formatters {
       ];
       return groups.join(' ');
     }
-    
+
     return cardNumber;
   }
 
@@ -144,7 +145,7 @@ class Formatters {
   }
 
   static String titleCase(String text) {
-    return text.split(' ').map((word) => capitalize(word)).join(' ');
+    return text.split(' ').map(capitalize).join(' ');
   }
 
   // File size formatting
@@ -183,27 +184,27 @@ class Formatters {
   // Address formatting
   static String formatAddress(Map<String, String> address) {
     final parts = <String>[];
-    
-    if (address['street']?.isNotEmpty == true) {
+
+    if (address['street']?.isNotEmpty ?? false) {
       parts.add(address['street']!);
     }
-    
-    if (address['city']?.isNotEmpty == true) {
+
+    if (address['city']?.isNotEmpty ?? false) {
       parts.add(address['city']!);
     }
-    
-    if (address['state']?.isNotEmpty == true) {
+
+    if (address['state']?.isNotEmpty ?? false) {
       parts.add(address['state']!);
     }
-    
-    if (address['zipCode']?.isNotEmpty == true) {
+
+    if (address['zipCode']?.isNotEmpty ?? false) {
       parts.add(address['zipCode']!);
     }
-    
-    if (address['country']?.isNotEmpty == true) {
+
+    if (address['country']?.isNotEmpty ?? false) {
       parts.add(address['country']!);
     }
-    
+
     return parts.join(', ');
   }
 }

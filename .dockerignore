@@ -183,6 +183,14 @@
 **/aws-credentials.json
 **/gcp-credentials.json
 **/gcp-credentials.json
+**/acme*.json
+/acme*.json
+/acme-temp*.json
+/acme*.json.backup
+/acme*.json
+/dynamic/acme*.json
+**/acme*.json
+**/acme*.json.backup
 **/azure-credentials.json
 **/azure-credentials.json
 **/id_rsa
@@ -196,4 +204,6 @@
 **/known_hosts
 **/known_hosts
 **/ssh_config
-**/ssh_config
+**/ssh_configacme*.json
+acme.json.backup
+**/acme.json.backup

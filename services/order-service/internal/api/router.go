@@ -18,6 +18,16 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	// Initialize config
 	cfg := config.LoadConfig()
 
+	// Initialize structured logger
+	structuredLogger, err := utils.NewStructuredLogger(utils.LoggerConfig{
+		Service:     "order-service",
+		Environment: cfg.Environment,
+		Level:       cfg.LogLevel,
+	})
+	if err != nil {
+		logger.Fatal("Failed to initialize structured logger", zap.Error(err))
+	}
+
 	// Initialize database connection
 	db, err := config.InitDB(cfg)
 	if err != nil {
@@ -41,7 +51,7 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 	router := gin.Default()
 
 	// Add correlation ID middleware for structured logging
-	router.Use(utils.CorrelationMiddleware())
+	router.Use(utils.CorrelationMiddleware(structuredLogger))
 
 	// Initialize auth client
 	authClient := auth.NewAuthClient("http://auth-service:8084")

@@ -2,6 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTextField extends StatelessWidget {
+
+  const AppTextField({
+    required this.controller, required this.labelText, super.key,
+    this.hintText,
+    this.errorText,
+    this.validator,
+    this.onChanged,
+    this.onSubmitted,
+    this.onTap,
+    this.keyboardType,
+    this.textInputAction,
+    this.obscureText = false,
+    this.enabled = true,
+    this.readOnly = false,
+    this.maxLines = 1,
+    this.minLines,
+    this.maxLength,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.border,
+    this.contentPadding,
+  });
   final TextEditingController controller;
   final String labelText;
   final String? hintText;
@@ -23,37 +45,12 @@ class AppTextField extends StatelessWidget {
   final InputBorder? border;
   final EdgeInsetsGeometry? contentPadding;
 
-  const AppTextField({
-    super.key,
-    required this.controller,
-    required this.labelText,
-    this.hintText,
-    this.errorText,
-    this.validator,
-    this.onChanged,
-    this.onSubmitted,
-    this.onTap,
-    this.keyboardType,
-    this.textInputAction,
-    this.obscureText = false,
-    this.enabled = true,
-    this.readOnly = false,
-    this.maxLines = 1,
-    this.minLines,
-    this.maxLength,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.border,
-    this.contentPadding,
-  });
-
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       validator: validator,
       onChanged: onChanged,
-      onFieldSubmitted: onSubmitted,
       onTap: onTap,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
@@ -63,7 +60,7 @@ class AppTextField extends StatelessWidget {
       maxLines: maxLines,
       minLines: minLines,
       maxLength: maxLength,
-      inputFormatters: maxLength != null ? [LengthLimitingTextInputFormatter(maxLength!)] : null,
+      inputFormatters: maxLength != null ? [LengthLimitingTextInputFormatter(maxLength)] : null,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

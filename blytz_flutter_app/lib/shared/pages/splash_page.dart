@@ -1,6 +1,6 @@
+import 'package:blytz_flutter_app/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/router/app_router.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -22,8 +22,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     
     if (mounted) {
       final router = ref.read(appRouterProvider);
-      // Navigate to onboarding or home based on auth state
-      router.go('/onboarding');
+      // Navigate to home for now (auth check can be added later)
+      router.go('/');
     }
   }
 
@@ -47,7 +47,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 color: Colors.white,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 2.0,
+                letterSpacing: 2,
               ),
             ),
             SizedBox(height: 8),
@@ -63,7 +63,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               width: 24,
               height: 24,
               child: CircularProgressIndicator(
-                strokeWidth: 2.0,
+                strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ),

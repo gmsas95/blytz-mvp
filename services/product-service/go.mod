@@ -1,6 +1,6 @@
 module github.com/gmsas95/blytz-mvp/services/product-service
 
-go 1.23.2
+go 1.25
 
 require (
 	github.com/gin-gonic/gin v1.10.0

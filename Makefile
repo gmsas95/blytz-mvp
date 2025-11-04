@@ -4,7 +4,7 @@
 .PHONY: help test test-all build build-all deploy-local load-test clean
 
 # Default values
-GO_VERSION := 1.21
+GO_VERSION := 1.25
 SERVICES := auth-service product-service auction-service
 SERVICE_PATHS := backend/auth-service backend/product-service backend/auction-service
 

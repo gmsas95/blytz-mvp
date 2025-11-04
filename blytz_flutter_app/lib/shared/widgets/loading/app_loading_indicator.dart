@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
-  final double? size;
-  final Color? color;
-  final String? message;
 
   const AppLoadingIndicator({
     super.key,
@@ -11,6 +8,9 @@ class AppLoadingIndicator extends StatelessWidget {
     this.color,
     this.message,
   });
+  final double? size;
+  final Color? color;
+  final String? message;
 
   @override
   Widget build(BuildContext context) {

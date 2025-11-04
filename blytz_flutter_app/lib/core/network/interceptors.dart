@@ -1,10 +1,10 @@
+import 'package:blytz_flutter_app/core/constants/api_constants.dart';
+import 'package:blytz_flutter_app/core/storage/secure_storage.dart';
 import 'package:dio/dio.dart';
-import '../constants/api_constants.dart';
-import '../storage/secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final token = await SecureStorage.getToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -13,7 +13,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       // Token expired, try to refresh
       try {
@@ -23,17 +23,17 @@ class AuthInterceptor extends Interceptor {
             baseUrl: ApiConstants.baseUrl,
             connectTimeout: ApiConstants.connectTimeout,
             receiveTimeout: ApiConstants.receiveTimeout,
-          ));
+          ),);
 
           final response = await dio.post(
             ApiConstants.refresh,
             data: {'refreshToken': refreshToken},
           );
 
-          final newToken = response.data['token'];
+          final newToken = response.data['token'] as String;
           await SecureStorage.storeToken(newToken);
 
-          // Retry the original request with new token
+          // Retry original request with new token
           final originalRequest = err.requestOptions;
           originalRequest.headers['Authorization'] = 'Bearer $newToken';
           

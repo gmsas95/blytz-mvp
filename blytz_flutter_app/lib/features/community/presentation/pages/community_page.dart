@@ -360,7 +360,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: CachedNetworkImage(
-                    imageUrl: post['avatar'],
+                    imageUrl: post['avatar']?.toString() ?? '',
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Icon(
                       Icons.person,
@@ -378,8 +378,8 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    post['author'].text.semiBold.make(),
-                    post['timestamp'].text.xs.color(Colors.grey[600]).make(),
+                    (post['author']?.toString() ?? '').text.semiBold.make(),
+                    (post['timestamp']?.toString() ?? '').text.xs.color(Colors.grey[600]).make(),
                   ],
                 ),
               ),
@@ -405,7 +405,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: CachedNetworkImage(
-                imageUrl: post['image'],
+                imageUrl: post['image']?.toString() ?? '',
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
                   height: 200,
@@ -475,7 +475,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30),
                   child: CachedNetworkImage(
-                    imageUrl: seller['avatar'],
+                    imageUrl: seller['avatar']?.toString() ?? '',
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Icon(
                       Icons.person,
@@ -488,7 +488,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                   ),
                 ),
               ),
-              if (seller['isLive'])
+              if (seller['isLive'] == true)
                 Container(
                   width: 16,
                   height: 16,
@@ -510,9 +510,9 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
           8.heightBox,
 
           // Seller Info
-          seller['name'].text.semiBold.maxLines(1).overflow(TextOverflow.ellipsis).make(),
+          (seller['name']?.toString() ?? '').text.semiBold.maxLines(1).overflow(TextOverflow.ellipsis).make(),
           2.heightBox,
-          seller['category'].text.xs.color(Colors.grey[600]).make(),
+          (seller['category']?.toString() ?? '').text.xs.color(Colors.grey[600]).make(),
           4.heightBox,
 
           // Rating
@@ -521,9 +521,9 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
             children: [
               ...List.generate(5, (index) {
                 return Icon(
-                  index < seller['rating'].floor()
+                  index < (seller['rating'] as num? ?? 0).floor()
                       ? Icons.star
-                      : index < seller['rating']
+                      : index < (seller['rating'] as num? ?? 0)
                           ? Icons.star_half
                           : Icons.star_border,
                   color: Colors.amber,
@@ -531,14 +531,14 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                 );
               }),
               4.widthBox,
-              '${seller['rating']}'.text.xs.make(),
+              '${seller['rating'] ?? 0}'.text.xs.make(),
             ],
           ),
 
           4.heightBox,
 
           // Followers
-          '${(seller['followers'] / 1000).toStringAsFixed(1)}k followers'
+          '${((seller['followers'] as num? ?? 0) / 1000).toStringAsFixed(1)}k followers'
               .text
               .xs
               .color(Theme.of(context).primaryColor)
@@ -549,8 +549,8 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
           // Follow Button
           GFButton(
             onPressed: () {},
-            text: seller['isLive'] ? 'Watch' : 'Follow',
-            color: seller['isLive'] ? Colors.red : Theme.of(context).primaryColor,
+            text: seller['isLive'] == true ? 'Watch' : 'Follow',
+            color: seller['isLive'] == true ? Colors.red : Theme.of(context).primaryColor,
             size: GFSize.SMALL,
             fullWidthButton: true,
           ),
@@ -567,7 +567,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
         children: [
           Row(
             children: [
-              if (discussion['pinned'])
+              if (discussion['pinned'] == true)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -583,9 +583,9 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
                     ),
                   ),
                 ),
-              if (discussion['pinned']) 8.widthBox,
+              if (discussion['pinned'] == true) 8.widthBox,
               Expanded(
-                child: discussion['title'].text.semiBold.make(),
+                child: (discussion['title']?.toString() ?? '').text.semiBold.make(),
               ),
             ],
           ),
@@ -594,11 +594,11 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
 
           Row(
             children: [
-              discussion['author'].text.sm.color(Colors.grey[600]).make(),
+              (discussion['author']?.toString() ?? '').text.sm.color(Colors.grey[600]).make(),
               8.widthBox,
               '•'.text.color(Colors.grey[400]).make(),
               8.widthBox,
-              discussion['lastActivity'].text.sm.color(Colors.grey[600]).make(),
+              (discussion['lastActivity']?.toString() ?? '').text.sm.color(Colors.grey[600]).make(),
             ],
           ),
 

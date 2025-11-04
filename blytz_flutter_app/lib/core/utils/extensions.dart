@@ -185,7 +185,7 @@ extension ListExtensions<T> on List<T> {
 
   List<T> get unique {
     final seen = <T>{};
-    return where((element) => seen.add(element)).toList();
+    return where(seen.add).toList();
   }
 
   List<T> get reversedList {

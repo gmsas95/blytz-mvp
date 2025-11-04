@@ -6,6 +6,12 @@ analyzer:
     - "**/*.freezed.dart"
   errors:
     invalid_annotation_target: ignore
+    # Suppress noisy warnings that don't affect functionality
+    public_member_api_docs: ignore
+    lines_longer_than_80_chars: ignore
+    eol_at_end_of_file: ignore
+    sort_pub_dependencies: ignore
+    directives_ordering: ignore
 
 linter:
   rules:

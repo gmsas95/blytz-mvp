@@ -186,35 +186,3 @@ http:
           Access-Control-Allow-Headers: "Content-Type, Authorization"
           Access-Control-Allow-Credentials: "true"
 
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: blytzgroup25@gmail.com
-      storage: /etc/dokploy/traefik/dynamic/acme.json
-      httpChallenge:
-        entryPoint: web
-
-# Entry Points
-entryPoints:
-  web:
-    address: ":80"
-  websecure:
-    address: ":443"
-    http3:
-      advertisedPort: 443
-    http:
-      tls:
-        certResolver: letsencrypt
-
-# Providers
-providers:
-  docker:
-    exposedByDefault: false
-    watch: true
-    network: dokploy-network
-  file:
-    directory: /etc/dokploy/traefik/dynamic
-    watch: true
-
-global:
-  sendAnonymousUsage: false

@@ -11,7 +11,6 @@ import (
 	"github.com/gmsas95/blytz-mvp/services/product-service/internal/config"
 	"github.com/gmsas95/blytz-mvp/services/product-service/internal/services"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/auth"
-	"github.com/gmsas95/blytz-mvp/shared/pkg/errors"
 	"github.com/gmsas95/blytz-mvp/shared/pkg/utils"
 )
 

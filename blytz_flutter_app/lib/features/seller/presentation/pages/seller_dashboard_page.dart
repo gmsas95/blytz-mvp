@@ -24,9 +24,10 @@ class SellerDashboardPage extends ConsumerWidget {
           ),
         ],
       ),
-    ),
+      body: const Center(
+        child: Text('Seller Dashboard - Coming Soon'),
+      ),
     );
-  }
   }
 
   Widget _buildStatCard(
@@ -104,12 +105,14 @@ class SellerDashboardPage extends ConsumerWidget {
             child: Icon(icon, size: 32, color: color),
           ),
           12.heightBox,
-          title.text
-              .textAlign(TextAlign.center)
+           title.text
               .lg
               .semiBold
-              .make(),
+              .make()
+              .centered(),
         ],
+      ),
+        ),
       ),
     );
   }

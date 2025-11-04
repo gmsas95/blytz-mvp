@@ -327,16 +327,16 @@ class _CreateStreamPageState extends ConsumerState<CreateStreamPage> {
                                 },
                               ),
                             )
-                          : const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.image, color: Colors.grey, size: 48),
-                                  8.heightBox,
-                                  Text('Stream Thumbnail', style: TextStyle(color: Colors.grey)),
-                                ],
-                              ),
+                          : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image, color: Colors.grey, size: 48),
+                                SizedBox(height: 8),
+                                Text('Stream Thumbnail', style: TextStyle(color: Colors.grey)),
+                              ],
                             ),
+                          ),
                     ),
 
                     16.heightBox,
@@ -507,7 +507,7 @@ class _CreateStreamPageState extends ConsumerState<CreateStreamPage> {
       subtitle: subtitle.text.sm.color(Colors.grey[600] ?? Colors.grey).make(),
       trailing: GFToggle(
         value: value,
-        onChanged: onChanged,
+        onChanged: (bool? value) => onChanged(value ?? false),
       ),
     );
   }

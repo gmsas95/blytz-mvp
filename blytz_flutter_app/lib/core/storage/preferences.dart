@@ -1,10 +1,10 @@
+import 'package:blytz_flutter_app/core/constants/app_constants.dart';
+import 'package:blytz_flutter_app/core/errors/exceptions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../constants/app_constants.dart';
-import '../errors/exceptions.dart';
 
 class AppPreferences {
   static Future<SharedPreferences> get _prefs async =>
-      await SharedPreferences.getInstance();
+      SharedPreferences.getInstance();
 
   // Theme management
   static Future<void> setTheme(String theme) async {
@@ -143,12 +143,12 @@ class AppPreferences {
       final searches = await getRecentSearches();
       searches.remove(search); // Remove if exists
       searches.insert(0, search); // Add to beginning
-      
+
       // Keep only last 10 searches
       if (searches.length > 10) {
         searches.removeRange(10, searches.length);
       }
-      
+
       await setRecentSearches(searches);
     } catch (e) {
       throw StorageException('Failed to add recent search: $e');

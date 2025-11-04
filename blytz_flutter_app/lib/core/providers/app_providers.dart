@@ -1,16 +1,17 @@
 import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
+
+import 'package:blytz_flutter_app/core/errors/exceptions.dart';
+import 'package:blytz_flutter_app/core/network/api_client.dart';
+import 'package:blytz_flutter_app/core/network/interceptors.dart';
+import 'package:blytz_flutter_app/core/network/network_info.dart';
+import 'package:blytz_flutter_app/core/storage/local_database.dart';
+import 'package:blytz_flutter_app/core/storage/preferences.dart';
+import 'package:blytz_flutter_app/core/storage/secure_storage.dart';
+import 'package:blytz_flutter_app/core/utils/logger.dart';
+import 'package:blytz_flutter_app/features/auth/data/models/auth_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../network/api_client.dart';
-import '../network/interceptors.dart';
-import '../network/network_info.dart';
-import '../storage/secure_storage.dart';
-import '../storage/local_database.dart';
-import '../storage/preferences.dart';
-import '../utils/logger.dart';
-import '../errors/exceptions.dart';
-import '../../features/auth/data/models/auth_model.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // API Client Provider
 final apiClientProvider = Provider<ApiClient>((ref) {
@@ -63,14 +64,11 @@ final loggerProvider = Provider<AppLogger>((ref) {
 final authStateProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
     ref.read(apiClientProvider),
-    ref.read(secureStorageProvider),
-    ref.read(appPreferencesProvider),
-    ref.read(loggerProvider),
   );
 });
 
 // Current User Provider
-final currentUserProvider = Provider<UserModel?>((ref) {
+final currentUserProvider = Provider<AuthModel?>((ref) {
   return ref.watch(authStateProvider).user;
 });
 
@@ -81,16 +79,16 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 
 // Theme Provider
 final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
-  return ThemeNotifier(ref.read(appPreferencesProvider));
+  return ThemeNotifier();
 });
 
 // Language Provider
 final languageProvider = StateNotifierProvider<LanguageNotifier, String>((ref) {
-  return LanguageNotifier(ref.read(appPreferencesProvider));
+  return LanguageNotifier();
 });
 
 // Connectivity Provider
-final connectivityProvider = StreamProvider<ConnectivityResult>((ref) {
+final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) {
   return Connectivity().onConnectivityChanged;
 });
 
@@ -98,7 +96,7 @@ final connectivityProvider = StreamProvider<ConnectivityResult>((ref) {
 final isOnlineProvider = Provider<bool>((ref) {
   final connectivity = ref.watch(connectivityProvider);
   return connectivity.when(
-    data: (result) => result != ConnectivityResult.none,
+    data: (results) => results.isNotEmpty && !results.contains(ConnectivityResult.none),
     loading: () => true,
     error: (_, __) => false,
   );
@@ -106,14 +104,14 @@ final isOnlineProvider = Provider<bool>((ref) {
 
 // Notification Settings Provider
 final notificationSettingsProvider = StateNotifierProvider<NotificationSettingsNotifier, NotificationSettings>((ref) {
-  return NotificationSettingsNotifier(ref.read(appPreferencesProvider));
+  return NotificationSettingsNotifier();
 });
 
 // App Initialization Provider
 final appInitializationProvider = FutureProvider<void>((ref) async {
   try {
     // Initialize local database
-    await ref.read(localDatabaseProvider).init();
+    await LocalDatabase.init();
     
     // Check authentication status
     await ref.read(authStateProvider.notifier).checkAuthStatus();
@@ -126,7 +124,7 @@ final appInitializationProvider = FutureProvider<void>((ref) async {
     AppLogger.info('App initialized successfully');
   } catch (e) {
     AppLogger.error('Failed to initialize app', error: e);
-    throw e;
+    rethrow;
   }
 });
 
@@ -136,30 +134,24 @@ final errorHandlerProvider = Provider<ErrorHandler>((ref) {
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final ApiClient _apiClient;
-  final SecureStorage _secureStorage;
-  final AppPreferences _appPreferences;
-  final AppLogger _logger;
 
   AuthNotifier(
     this._apiClient,
-    this._secureStorage,
-    this._appPreferences,
-    this._logger,
   ) : super(AuthState.initial());
+  final ApiClient _apiClient;
 
   Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     
     try {
       final response = await _apiClient.login(
         LoginRequest(email: email, password: password),
       );
 
-      await _secureStorage.storeToken(response.token);
-      await _secureStorage.storeRefreshToken(response.refreshToken);
-      await _secureStorage.storeUser(response.user.toJson());
-      await _appPreferences.setOnboardingCompleted(true);
+      await SecureStorage.storeToken(response.accessToken);
+      await SecureStorage.storeRefreshToken(response.refreshToken);
+      await SecureStorage.storeUser(jsonEncode(response.user.toJson()));
+      await AppPreferences.setOnboardingCompleted(true);
 
       state = state.copyWith(
         isLoading: false,
@@ -167,16 +159,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: response.user,
       );
 
-      _logger.info('User logged in successfully', error: response.user.email);
+      AppLogger.info('User logged in successfully: ${response.user.email}');
     } catch (e) {
-      final error = ErrorHandler(_logger).handleException(e as Exception);
-      state = state.copyWith(isLoading: false, error: error.message);
-      _logger.error('Login failed', error: e);
+      final error = ErrorHandler(AppLogger()).handleException(e as Exception);
+      state = state.copyWith(isLoading: false, error: error);
+      AppLogger.error('Login failed', error: e);
     }
   }
 
-  Future<void> register(String email, String password, String firstName, String lastName, String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
+  Future<void> register(String email, String password, String firstName, String lastName) async {
+    state = state.copyWith(isLoading: true);
     
     try {
       final response = await _apiClient.register(
@@ -185,14 +177,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
           password: password,
           firstName: firstName,
           lastName: lastName,
-          phone: phone,
         ),
       );
 
-      await _secureStorage.storeToken(response.token);
-      await _secureStorage.storeRefreshToken(response.refreshToken);
-      await _secureStorage.storeUser(response.user.toJson());
-      await _appPreferences.setOnboardingCompleted(true);
+      await SecureStorage.storeToken(response.accessToken);
+      await SecureStorage.storeRefreshToken(response.refreshToken);
+      await SecureStorage.storeUser(jsonEncode(response.user.toJson()));
+      await AppPreferences.setOnboardingCompleted(true);
 
       state = state.copyWith(
         isLoading: false,
@@ -200,11 +191,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: response.user,
       );
 
-      _logger.info('User registered successfully', error: response.user.email);
+      AppLogger.info('User registered successfully: ${response.user.email}');
     } catch (e) {
-      final error = ErrorHandler(_logger).handleException(e as Exception);
-      state = state.copyWith(isLoading: false, error: error.message);
-      _logger.error('Registration failed', error: e);
+      final error = ErrorHandler(AppLogger()).handleException(e as Exception);
+      state = state.copyWith(isLoading: false, error: error);
+      AppLogger.error('Registration failed', error: e);
     }
   }
 
@@ -212,83 +203,80 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _apiClient.logout();
     } catch (e) {
-      _logger.warning('Logout API call failed', error: e);
+      AppLogger.warning('Logout API call failed', error: e);
     }
 
-    await _secureStorage.clearAll();
+    await SecureStorage.clearAll();
     state = AuthState.initial();
     
-    _logger.info('User logged out');
+    AppLogger.info('User logged out');
   }
 
   Future<void> checkAuthStatus() async {
-    final hasToken = await _secureStorage.hasToken();
+    final hasToken = await SecureStorage.hasToken();
     if (!hasToken) {
       state = AuthState.initial();
       return;
     }
 
     try {
-      final userJson = await _secureStorage.getUser();
+      final userJson = await SecureStorage.getUser();
       if (userJson != null) {
-        final user = UserModel.fromJson(jsonDecode(userJson));
+        final user = AuthModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
         state = state.copyWith(
           isAuthenticated: true,
           user: user,
         );
       }
     } catch (e) {
-      _logger.error('Failed to check auth status', error: e);
+      AppLogger.error('Failed to check auth status', error: e);
       await logout();
     }
   }
 
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith();
   }
 }
 
 class ThemeNotifier extends StateNotifier<ThemeState> {
-  final AppPreferences _appPreferences;
 
-  ThemeNotifier(this._appPreferences) : super(const ThemeState());
+  ThemeNotifier() : super(const ThemeState());
 
   Future<void> loadTheme() async {
-    final theme = await _appPreferences.getTheme();
+    final theme = await AppPreferences.getTheme();
     state = ThemeState(theme: theme);
   }
 
   Future<void> setTheme(String theme) async {
-    await _appPreferences.setTheme(theme);
+    await AppPreferences.setTheme(theme);
     state = ThemeState(theme: theme);
   }
 }
 
 class LanguageNotifier extends StateNotifier<String> {
-  final AppPreferences _appPreferences;
 
-  LanguageNotifier(this._appPreferences) : super('en');
+  LanguageNotifier() : super('en');
 
   Future<void> loadLanguage() async {
-    final language = await _appPreferences.getLanguage();
+    final language = await AppPreferences.getLanguage();
     state = language;
   }
 
   Future<void> setLanguage(String language) async {
-    await _appPreferences.setLanguage(language);
+    await AppPreferences.setLanguage(language);
     state = language;
   }
 }
 
 class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
-  final AppPreferences _appPreferences;
 
-  NotificationSettingsNotifier(this._appPreferences) : super(const NotificationSettings());
+  NotificationSettingsNotifier() : super(const NotificationSettings());
 
   Future<void> loadSettings() async {
-    final enabled = await _appPreferences.isNotificationsEnabled();
-    final autoBid = await _appPreferences.isAutoBidEnabled();
-    final maxAutoBid = await _appPreferences.getMaxAutoBidAmount();
+    final enabled = await AppPreferences.isNotificationsEnabled();
+    final autoBid = await AppPreferences.isAutoBidEnabled();
+    final maxAutoBid = await AppPreferences.getMaxAutoBidAmount();
 
     state = NotificationSettings(
       enabled: enabled,
@@ -298,25 +286,25 @@ class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
   }
 
   Future<void> setNotificationsEnabled(bool enabled) async {
-    await _appPreferences.setNotificationsEnabled(enabled);
+    await AppPreferences.setNotificationsEnabled(enabled);
     state = state.copyWith(enabled: enabled);
   }
 
   Future<void> setAutoBidEnabled(bool enabled) async {
-    await _appPreferences.setAutoBidEnabled(enabled);
+    await AppPreferences.setAutoBidEnabled(enabled);
     state = state.copyWith(autoBid: enabled);
   }
 
   Future<void> setMaxAutoBidAmount(double amount) async {
-    await _appPreferences.setMaxAutoBidAmount(amount);
+    await AppPreferences.setMaxAutoBidAmount(amount);
     state = state.copyWith(maxAutoBidAmount: amount);
   }
 }
 
 class ErrorHandler {
-  final AppLogger _logger;
 
   ErrorHandler(this._logger);
+  final AppLogger _logger;
 
   String handleException(Exception exception) {
     if (exception is ApiException) {
@@ -328,7 +316,7 @@ class ErrorHandler {
     } else if (exception is ValidationException) {
       return exception.message;
     } else {
-      _logger.error('Unknown error occurred', error: exception);
+      AppLogger.error('Unknown error occurred', error: exception);
       return 'An unexpected error occurred. Please try again.';
     }
   }
@@ -336,10 +324,6 @@ class ErrorHandler {
 
 // State Classes
 class AuthState {
-  final bool isLoading;
-  final bool isAuthenticated;
-  final UserModel? user;
-  final String? error;
 
   const AuthState({
     this.isLoading = false,
@@ -347,13 +331,17 @@ class AuthState {
     this.user,
     this.error,
   });
+  final bool isLoading;
+  final bool isAuthenticated;
+  final AuthModel? user;
+  final String? error;
 
   static AuthState initial() => const AuthState();
 
   AuthState copyWith({
     bool? isLoading,
     bool? isAuthenticated,
-    UserModel? user,
+    AuthModel? user,
     String? error,
   }) {
     return AuthState(
@@ -366,21 +354,21 @@ class AuthState {
 }
 
 class ThemeState {
-  final String theme;
 
   const ThemeState({this.theme = 'light'});
+  final String theme;
 }
 
 class NotificationSettings {
-  final bool enabled;
-  final bool autoBid;
-  final double maxAutoBidAmount;
 
   const NotificationSettings({
     this.enabled = true,
     this.autoBid = false,
     this.maxAutoBidAmount = 1000.0,
   });
+  final bool enabled;
+  final bool autoBid;
+  final double maxAutoBidAmount;
 
   NotificationSettings copyWith({
     bool? enabled,

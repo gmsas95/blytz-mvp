@@ -14,9 +14,9 @@ class AppConstants {
   static const int maxPageSize = 100;
   
   // Bid limits
-  static const double minBidAmount = 1.0;
-  static const double maxBidAmount = 10000.0;
-  static const double minBidIncrement = 1.0;
+  static const double minBidAmount = 1;
+  static const double maxBidAmount = 10000;
+  static const double minBidIncrement = 1;
   
   // Image constraints
   static const int maxImageSize = 5 * 1024 * 1024; // 5MB

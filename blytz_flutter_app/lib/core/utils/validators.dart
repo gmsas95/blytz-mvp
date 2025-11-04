@@ -1,6 +1,5 @@
+import 'package:blytz_flutter_app/core/constants/app_constants.dart';
 import 'package:form_validator/form_validator.dart';
-import '../constants/app_constants.dart';
-import '../errors/exceptions.dart';
 
 class Validators {
   // Email validation
@@ -9,7 +8,7 @@ class Validators {
       return 'Email is required';
     }
     
-    if (!ValidationBuilder().email().build()(value)) {
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
       return 'Please enter a valid email address';
     }
     
@@ -26,15 +25,15 @@ class Validators {
       return 'Password must be at least 8 characters long';
     }
     
-    if (!value.contains(RegExp(r'[A-Z]'))) {
+    if (!value.contains(RegExp('[A-Z]'))) {
       return 'Password must contain at least one uppercase letter';
     }
     
-    if (!value.contains(RegExp(r'[a-z]'))) {
+    if (!value.contains(RegExp('[a-z]'))) {
       return 'Password must contain at least one lowercase letter';
     }
     
-    if (!value.contains(RegExp(r'[0-9]'))) {
+    if (!value.contains(RegExp('[0-9]'))) {
       return 'Password must contain at least one number';
     }
     
@@ -219,7 +218,7 @@ class Validators {
       return null; // Optional
     }
     
-    if (!Uri.tryParse(value)?.hasAbsolutePath ?? false) {
+    if (!((Uri.tryParse(value)?.hasAbsolutePath) ?? false)) {
       return 'Please enter a valid URL';
     }
     

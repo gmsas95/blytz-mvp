@@ -149,8 +149,8 @@ class CategoriesPage extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
-        ),
+        ],
+      ),
       ),
     );
   }
@@ -174,7 +174,7 @@ class CategoriesPage extends ConsumerWidget {
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(category['featuredImage']),
+                  image: NetworkImage(category['featuredImage']?.toString() ?? ''),
                   fit: BoxFit.cover,
                   onError: (exception, stackTrace) {
                     // Fallback to solid color
@@ -210,17 +210,17 @@ class CategoriesPage extends ConsumerWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    category['icon'],
-                    color: category['color'],
-                    size: 20,
-                  ),
+            child: Icon(
+              category['icon'] as IconData? ?? Icons.category,
+              color: category['color'] as Color? ?? Colors.blue,
+              size: 32,
+            ),
                 ),
 
                 const SizedBox(height: 8),
 
-                Text(
-                  category['name'],
+          Text(
+            category['name']?.toString() ?? '',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -257,7 +257,7 @@ class CategoriesPage extends ConsumerWidget {
 
   Widget _buildCategoryCard(Map<String, dynamic> category, BuildContext context) {
     return GestureDetector(
-      onTap: () => _navigateToCategory(category['name'], context),
+      onTap: () => _navigateToCategory(category['name']?.toString() ?? '', context),
       child: Container(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.all(16),
@@ -268,67 +268,64 @@ class CategoriesPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          // Icon
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: (category['color'] as Color).withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+            // Icon
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: (category['color'] as Color).withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                category['icon'] as IconData? ?? Icons.category,
+                color: category['color'] as Color? ?? Colors.blue,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Category Name
+            Text(
+              category['name']?.toString() ?? '',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black87,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            // Stream Count
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.live_tv,
+                  size: 12,
+                  color: category['color'] as Color? ?? Colors.blue,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${category['streamCount'] ?? 0}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: category['color'] as Color? ?? Colors.blue,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
-            child: Icon(
-              category['icon'],
-              color: category['color'],
-              size: 32,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Category Name
-          Text(
-            category['name'],
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black87,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-
-          const SizedBox(height: 4),
-
-          // Stream Count
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.live_tv,
-                size: 12,
-                color: category['color'],
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${category['streamCount']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: category['color'],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

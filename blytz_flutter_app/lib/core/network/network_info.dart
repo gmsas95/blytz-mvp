@@ -1,16 +1,14 @@
-import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../constants/api_constants.dart';
-import '../errors/exceptions.dart';
+import 'package:dio/dio.dart';
 
 class NetworkInfo {
-  final Connectivity _connectivity;
   
   NetworkInfo(this._connectivity);
+  final Connectivity _connectivity;
 
   Future<bool> get isConnected async {
     final result = await _connectivity.checkConnectivity();
-    return result != ConnectivityResult.none;
+    return result.isNotEmpty && !result.contains(ConnectivityResult.none);
   }
 
   Future<bool> get hasInternetAccess async {
@@ -18,12 +16,10 @@ class NetworkInfo {
     
     try {
       final dio = Dio();
-      final response = await dio.get(
+      dio.options.connectTimeout = const Duration(seconds: 5);
+      dio.options.receiveTimeout = const Duration(seconds: 5);
+      final response = await dio.get<String>(
         'https://www.google.com',
-        options: Options(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ),
       );
       return response.statusCode == 200;
     } catch (e) {

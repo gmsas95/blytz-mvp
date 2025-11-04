@@ -1,6 +1,6 @@
+import 'package:blytz_flutter_app/core/errors/exceptions.dart';
+import 'package:blytz_flutter_app/core/errors/failures.dart';
 import 'package:dio/dio.dart';
-import '../errors/exceptions.dart';
-import '../errors/failures.dart';
 
 class ErrorHandler {
   static Failure handleException(Exception exception) {
@@ -32,16 +32,25 @@ class ErrorHandler {
         return const NetworkFailure('Connection timeout');
       case DioExceptionType.badResponse:
         final statusCode = exception.response?.statusCode;
-        final message = exception.response?.data?['message'] ?? 
-                       exception.response?.statusMessage ?? 
-                       'Server error';
+        final responseData = exception.response?.data;
+        String message;
+
+        if (responseData is Map<String, dynamic>) {
+          message = responseData['message']?.toString() ??
+                     exception.response?.statusMessage ??
+                     'Server error';
+        } else {
+          message = exception.response?.statusMessage ?? 'Server error';
+        }
+
         return ServerFailure(message, statusCode: statusCode);
       case DioExceptionType.cancel:
         return const NetworkFailure('Request cancelled');
       case DioExceptionType.connectionError:
         return const NetworkFailure('No internet connection');
+      case DioExceptionType.badCertificate:
+        return const NetworkFailure('Invalid SSL certificate');
       case DioExceptionType.unknown:
-      default:
         return NetworkFailure(exception.message ?? 'Network error');
     }
   }

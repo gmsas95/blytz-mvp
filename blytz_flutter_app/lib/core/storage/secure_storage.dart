@@ -1,14 +1,11 @@
+import 'package:blytz_flutter_app/core/constants/app_constants.dart';
+import 'package:blytz_flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../constants/app_constants.dart';
-import '../errors/exceptions.dart';
 
 class SecureStorage {
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
-    ),
-    iOptions: IOSOptions(
-      accessibility: KeychainItemAccessibility.first_unlock_this_device,
     ),
   );
 

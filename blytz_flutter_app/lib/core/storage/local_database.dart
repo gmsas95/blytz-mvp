@@ -1,7 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:blytz_flutter_app/core/errors/exceptions.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../constants/app_constants.dart';
-import '../errors/exceptions.dart';
 
 class LocalDatabase {
   static const String _auctionBoxName = 'auctions';
@@ -20,10 +18,10 @@ class LocalDatabase {
       // Hive.registerAdapter(MessageModelAdapter());
 
       // Open boxes
-      await Hive.openBox(_auctionBoxName);
-      await Hive.openBox(_userBoxName);
-      await Hive.openBox(_productBoxName);
-      await Hive.openBox(_chatBoxName);
+      await Hive.openBox<dynamic>(_auctionBoxName);
+      await Hive.openBox<dynamic>(_userBoxName);
+      await Hive.openBox<dynamic>(_productBoxName);
+      await Hive.openBox<dynamic>(_chatBoxName);
     } catch (e) {
       throw StorageException('Failed to initialize local database: $e');
     }
@@ -32,7 +30,7 @@ class LocalDatabase {
   // Auction caching
   static Future<void> cacheAuctions(List<dynamic> auctions) async {
     try {
-      final box = await Hive.openBox(_auctionBoxName);
+      final box = await Hive.openBox<dynamic>(_auctionBoxName);
       await box.clear();
       for (final auction in auctions) {
         await box.put(auction.id, auction);
@@ -44,7 +42,7 @@ class LocalDatabase {
 
   static Future<List<dynamic>> getCachedAuctions() async {
     try {
-      final box = await Hive.openBox(_auctionBoxName);
+      final box = await Hive.openBox<dynamic>(_auctionBoxName);
       return box.values.toList();
     } catch (e) {
       throw StorageException('Failed to get cached auctions: $e');
@@ -53,16 +51,16 @@ class LocalDatabase {
 
   static Future<void> cacheAuction(dynamic auction) async {
     try {
-      final box = await Hive.openBox(_auctionBoxName);
+      final box = await Hive.openBox<dynamic>(_auctionBoxName);
       await box.put(auction.id, auction);
     } catch (e) {
       throw StorageException('Failed to cache auction: $e');
     }
   }
 
-  static Future<dynamic?> getCachedAuction(String id) async {
+  static Future<dynamic> getCachedAuction(String id) async {
     try {
-      final box = await Hive.openBox(_auctionBoxName);
+      final box = await Hive.openBox<dynamic>(_auctionBoxName);
       return box.get(id);
     } catch (e) {
       throw StorageException('Failed to get cached auction: $e');
@@ -72,16 +70,16 @@ class LocalDatabase {
   // User caching
   static Future<void> cacheUser(dynamic user) async {
     try {
-      final box = await Hive.openBox(_userBoxName);
+      final box = await Hive.openBox<dynamic>(_userBoxName);
       await box.put('current_user', user);
     } catch (e) {
       throw StorageException('Failed to cache user: $e');
     }
   }
 
-  static Future<dynamic?> getCachedUser() async {
+  static Future<dynamic> getCachedUser() async {
     try {
-      final box = await Hive.openBox(_userBoxName);
+      final box = await Hive.openBox<dynamic>(_userBoxName);
       return box.get('current_user');
     } catch (e) {
       throw StorageException('Failed to get cached user: $e');
@@ -91,7 +89,7 @@ class LocalDatabase {
   // Product caching
   static Future<void> cacheProducts(List<dynamic> products) async {
     try {
-      final box = await Hive.openBox(_productBoxName);
+      final box = await Hive.openBox<dynamic>(_productBoxName);
       await box.clear();
       for (final product in products) {
         await box.put(product.id, product);
@@ -103,7 +101,7 @@ class LocalDatabase {
 
   static Future<List<dynamic>> getCachedProducts() async {
     try {
-      final box = await Hive.openBox(_productBoxName);
+      final box = await Hive.openBox<dynamic>(_productBoxName);
       return box.values.toList();
     } catch (e) {
       throw StorageException('Failed to get cached products: $e');
@@ -113,7 +111,7 @@ class LocalDatabase {
   // Chat caching
   static Future<void> cacheMessages(String roomId, List<dynamic> messages) async {
     try {
-      final box = await Hive.openBox(_chatBoxName);
+      final box = await Hive.openBox<dynamic>(_chatBoxName);
       await box.put('messages_$roomId', messages);
     } catch (e) {
       throw StorageException('Failed to cache messages: $e');
@@ -122,8 +120,9 @@ class LocalDatabase {
 
   static Future<List<dynamic>> getCachedMessages(String roomId) async {
     try {
-      final box = await Hive.openBox(_chatBoxName);
-      return box.get('messages_$roomId', defaultValue: <dynamic>[]);
+      final box = await Hive.openBox<dynamic>(_chatBoxName);
+      final messages = box.get('messages_$roomId', defaultValue: <dynamic>[]);
+      return messages is List ? List<dynamic>.from(messages) : <dynamic>[];
     } catch (e) {
       throw StorageException('Failed to get cached messages: $e');
     }

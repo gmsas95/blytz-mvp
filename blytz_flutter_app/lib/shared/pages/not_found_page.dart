@@ -31,7 +31,7 @@ class NotFoundPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              error ?? 'The page you\'re looking for doesn\'t exist.',
+              error ?? "The page you're looking for doesn't exist.",
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Colors.grey[600],

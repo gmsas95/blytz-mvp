@@ -25,7 +25,7 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: blytzgroup25@gmail.com
-      storage: /etc/dokploy/traefik/dynamic/acme.json
+      storage: /etc/traefik/dynamic/acme.json
       httpChallenge:
         entryPoint: web
 
