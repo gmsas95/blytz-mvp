@@ -169,7 +169,7 @@ export default function LiveKitBroadcaster({
             <p className="text-muted-foreground text-sm mb-4">{connectionError}</p>
           </div>
           <Button
-            onClick={fetchBroadcasterToken}
+            onClick={() => fetchBroadcasterToken()}
             variant="destructive"
             className="gap-2"
           >
