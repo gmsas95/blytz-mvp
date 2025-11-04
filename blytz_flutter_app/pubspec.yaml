@@ -6,8 +6,8 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: ">=3.16.0"
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: ">=3.19.0"
 
 dependencies:
   flutter:
@@ -28,13 +28,14 @@ dependencies:
   go_router: ^16.3.0
   
   # Networking
-  dio: ^5.4.0
+  dio: ^5.7.0
   retrofit: ^4.0.3
-  json_annotation: ^4.8.1
+  json_annotation: ^4.9.0
   connectivity_plus: ^7.0.0
   
   # State Management
   equatable: ^2.0.5
+  either_dart: ^1.0.0
   
   # Real-time
   web_socket_channel: ^3.0.3
@@ -60,6 +61,7 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.2.1
   logger: ^2.0.2+1
+  internet_connection_checker: ^1.0.0+1
   
   # Firebase
   firebase_core: ^4.2.1
@@ -104,7 +106,7 @@ dev_dependencies:
   
   # Development Tools
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.3.2
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true

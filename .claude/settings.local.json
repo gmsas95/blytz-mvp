@@ -111,7 +111,17 @@
       "Bash(wget:*)",
       "Bash(sudo snap install:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Bash(if:*)",
+      "Bash(then ls services/$service/internal/api/)",
+      "Bash(else echo \"Service not found\")",
+      "Bash(then grep -E \"(router\\..*GET|router\\..*POST|router\\..*PUT|router\\..*DELETE)\" \"services/$service/internal/api/router.go\")",
+      "Bash(else echo \"Router not found\")",
+      "Bash(flutter doctor:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(sudo npm:*)"
     ],
     "deny": [],
     "ask": []

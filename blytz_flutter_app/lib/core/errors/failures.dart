@@ -8,6 +8,13 @@ class ServerFailure extends Failure {
   
   final int? statusCode;
   
+  static ServerFailure fromDioException(DioException e) {
+    return ServerFailure(
+      e.message ?? 'Server error occurred',
+      statusCode: e.response?.statusCode,
+    );
+  }
+  
   @override
   String toString() => 'ServerFailure: $message';
 }
@@ -47,6 +54,13 @@ class CacheFailure extends Failure {
   
   @override
   String toString() => 'CacheFailure: $message';
+}
+
+class NotFoundFailure extends Failure {
+  const NotFoundFailure(super.message);
+  
+  @override
+  String toString() => 'NotFoundFailure: $message';
 }
 
 class UnknownFailure extends Failure {

@@ -20,23 +20,26 @@ class AuthInterceptor extends Interceptor {
         final refreshToken = await SecureStorage.getRefreshToken();
         if (refreshToken != null) {
           final dio = Dio(BaseOptions(
-            baseUrl: ApiConstants.baseUrl,
+            baseUrl: ApiConstants.authBaseUrl, // Use auth service URL
             connectTimeout: ApiConstants.connectTimeout,
             receiveTimeout: ApiConstants.receiveTimeout,
-          ),);
+          ));
 
           final response = await dio.post(
-            ApiConstants.refresh,
+            ApiConstants.authServiceRefresh,
             data: {'refreshToken': refreshToken},
           );
 
-          final newToken = response.data['token'] as String;
+          final newToken = response.data['accessToken'] as String;
+          final newRefreshToken = response.data['refreshToken'] as String;
+
           await SecureStorage.storeToken(newToken);
+          await SecureStorage.storeRefreshToken(newRefreshToken);
 
           // Retry original request with new token
           final originalRequest = err.requestOptions;
           originalRequest.headers['Authorization'] = 'Bearer $newToken';
-          
+
           final retryResponse = await dio.fetch(originalRequest);
           handler.resolve(retryResponse);
           return;

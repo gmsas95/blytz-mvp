@@ -54,15 +54,15 @@ print_status "Production configuration verified"
 
 # Stop existing services
 echo "🛑 Stopping existing services..."
-docker compose -f docker-compose.yml -f docker-compose.prod.yml down || true
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production down || true
 
 # Pull latest images
 echo "📦 Pulling latest images..."
-docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production pull
 
 # Start production services
 echo "🚀 Starting production services..."
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to be ready..."
@@ -73,11 +73,11 @@ echo "🔍 Checking service health..."
 
 services=("postgres" "redis" "auth-service" "payment-service" "gateway" "frontend")
 for service in "${services[@]}"; do
-    if docker compose -f docker-compose.yml -f docker-compose.prod.yml ps $service | grep -q "Up"; then
+    if docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps $service | grep -q "Up"; then
         print_status "$service is running"
     else
         print_error "$service failed to start"
-        docker compose -f docker-compose.yml -f docker-compose.prod.yml logs $service
+        docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production logs $service
         exit 1
     fi
 done
@@ -131,8 +131,8 @@ echo "   Demo: https://demo.blytz.app"
 echo "   Seller: https://seller.blytz.app"
 echo ""
 echo "📊 Monitoring:"
-echo "   Check logs: docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f [service]"
-echo "   Check status: docker compose -f docker-compose.yml -f docker-compose.prod.yml ps"
+echo "   Check logs: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production logs -f [service]"
+echo "   Check status: docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production ps"
 echo ""
 echo "🔧 Environment variables are loaded from .env.production"
 echo "   Ensure your secrets manager provides these values in production"

@@ -30,9 +30,10 @@ class AuctionCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Image Section
-          Expanded(
+          Flexible(
             flex: 3,
             child: Stack(
               children: [
@@ -146,7 +147,7 @@ class AuctionCard extends ConsumerWidget {
           ),
           
           // Content Section
-          Expanded(
+          Flexible(
             flex: 2,
             child: Padding(
               padding: const EdgeInsets.all(12),

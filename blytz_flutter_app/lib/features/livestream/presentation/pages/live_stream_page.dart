@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:getwidget/getwidget.dart';
@@ -23,7 +24,7 @@ class LiveStreamPage extends ConsumerStatefulWidget {
 class _LiveStreamPageState extends ConsumerState<LiveStreamPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  late WebSocketChannel _channel;
+  WebSocketChannel? _channel;
   bool _isConnected = false;
   int _viewerCount = 0;
   bool _isFollowing = false;
@@ -44,7 +45,7 @@ class _LiveStreamPageState extends ConsumerState<LiveStreamPage>
   @override
   void dispose() {
     _tabController.dispose();
-    _channel.sink.close();
+    _channel?.sink.close();
     super.dispose();
   }
 
@@ -77,8 +78,12 @@ class _LiveStreamPageState extends ConsumerState<LiveStreamPage>
       );
     } catch (e) {
       print('Failed to connect to WebSocket: $e');
-      // Create a dummy channel to prevent crashes
-      _channel = WebSocketChannel.connect(Uri.parse('ws://localhost:0'));
+      // Don't crash the app, continue without WebSocket updates
+      // The app will function without live updates, and can retry connection
+      setState(() {
+        _isConnected = false;
+        _channel = null;
+      });
     }
   }
 

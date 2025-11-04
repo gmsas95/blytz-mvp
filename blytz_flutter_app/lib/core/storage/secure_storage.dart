@@ -3,13 +3,13 @@ import 'package:blytz_flutter_app/core/errors/exceptions.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorage {
-  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ),
   );
 
-  static Future<void> storeToken(String token) async {
+  Future<void> storeToken(String token) async {
     try {
       await _storage.write(key: AppConstants.authTokenKey, value: token);
     } catch (e) {
@@ -17,7 +17,7 @@ class SecureStorage {
     }
   }
 
-  static Future<String?> getToken() async {
+  Future<String?> getToken() async {
     try {
       return await _storage.read(key: AppConstants.authTokenKey);
     } catch (e) {
@@ -25,7 +25,7 @@ class SecureStorage {
     }
   }
 
-  static Future<void> storeRefreshToken(String refreshToken) async {
+  Future<void> storeRefreshToken(String refreshToken) async {
     try {
       await _storage.write(key: AppConstants.refreshTokenKey, value: refreshToken);
     } catch (e) {
@@ -33,7 +33,7 @@ class SecureStorage {
     }
   }
 
-  static Future<String?> getRefreshToken() async {
+  Future<String?> getRefreshToken() async {
     try {
       return await _storage.read(key: AppConstants.refreshTokenKey);
     } catch (e) {
@@ -41,7 +41,23 @@ class SecureStorage {
     }
   }
 
-  static Future<void> storeUser(String userData) async {
+  Future<void> storeUserId(String userId) async {
+    try {
+      await _storage.write(key: AppConstants.userIdKey, value: userId);
+    } catch (e) {
+      throw StorageException('Failed to store user ID: $e');
+    }
+  }
+
+  Future<String?> getUserId() async {
+    try {
+      return await _storage.read(key: AppConstants.userIdKey);
+    } catch (e) {
+      throw StorageException('Failed to get user ID: $e');
+    }
+  }
+
+  Future<void> storeUser(String userData) async {
     try {
       await _storage.write(key: AppConstants.userKey, value: userData);
     } catch (e) {
@@ -49,7 +65,7 @@ class SecureStorage {
     }
   }
 
-  static Future<String?> getUser() async {
+  Future<String?> getUser() async {
     try {
       return await _storage.read(key: AppConstants.userKey);
     } catch (e) {
@@ -57,7 +73,7 @@ class SecureStorage {
     }
   }
 
-  static Future<void> clearToken() async {
+  Future<void> clearToken() async {
     try {
       await _storage.delete(key: AppConstants.authTokenKey);
     } catch (e) {
@@ -65,7 +81,7 @@ class SecureStorage {
     }
   }
 
-  static Future<void> clearRefreshToken() async {
+  Future<void> clearRefreshToken() async {
     try {
       await _storage.delete(key: AppConstants.refreshTokenKey);
     } catch (e) {
@@ -73,7 +89,7 @@ class SecureStorage {
     }
   }
 
-  static Future<void> clearUser() async {
+  Future<void> clearUser() async {
     try {
       await _storage.delete(key: AppConstants.userKey);
     } catch (e) {
@@ -81,7 +97,7 @@ class SecureStorage {
     }
   }
 
-  static Future<void> clearAll() async {
+  Future<void> clearAll() async {
     try {
       await _storage.deleteAll();
     } catch (e) {
@@ -89,13 +105,29 @@ class SecureStorage {
     }
   }
 
-  static Future<bool> hasToken() async {
+  Future<bool> hasToken() async {
     final token = await getToken();
     return token != null && token.isNotEmpty;
   }
 
-  static Future<bool> hasRefreshToken() async {
+  Future<bool> hasRefreshToken() async {
     final refreshToken = await getRefreshToken();
     return refreshToken != null && refreshToken.isNotEmpty;
+  }
+
+  // Static methods for backward compatibility
+  static Future<void> storeTokenStatic(String token) async {
+    final storage = SecureStorage();
+    await storage.storeToken(token);
+  }
+
+  static Future<String?> getTokenStatic() async {
+    final storage = SecureStorage();
+    return await storage.getToken();
+  }
+
+  static Future<void> clearAllStatic() async {
+    final storage = SecureStorage();
+    await storage.clearAll();
   }
 }

@@ -1,0 +1,433 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":322007,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/sas/blytzmvp-clean/blytz_flutter_app/test/integration/backend_integration_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/sas/blytzmvp-clean/blytz_flutter_app/test/integration/backend_integration_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+lib/core/errors/failures.dart:11:41: Error: Type 'DioException' not found.
+  static ServerFailure fromDioException(DioException e) {
+                                        ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:195:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.authBaseUrl, equals('http://localhost:8084'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:196:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.auctionBaseUrl, equals('http://localhost:8081'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:197:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.productBaseUrl, equals('http://localhost:8082'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:198:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.orderBaseUrl, equals('http://localhost:8083'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:199:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.paymentBaseUrl, equals('http://localhost:8086'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:200:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.chatBaseUrl, equals('http://localhost:8088'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:201:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.logisticsBaseUrl, equals('http://localhost:8087'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:205:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.authServiceLogin, equals('/api/v1/auth/login'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:206:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.authServiceRegister, equals('/api/v1/auth/register'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:207:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.auctions, equals('/api/v1/auctions'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:208:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.products, equals('/api/v1/products'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:209:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.orders, equals('/api/v1/orders'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:213:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.wsAuctionUpdates, equals('ws://localhost:8081/ws/auctions'));
+             ^^^^^^^^^^^^
+test/integration/backend_integration_test.dart:214:14: Error: Undefined name 'ApiConstants'.
+      expect(ApiConstants.wsChat, equals('ws://localhost:8088/chat'));
+             ^^^^^^^^^^^^
+lib/core/di/service_locator.dart:119:10: Error: The method 'log' isn't defined for the type 'AppLogger'.
+ - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'log'.
+  logger.log('Initializing services...');
+         ^^^
+lib/core/di/service_locator.dart:124:10: Error: The method 'log' isn't defined for the type 'AppLogger'.
+ - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'log'.
+  logger.log('Network connected: $isConnected');
+         ^^^
+lib/core/di/service_locator.dart:129:10: Error: The method 'log' isn't defined for the type 'AppLogger'.
+ - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'log'.
+  logger.log('Token valid: ${tokenValid.fold((l) => false, (r) => r)}');
+         ^^^
+lib/core/di/service_locator.dart:131:10: Error: The method 'log' isn't defined for the type 'AppLogger'.
+ - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'log'.
+  logger.log('Services initialized successfully');
+         ^^^
+lib/core/network/api_client.g.dart:253:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:352:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:386:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:425:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:465:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:528:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:570:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:665:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:705:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:739:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:778:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:818:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:887:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:928:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1015:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1053:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1098:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1138:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1176:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1263:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1301:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1336:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/core/network/api_client.g.dart:1376:31: Error: The method 'fromJson' isn't defined for the type 'Type'.
+ - 'Type' is from 'dart:core'.
+Try correcting the name to the name of an existing method, or defining a method named 'fromJson'.
+          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+                              ^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:46:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:64:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:81:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:100:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:109:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'No token found'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:118:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Token expired, please login again'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:122:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:131:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'No token found'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:139:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:160:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:170:31: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(CacheFailure(message: e.toString()));
+                              ^
+lib/core/errors/failures.dart:53:9: Context: Found this candidate, but the arguments don't match.
+  const CacheFailure(super.message);
+        ^^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:179:36: Error: Too few positional arguments: 1 required, 0 given.
+      return const Left(AuthFailure(message: 'No token stored'));
+                                   ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:184:36: Error: Too few positional arguments: 1 required, 0 given.
+      return const Left(AuthFailure(message: 'No token found'));
+                                   ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:197:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'No refresh token found'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auth/data/repositories/auth_repository_impl.dart:200:47: Error: The method 'call' isn't defined for the type 'String'.
+Try correcting the name to the name of an existing method, or defining a method named 'call'.
+      final refreshResult = await refreshToken(RefreshTokenRequest(refreshToken: refreshToken));
+                                              ^
+lib/core/network/interceptors.dart:8:39: Error: Member not found: 'SecureStorage.getToken'.
+    final token = await SecureStorage.getToken();
+                                      ^^^^^^^^
+lib/core/network/interceptors.dart:20:50: Error: Member not found: 'SecureStorage.getRefreshToken'.
+        final refreshToken = await SecureStorage.getRefreshToken();
+                                                 ^^^^^^^^^^^^^^^
+lib/core/network/interceptors.dart:36:31: Error: Member not found: 'SecureStorage.storeToken'.
+          await SecureStorage.storeToken(newToken);
+                              ^^^^^^^^^^
+lib/core/network/interceptors.dart:37:31: Error: Member not found: 'SecureStorage.storeRefreshToken'.
+          await SecureStorage.storeRefreshToken(newRefreshToken);
+                              ^^^^^^^^^^^^^^^^^
+lib/core/network/interceptors.dart:49:29: Error: Member not found: 'SecureStorage.clearAll'.
+        await SecureStorage.clearAll();
+                            ^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:59:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:79:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:91:42: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(NotFoundFailure(message: 'Auction not found'));
+                                         ^
+lib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.
+  const NotFoundFailure(super.message);
+        ^^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:95:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:112:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:102:41: Error: The method 'getAuctionBids' isn't defined for the type 'ApiClient'.
+ - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'getAuctionBids'.
+      final response = await _apiClient.getAuctionBids(id, page: page, limit: limit);
+                                        ^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:129:44: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(ValidationFailure(message: 'Invalid bid amount'));
+                                           ^
+lib/core/errors/failures.dart:37:9: Context: Found this candidate, but the arguments don't match.
+  const ValidationFailure(super.message, {this.field});
+        ^^^^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:131:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Authentication required'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:133:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Cannot bid on your own auction'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:137:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:153:44: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(ValidationFailure(message: 'Invalid auction data'));
+                                           ^
+lib/core/errors/failures.dart:37:9: Context: Found this candidate, but the arguments don't match.
+  const ValidationFailure(super.message, {this.field});
+        ^^^^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:155:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Authentication required'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:159:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:144:41: Error: The method 'createAuction' isn't defined for the type 'ApiClient'.
+ - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'createAuction'.
+      final response = await _apiClient.createAuction(
+                                        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:176:42: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(NotFoundFailure(message: 'Auction not found'));
+                                         ^
+lib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.
+  const NotFoundFailure(super.message);
+        ^^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:178:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Authentication required'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:180:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Cannot modify this auction'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:184:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:166:41: Error: The method 'updateAuction' isn't defined for the type 'ApiClient'.
+ - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'updateAuction'.
+      final response = await _apiClient.updateAuction(
+                                        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:199:42: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(NotFoundFailure(message: 'Auction not found'));
+                                         ^
+lib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.
+  const NotFoundFailure(super.message);
+        ^^^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:201:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Authentication required'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:203:38: Error: Too few positional arguments: 1 required, 0 given.
+        return const Left(AuthFailure(message: 'Cannot delete this auction'));
+                                     ^
+lib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.
+  const AuthFailure(super.message);
+        ^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:207:32: Error: Too few positional arguments: 1 required, 0 given.
+      return Left(ServerFailure(message: e.toString()));
+                               ^
+lib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.
+  const ServerFailure(super.message, {this.statusCode});
+        ^^^^^^^^^^^^^
+lib/features/auction/data/repositories/auction_repository_impl.dart:191:24: Error: The method 'deleteAuction' isn't defined for the type 'ApiClient'.
+ - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'deleteAuction'.
+      await _apiClient.deleteAuction(
+                       ^^^^^^^^^^^^^
+lib/core/errors/failures.dart:11:41: Error: 'DioException' isn't a type.
+  static ServerFailure fromDioException(DioException e) {
+                                        ^^^^^^^^^^^^
+{"testID":1,"error":"Failed to load \"/home/sas/blytzmvp-clean/blytz_flutter_app/test/integration/backend_integration_test.dart\":\nCompilation failed for testPath=/home/sas/blytzmvp-clean/blytz_flutter_app/test/integration/backend_integration_test.dart: lib/core/errors/failures.dart:11:41: Error: Type 'DioException' not found.\n  static ServerFailure fromDioException(DioException e) {\n                                        ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:195:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.authBaseUrl, equals('http://localhost:8084'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:196:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.auctionBaseUrl, equals('http://localhost:8081'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:197:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.productBaseUrl, equals('http://localhost:8082'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:198:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.orderBaseUrl, equals('http://localhost:8083'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:199:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.paymentBaseUrl, equals('http://localhost:8086'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:200:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.chatBaseUrl, equals('http://localhost:8088'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:201:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.logisticsBaseUrl, equals('http://localhost:8087'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:205:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.authServiceLogin, equals('/api/v1/auth/login'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:206:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.authServiceRegister, equals('/api/v1/auth/register'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:207:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.auctions, equals('/api/v1/auctions'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:208:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.products, equals('/api/v1/products'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:209:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.orders, equals('/api/v1/orders'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:213:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.wsAuctionUpdates, equals('ws://localhost:8081/ws/auctions'));\n             ^^^^^^^^^^^^\ntest/integration/backend_integration_test.dart:214:14: Error: Undefined name 'ApiConstants'.\n      expect(ApiConstants.wsChat, equals('ws://localhost:8088/chat'));\n             ^^^^^^^^^^^^\nlib/core/di/service_locator.dart:119:10: Error: The method 'log' isn't defined for the type 'AppLogger'.\n - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'log'.\n  logger.log('Initializing services...');\n         ^^^\nlib/core/di/service_locator.dart:124:10: Error: The method 'log' isn't defined for the type 'AppLogger'.\n - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'log'.\n  logger.log('Network connected: $isConnected');\n         ^^^\nlib/core/di/service_locator.dart:129:10: Error: The method 'log' isn't defined for the type 'AppLogger'.\n - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'log'.\n  logger.log('Token valid: ${tokenValid.fold((l) => false, (r) => r)}');\n         ^^^\nlib/core/di/service_locator.dart:131:10: Error: The method 'log' isn't defined for the type 'AppLogger'.\n - 'AppLogger' is from 'package:blytz_flutter_app/core/utils/logger.dart' ('lib/core/utils/logger.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'log'.\n  logger.log('Services initialized successfully');\n         ^^^\nlib/core/network/api_client.g.dart:253:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:352:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:386:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:425:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:465:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:528:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:570:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:665:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:705:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:739:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:778:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:818:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:887:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:928:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1015:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1053:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1098:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1138:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1176:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1263:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1301:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1336:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/core/network/api_client.g.dart:1376:31: Error: The method 'fromJson' isn't defined for the type 'Type'.\n - 'Type' is from 'dart:core'.\nTry correcting the name to the name of an existing method, or defining a method named 'fromJson'.\n          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));\n                              ^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:46:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:64:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:81:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:100:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:109:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'No token found'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:118:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Token expired, please login again'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:122:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:131:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'No token found'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:139:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:160:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:170:31: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(CacheFailure(message: e.toString()));\n                              ^\nlib/core/errors/failures.dart:53:9: Context: Found this candidate, but the arguments don't match.\n  const CacheFailure(super.message);\n        ^^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:179:36: Error: Too few positional arguments: 1 required, 0 given.\n      return const Left(AuthFailure(message: 'No token stored'));\n                                   ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:184:36: Error: Too few positional arguments: 1 required, 0 given.\n      return const Left(AuthFailure(message: 'No token found'));\n                                   ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:197:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'No refresh token found'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auth/data/repositories/auth_repository_impl.dart:200:47: Error: The method 'call' isn't defined for the type 'String'.\nTry correcting the name to the name of an existing method, or defining a method named 'call'.\n      final refreshResult = await refreshToken(RefreshTokenRequest(refreshToken: refreshToken));\n                                              ^\nlib/core/network/interceptors.dart:8:39: Error: Member not found: 'SecureStorage.getToken'.\n    final token = await SecureStorage.getToken();\n                                      ^^^^^^^^\nlib/core/network/interceptors.dart:20:50: Error: Member not found: 'SecureStorage.getRefreshToken'.\n        final refreshToken = await SecureStorage.getRefreshToken();\n                                                 ^^^^^^^^^^^^^^^\nlib/core/network/interceptors.dart:36:31: Error: Member not found: 'SecureStorage.storeToken'.\n          await SecureStorage.storeToken(newToken);\n                              ^^^^^^^^^^\nlib/core/network/interceptors.dart:37:31: Error: Member not found: 'SecureStorage.storeRefreshToken'.\n          await SecureStorage.storeRefreshToken(newRefreshToken);\n                              ^^^^^^^^^^^^^^^^^\nlib/core/network/interceptors.dart:49:29: Error: Member not found: 'SecureStorage.clearAll'.\n        await SecureStorage.clearAll();\n                            ^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:59:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:79:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:91:42: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(NotFoundFailure(message: 'Auction not found'));\n                                         ^\nlib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.\n  const NotFoundFailure(super.message);\n        ^^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:95:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:112:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:102:41: Error: The method 'getAuctionBids' isn't defined for the type 'ApiClient'.\n - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'getAuctionBids'.\n      final response = await _apiClient.getAuctionBids(id, page: page, limit: limit);\n                                        ^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:129:44: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(ValidationFailure(message: 'Invalid bid amount'));\n                                           ^\nlib/core/errors/failures.dart:37:9: Context: Found this candidate, but the arguments don't match.\n  const ValidationFailure(super.message, {this.field});\n        ^^^^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:131:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Authentication required'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:133:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Cannot bid on your own auction'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:137:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:153:44: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(ValidationFailure(message: 'Invalid auction data'));\n                                           ^\nlib/core/errors/failures.dart:37:9: Context: Found this candidate, but the arguments don't match.\n  const ValidationFailure(super.message, {this.field});\n        ^^^^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:155:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Authentication required'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:159:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:144:41: Error: The method 'createAuction' isn't defined for the type 'ApiClient'.\n - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'createAuction'.\n      final response = await _apiClient.createAuction(\n                                        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:176:42: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(NotFoundFailure(message: 'Auction not found'));\n                                         ^\nlib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.\n  const NotFoundFailure(super.message);\n        ^^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:178:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Authentication required'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:180:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Cannot modify this auction'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:184:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:166:41: Error: The method 'updateAuction' isn't defined for the type 'ApiClient'.\n - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'updateAuction'.\n      final response = await _apiClient.updateAuction(\n                                        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:199:42: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(NotFoundFailure(message: 'Auction not found'));\n                                         ^\nlib/core/errors/failures.dart:60:9: Context: Found this candidate, but the arguments don't match.\n  const NotFoundFailure(super.message);\n        ^^^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:201:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Authentication required'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:203:38: Error: Too few positional arguments: 1 required, 0 given.\n        return const Left(AuthFailure(message: 'Cannot delete this auction'));\n                                     ^\nlib/core/errors/failures.dart:30:9: Context: Found this candidate, but the arguments don't match.\n  const AuthFailure(super.message);\n        ^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:207:32: Error: Too few positional arguments: 1 required, 0 given.\n      return Left(ServerFailure(message: e.toString()));\n                               ^\nlib/core/errors/failures.dart:7:9: Context: Found this candidate, but the arguments don't match.\n  const ServerFailure(super.message, {this.statusCode});\n        ^^^^^^^^^^^^^\nlib/features/auction/data/repositories/auction_repository_impl.dart:191:24: Error: The method 'deleteAuction' isn't defined for the type 'ApiClient'.\n - 'ApiClient' is from 'package:blytz_flutter_app/core/network/api_client.dart' ('lib/core/network/api_client.dart').\nTry correcting the name to the name of an existing method, or defining a method named 'deleteAuction'.\n      await _apiClient.deleteAuction(\n                       ^^^^^^^^^^^^^\nlib/core/errors/failures.dart:11:41: Error: 'DioException' isn't a type.\n  static ServerFailure fromDioException(DioException e) {\n                                        ^^^^^^^^^^^^\n.","stackTrace":"","isFailure":false,"type":"error","time":6911}
+{"testID":1,"result":"error","skipped":false,"hidden":false,"type":"testDone","time":6914}
+{"success":false,"type":"done","time":6916}
