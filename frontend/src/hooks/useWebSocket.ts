@@ -145,11 +145,11 @@ class WebSocketManager {
       this.updateConnectionStatus({
         reconnectAttempts: this.connectionStatus.reconnectAttempts + 1,
       });
-      this.connect();
+      this.connectInternal();
     }, this.options.reconnectInterval);
   }
 
-  private connect() {
+  private connectInternal() {
     if (this.options.enableMockMode) {
       this.updateConnectionStatus({
         connected: true,
@@ -357,7 +357,8 @@ class WebSocketManager {
   }
 
   public connect() {
-    this.connect();
+    // Call the private connect method
+    this.connectInternal();
   }
 
   public disconnect() {

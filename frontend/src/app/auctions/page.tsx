@@ -87,8 +87,9 @@ function AuctionsPageContent() {
       setAuctions((prevAuctions) =>
         prevAuctions.map((auction) => {
           if (auction.status === 'active' && Math.random() > 0.8) {
-            // Random bid update
-            const newBid = auction.currentBid + Math.random() * auction.minBidIncrement * 2;
+            // Random bid update - use minBidIncrement with fallback
+            const minIncrement = auction.minBidIncrement || 10.0;
+            const newBid = auction.currentBid + (Math.random() * minIncrement * 2);
             return {
               ...auction,
               currentBid: newBid,
