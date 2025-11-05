@@ -6,6 +6,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -156,6 +157,53 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 			// LiveKit token generation
 			public.GET("/livekit/token", createLiveKitTokenHandler(logger))
 
+			// Public auction endpoints - mock data for frontend
+			public.GET("/auctions", func(c *gin.Context) {
+				auctions := []gin.H{
+					{
+						"id":          1,
+						"title":       "Vintage Leather Handbag",
+						"description": "Authentic vintage leather handbag with gold hardware. Perfect condition with original dust bag.",
+						"image":       "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
+						"current_bid": 275.00,
+						"status":      "live",
+						"end_time":    "2024-12-31T23:59:59Z",
+						"bids_count":  12,
+						"watchers":    8,
+						"min_bid":     10.00,
+						"seller": gin.H{
+							"name":   "JStyle Boutique",
+							"rating": 4.8,
+							"avatar": "S",
+						},
+					},
+					{
+						"id":          2,
+						"title":       "Smart Home Security Camera",
+						"description": "4K wireless security camera with night vision, motion detection, and cloud storage.",
+						"image":       "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=400&h=400&fit=crop",
+						"current_bid": 185.50,
+						"status":      "scheduled",
+						"end_time":    "2024-12-31T23:59:59Z",
+						"bids_count":  0,
+						"watchers":    0,
+						"min_bid":     5.00,
+						"seller": gin.H{
+							"name":   "TechHub Deals",
+							"rating": 4.6,
+							"avatar": "M",
+						},
+					},
+				}
+
+				c.JSON(200, gin.H{
+					"auctions": auctions,
+					"total":    len(auctions),
+					"page":     1,
+					"limit":    10,
+				})
+			})
+
 			// LiveKit proxy routes (removed to avoid conflicts)
 			// public.Any("/livekit/*proxyPath", liveKitProxyHandler(logger))
 		}
@@ -163,11 +211,11 @@ func SetupRouter(logger *zap.Logger) *gin.Engine {
 		// Microservice proxy routes
 		v1 := api.Group("/v1")
 		{
-			// Auth service routes
-			auth := v1.Group("/auth")
-			{
-				createProxyRoutes(auth, "http://blytz-auth-prod:8084", logger)
-			}
+		// Auth service routes - forward to /api/auth instead of /api/v1/auth
+		auth := v1.Group("/auth")
+		{
+			createAuthProxyRoutes(auth, "http://blytz-auth-prod:8084", logger)
+		}
 
 			// Product service routes
 			product := v1.Group("/products")
@@ -263,7 +311,43 @@ func createProxyRoutes(group *gin.RouterGroup, targetURL string, logger *zap.Log
 		rw.Write([]byte(`{"error": "Service unavailable"}`))
 	}
 
-	// Proxy all requests to the microservice
+	// Proxy all requests to microservice
+	group.Any("/*path", gin.WrapH(proxy))
+}
+
+// createAuthProxyRoutes creates reverse proxy routes for auth service with path mapping
+func createAuthProxyRoutes(group *gin.RouterGroup, targetURL string, logger *zap.Logger) {
+	target, err := url.Parse(targetURL)
+	if err != nil {
+		logger.Error("Failed to parse target URL", zap.String("url", targetURL), zap.Error(err))
+		return
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// Modify director to add headers and map paths
+	proxy.Director = func(req *http.Request) {
+		req.Host = target.Host
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		
+		// Map /api/v1/auth/* to /api/auth/*
+		originalPath := req.URL.Path
+		req.URL.Path = strings.Replace(originalPath, "/api/v1", "/api", 1)
+		
+		req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
+		req.Header.Set("X-Forwarded-For", req.RemoteAddr)
+		req.Header.Set("X-Forwarded-Proto", "https")
+	}
+
+	// Error handler
+	proxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
+		logger.Error("Proxy error", zap.String("path", req.URL.Path), zap.Error(err))
+		rw.WriteHeader(http.StatusBadGateway)
+		rw.Write([]byte(`{"error": "Service unavailable"}`))
+	}
+
+	// Proxy all requests to microservice
 	group.Any("/*path", gin.WrapH(proxy))
 }
 
