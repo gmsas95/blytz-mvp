@@ -14,9 +14,9 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
 
 	// Add SSL mode for production
-	if cfg.Environment == "production" {
-		dsn += "?sslmode=require"
-	}
+	// if cfg.Environment == "production" {
+	// 	dsn += "?sslmode=require"
+	// }
 
 	gormConfig := &gorm.Config{}
 

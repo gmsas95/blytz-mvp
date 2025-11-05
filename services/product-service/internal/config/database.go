@@ -12,14 +12,7 @@ import (
 )
 
 func InitDB(cfg *Config) (*gorm.DB, error) {
-	// Construct database URL with SSL for production
-	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
-	sslMode := "disable"
-	if cfg.Environment == "production" {
-		sslMode = "require"
-	}
-	databaseURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB, sslMode)
+	dsn := cfg.DatabaseURL
 
 	// Configure GORM logger
 	var gormLogger logger.Interface
@@ -41,7 +34,7 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 	}
 
 	// Open database connection with pooling
-	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: gormLogger,
 	})
 	if err != nil {

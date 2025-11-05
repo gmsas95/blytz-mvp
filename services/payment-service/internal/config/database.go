@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -13,8 +14,8 @@ import (
 func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
 
-	// Add SSL mode for production
-	if cfg.Environment == "production" {
+	// Add SSL mode for production only if not already present
+	if cfg.Environment == "production" && !containsSSLMode(dsn) {
 		dsn += "?sslmode=require"
 	}
 
@@ -44,4 +45,8 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 
 	log.Println("Database connection established with connection pooling")
 	return db, nil
+}
+
+func containsSSLMode(dsn string) bool {
+	return strings.Contains(dsn, "sslmode=")
 }
