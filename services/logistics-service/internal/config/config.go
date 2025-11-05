@@ -53,10 +53,34 @@ func LoadConfig() *Config {
 		NinjaVanCountryCode:  getEnv("NINJAVAN_COUNTRY_CODE", "sg"),
 	}
 
-	// Construct the database URL
-	encodedPassword := url.QueryEscape(cfg.PostgresPassword)
-	cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+	// Check if DATABASE_URL is provided (Dokploy style)
+	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
+		cfg.DatabaseURL = databaseURL
+		// Parse DATABASE_URL to extract components for fallback usage
+		if parsedURL, err := url.Parse(databaseURL); err == nil {
+			// Extract user info
+			if parsedURL.User != nil {
+				cfg.PostgresUser = parsedURL.User.Username()
+				if password, ok := parsedURL.User.Password(); ok {
+					cfg.PostgresPassword = password
+				}
+			}
+			// Extract host and port
+			cfg.PostgresHost = parsedURL.Hostname()
+			if port := parsedURL.Port(); port != "" {
+				cfg.PostgresPort = port
+			}
+			// Extract database name
+			if len(parsedURL.Path) > 1 {
+				cfg.PostgresDB = parsedURL.Path[1:] // Remove leading slash
+			}
+		}
+	} else {
+		// Construct the database URL from individual components
+		encodedPassword := url.QueryEscape(cfg.PostgresPassword)
+		cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
+	}
 
 	return cfg
 }
