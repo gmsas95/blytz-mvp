@@ -205,5 +205,10 @@
 **/known_hosts
 **/ssh_config
 **/ssh_configacme*.json
-acme.json.backup
-**/acme.json.backup
+acme.json.backup*
+**/acme.json.backup*
+acme.json.backup*
+acme.json.backup**
+acme.json.backup.bak
+acme.json.backup.bak
+/acme.json.backup.bak

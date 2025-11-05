@@ -429,7 +429,7 @@ export class MockApiAdapter implements ApiAdapter {
         };
       } else {
         // Fallback to mock if backend fails
-        const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false';
+        const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
         return {
           success: true,
           data: {
@@ -459,7 +459,7 @@ export class MockApiAdapter implements ApiAdapter {
       }
     } catch (error) {
       // Fallback to mock on network error
-      const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX !== 'false';
+      const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
       return {
         success: true,
         data: {

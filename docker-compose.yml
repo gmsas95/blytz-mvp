@@ -166,6 +166,11 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
       - AUTH_SERVICE_URL=http://auth-service:8084
+      - FIUU_SANDBOX=${FIUU_SANDBOX}
+      - FIUU_MERCHANT_ID=${FIUU_MERCHANT_ID}
+      - FIUU_VERIFY_KEY=${FIUU_VERIFY_KEY}
+      - FIUU_SANDBOX_URL=${FIUU_SANDBOX_URL}
+      - FIUU_PRODUCTION_URL=${FIUU_PRODUCTION_URL}
     depends_on:
       postgres:
         condition: service_healthy
