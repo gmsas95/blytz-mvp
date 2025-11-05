@@ -15,13 +15,23 @@ func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
 
 	// Remove duplicate SSL mode parameters if they exist
-	if strings.Contains(dsn, "?sslmode=disable?sslmode=") || strings.Contains(dsn, "?sslmode=require?sslmode=") {
-		// Find and remove the duplicate SSL mode parameter
-		if idx := strings.Index(dsn, "?sslmode="); idx != -1 {
-			endIdx := strings.Index(dsn[idx+11:], "?")
-			if endIdx != -1 {
-				dsn = dsn[:idx] + dsn[idx+11+endIdx+1:]
+	if strings.Contains(dsn, "?sslmode=") && strings.Count(dsn, "?sslmode=") > 1 {
+		// Find all SSL mode positions
+		sslIndices := []int{}
+		start := 0
+		for {
+			idx := strings.Index(dsn[start:], "?sslmode=")
+			if idx == -1 {
+				break
 			}
+			sslIndices = append(sslIndices, start+idx)
+			start += idx + 1
+		}
+
+		// If we found more than one, remove the second one onwards
+		if len(sslIndices) > 1 {
+			// Keep everything up to the second SSL mode
+			dsn = dsn[:sslIndices[1]]
 		}
 	}
 
