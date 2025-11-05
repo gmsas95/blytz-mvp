@@ -1,6 +1,6 @@
 {
   "name": "blytz-frontend",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Blytz Auction MVP - Modern React frontend with mobile-first design",
   "private": true,
   "scripts": {
