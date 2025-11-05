@@ -14,8 +14,8 @@ import (
 func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
 
-	// Add SSL mode for production only if not already present
-	if cfg.Environment == "production" && !containsSSLMode(dsn) {
+	// DATABASE_URL already contains correct SSL mode, don't append anything
+	if cfg.Environment != "production" && !containsSSLMode(dsn) {
 		dsn += "?sslmode=require"
 	}
 
