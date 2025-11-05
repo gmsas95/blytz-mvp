@@ -245,8 +245,6 @@ services:
     container_name: blytz-gateway-prod
     env_file:
       - ./.env
-    ports:
-      - "8080:8080"
     environment:
       - PORT=8080
       - NODE_ENV=production
