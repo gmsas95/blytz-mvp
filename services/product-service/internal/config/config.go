@@ -30,31 +30,7 @@ func Load() *Config {
 		PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
 		PostgresDB:       getEnv("POSTGRES_DB", "blytz_prod"),
 		RedisURL:         getEnv("REDIS_URL", "redis://localhost:6379"),
-}
-
-	return cfg
-}
-			}
-			if parsedURL.Hostname() != "" {
-				cfg.PostgresHost = parsedURL.Hostname()
-			}
-			if parsedURL.Port() != "" {
-				cfg.PostgresPort = parsedURL.Port()
-			}
-			// Extract database name from path
-			if len(parsedURL.Path) > 1 {
-				cfg.PostgresDB = parsedURL.Path[1:] // Remove leading slash
-			}
-		}
-	} else {
-		// Construct the database URL from individual components (original behavior)
-		encodedPassword := url.QueryEscape(cfg.PostgresPassword)
-		cfg.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-			cfg.PostgresUser, encodedPassword, cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresDB)
 	}
-
-	return cfg
-}
 
 	// Check if DATABASE_URL is provided (Dokploy style)
 	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
