@@ -77,7 +77,7 @@ export function usePaymentProcessor({
       );
 
       // Load Fiuu script if not already loaded
-      await loadFiuuScript(fiuuuConfig.scriptUrl);
+      await loadFiuuScript(fiuuConfig.scriptUrl);
 
       // Create payment
       const paymentResponse = await paymentService.createPayment(paymentRequest);
