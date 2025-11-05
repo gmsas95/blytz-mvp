@@ -17,7 +17,7 @@ RUN apk --no-cache add ca-certificates curl
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/product-service .
+COPY --from=builder /app/services/product-service/product-service .
 
 # Expose port
 EXPOSE 8082
