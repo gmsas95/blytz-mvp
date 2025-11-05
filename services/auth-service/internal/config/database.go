@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -13,10 +14,16 @@ import (
 func InitDB(cfg *Config) (*gorm.DB, error) {
 	dsn := cfg.DatabaseURL
 
-	// Add SSL mode for production
-	// if cfg.Environment == "production" {
-	// 	dsn += "?sslmode=require"
-	// }
+	// Remove duplicate SSL mode parameters if they exist
+	if strings.Contains(dsn, "?sslmode=disable?sslmode=") || strings.Contains(dsn, "?sslmode=require?sslmode=") {
+		// Find and remove the duplicate SSL mode parameter
+		if idx := strings.Index(dsn, "?sslmode="); idx != -1 {
+			endIdx := strings.Index(dsn[idx+11:], "?")
+			if endIdx != -1 {
+				dsn = dsn[:idx] + dsn[idx+11+endIdx+1:]
+			}
+		}
+	}
 
 	gormConfig := &gorm.Config{}
 
