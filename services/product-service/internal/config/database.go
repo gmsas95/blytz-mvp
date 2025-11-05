@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"time"
 
 	"gorm.io/driver/postgres"
