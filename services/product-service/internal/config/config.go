@@ -30,18 +30,10 @@ func Load() *Config {
 		PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
 		PostgresDB:       getEnv("POSTGRES_DB", "blytz_prod"),
 		RedisURL:         getEnv("REDIS_URL", "redis://localhost:6379"),
-	}
+}
 
-	// Check if DATABASE_URL is provided (Dokploy style)
-	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
-		cfg.DatabaseURL = databaseURL
-		// Parse the DATABASE_URL to extract components for fallback usage
-		if parsedURL, err := url.Parse(databaseURL); err == nil {
-			if parsedURL.User != nil {
-				cfg.PostgresUser = parsedURL.User.Username()
-				if password, ok := parsedURL.User.Password(); ok {
-					cfg.PostgresPassword = password
-				}
+	return cfg
+}
 			}
 			if parsedURL.Hostname() != "" {
 				cfg.PostgresHost = parsedURL.Hostname()
