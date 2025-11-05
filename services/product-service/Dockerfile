@@ -6,9 +6,6 @@ WORKDIR /app
 # Copy the entire repository
 COPY . .
 
-# Copy the entire repository
-COPY . .
-
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o product-service ./cmd/main.go
 
