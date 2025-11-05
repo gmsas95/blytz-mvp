@@ -175,8 +175,8 @@ export class PaymentService {
       backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
       sandbox: isSandbox,
       scriptUrl: isSandbox
-        ? 'https://sandbox.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js'
-        : 'https://api.merchant.razer.com/RMS2/IPGSeamless/IPGSeamless.js',
+        ? 'https://sandbox.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js'
+        : 'https://api.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js',
     };
   }
 

@@ -23,7 +23,10 @@ export function usePaymentProcessor({
 
   const loadFiuuScript = useCallback((scriptUrl: string): Promise<void> => {
     return new Promise((resolve, reject) => {
+      console.log('Loading Fiuu script from:', scriptUrl);
+
       if (window.IPGSeamless) {
+        console.log('Fiuu script already loaded');
         setIsScriptLoaded(true);
         resolve();
         return;
@@ -32,14 +35,31 @@ export function usePaymentProcessor({
       const script = document.createElement('script');
       script.src = scriptUrl;
       script.async = true;
+      script.crossOrigin = 'anonymous';
+
+      // Add timeout handling
+      const timeout = setTimeout(() => {
+        console.error('Fiuu script loading timeout');
+        reject(new Error('Fiuu script loading timeout'));
+      }, 10000); // 10 second timeout
 
       script.onload = () => {
+        clearTimeout(timeout);
+        console.log('Fiuu script loaded successfully');
         setIsScriptLoaded(true);
-        resolve();
+
+        // Verify the script is actually available
+        if (window.IPGSeamless) {
+          resolve();
+        } else {
+          reject(new Error('Fiuu script loaded but IPGSeamless not found on window'));
+        }
       };
 
-      script.onerror = () => {
-        reject(new Error('Failed to load Fiuu payment script'));
+      script.onerror = (error) => {
+        clearTimeout(timeout);
+        console.error('Failed to load Fiuu script:', error);
+        reject(new Error(`Failed to load Fiuu payment script from ${scriptUrl}`));
       };
 
       document.head.appendChild(script);
