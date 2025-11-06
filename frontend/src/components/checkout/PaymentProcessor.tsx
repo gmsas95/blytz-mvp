@@ -29,24 +29,47 @@ export function usePaymentProcessor({
       const loadjQuery = () => {
         return new Promise<void>((resolveJQuery, rejectJQuery) => {
           if (window.jQuery || window.$) {
+            console.log('jQuery already loaded');
             resolveJQuery();
             return;
           }
 
+          console.log('Loading jQuery...');
           const jqueryScript = document.createElement('script');
-          jqueryScript.src = 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js';
-          jqueryScript.async = true;
+          // Try multiple CDNs for reliability
+          const cdnUrls = [
+            'https://code.jquery.com/jquery-3.6.0.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
+          ];
 
-          jqueryScript.onload = () => {
-            console.log('jQuery loaded successfully');
-            resolveJQuery();
+          let currentCdnIndex = 0;
+
+          const tryLoadFromCdn = () => {
+            if (currentCdnIndex >= cdnUrls.length) {
+              rejectJQuery(new Error('Failed to load jQuery from all CDNs'));
+              return;
+            }
+
+            const script = document.createElement('script');
+            script.src = cdnUrls[currentCdnIndex];
+            script.async = true;
+
+            script.onload = () => {
+              console.log(`jQuery loaded successfully from CDN ${currentCdnIndex + 1}`);
+              resolveJQuery();
+            };
+
+            script.onerror = () => {
+              console.warn(`Failed to load jQuery from CDN ${currentCdnIndex + 1}: ${cdnUrls[currentCdnIndex]}`);
+              currentCdnIndex++;
+              tryLoadFromCdn();
+            };
+
+            document.head.appendChild(script);
           };
 
-          jqueryScript.onerror = () => {
-            rejectJQuery(new Error('Failed to load jQuery'));
-          };
-
-          document.head.appendChild(jqueryScript);
+          tryLoadFromCdn();
         });
       };
 
@@ -156,33 +179,57 @@ export function usePaymentProcessor({
         document.body.appendChild(tempButton);
 
         try {
-          // Initialize MOLPaySeamless
+          // Initialize MOLPaySeamless with proper callbacks
           window.$('#temp-fiuu-button').MOLPaySeamless(paymentOptions);
 
           console.log('Fiuu payment initialized successfully');
 
-          // Simulate payment success for now (in real implementation, this would be handled by callbacks)
-          setTimeout(() => {
-            const mockResponse: PaymentResponse = {
-              id: `PAY_${Date.now()}`,
-              orderNumber: orderNumber,
-              amount: total,
-              currency: 'MYR',
+          // Set up global callbacks for Fiuu responses
+          window.molpay_seamless_acct_type = '0'; // Account type for callback handling
+
+          // Set up success callback
+          window.molpay_callback = (response: any) => {
+            console.log('Fiuu payment success callback:', response);
+
+            const paymentResponse: PaymentResponse = {
+              id: response.txnID || `PAY_${Date.now()}`,
+              orderNumber: response.orderNumber || orderNumber,
+              amount: parseFloat(response.amount) || total,
+              currency: response.currency || 'MYR',
               status: 'completed',
-              paymentMethod: selectedPaymentMethod,
-              transactionId: `TXN_${Date.now()}`,
+              paymentMethod: response.channel || selectedPaymentMethod,
+              transactionId: response.txnID,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
 
             // Clean up
-            document.body.removeChild(tempButton);
-            onPaymentSuccess(mockResponse);
-          }, 2000);
+            if (document.body.contains(tempButton)) {
+              document.body.removeChild(tempButton);
+            }
+            onPaymentSuccess(paymentResponse);
+          };
+
+          // Set up error callback
+          window.molpay_error = (error: any) => {
+            console.error('Fiuu payment error callback:', error);
+
+            const errorMessage = error.error_description || error.message || 'Payment failed';
+
+            // Clean up
+            if (document.body.contains(tempButton)) {
+              document.body.removeChild(tempButton);
+            }
+            onPaymentError(errorMessage);
+          };
+
+          console.log('Fiuu callbacks set up successfully');
 
         } catch (fiuuError) {
           console.error('Fiuu payment initialization error:', fiuuError);
-          document.body.removeChild(tempButton);
+          if (document.body.contains(tempButton)) {
+            document.body.removeChild(tempButton);
+          }
           throw new Error('Failed to initialize Fiuu payment');
         }
       } else if (paymentResponse.redirectUrl) {

@@ -116,9 +116,9 @@ export class PaymentService {
     const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
 
     return {
-      mpsmerchantid: 'blytzventures', // Your merchant ID
+      mpsmerchantid: 'MERCHANT_ID', // This should come from backend API
       mpschannel: 'fpx',
-      mpsamount: amount.toString(),
+      mpsamount: (amount * 100).toString(), // Fiuu expects amount in cents
       mpsorderid: orderNumber,
       mpsbill_name: billName,
       mpsbill_email: billEmail,
@@ -127,7 +127,7 @@ export class PaymentService {
       mpscurrency: 'MYR',
       mpslangcode: 'en',
       mpscountry: 'MY',
-      vcode: 'MOCK_VCODE_123456',
+      vcode: 'VERIFY_KEY', // This should come from backend API
       scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
       sandbox: isSandbox,
     };

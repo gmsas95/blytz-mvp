@@ -433,9 +433,9 @@ export class MockApiAdapter implements ApiAdapter {
         return {
           success: true,
           data: {
-            mpsmerchantid: 'blytzventures',
+            mpsmerchantid: 'MERCHANT_ID', // This should come from backend API
             mpschannel: 'fpx',
-            mpsamount: '10000', // Amount in cents
+            mpsamount: '10000', // Amount in cents (RM 100.00)
             mpsorderid: `ORDER_${Date.now()}`,
             mpsbill_name: 'John Doe',
             mpsbill_email: 'john@example.com',
@@ -444,7 +444,7 @@ export class MockApiAdapter implements ApiAdapter {
             mpscurrency: 'MYR',
             mpslangcode: 'en',
             mpscountry: 'MY',
-            vcode: 'MOCK_VCODE_123456',
+            vcode: 'VERIFY_KEY', // This should come from backend API
             sandbox: isSandbox,
             scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
           },
@@ -456,9 +456,9 @@ export class MockApiAdapter implements ApiAdapter {
       return {
         success: true,
         data: {
-          mpsmerchantid: 'blytzventures',
+          mpsmerchantid: 'MERCHANT_ID', // This should come from backend API
           mpschannel: 'fpx',
-          mpsamount: '10000', // Amount in cents
+          mpsamount: '10000', // Amount in cents (RM 100.00)
           mpsorderid: `ORDER_${Date.now()}`,
           mpsbill_name: 'John Doe',
           mpsbill_email: 'john@example.com',
@@ -467,7 +467,7 @@ export class MockApiAdapter implements ApiAdapter {
           mpscurrency: 'MYR',
           mpslangcode: 'en',
           mpscountry: 'MY',
-          vcode: 'MOCK_VCODE_123456',
+          vcode: 'VERIFY_KEY', // This should come from backend API
           sandbox: isSandbox,
           scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
         },
