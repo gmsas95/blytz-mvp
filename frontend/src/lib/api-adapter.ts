@@ -429,7 +429,17 @@ export class MockApiAdapter implements ApiAdapter {
         };
       } else {
         // Fallback to mock if backend fails
-        const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
+        // NEXT_PUBLIC_FIUU_SANDBOX=false means we're in PRODUCTION mode
+        // If NEXT_PUBLIC_FIUU_SANDBOX=true, then we use SANDBOX mode
+        // If NEXT_PUBLIC_FIUU_SANDBOX is anything else, default to SANDBOX for safety
+        const isProduction = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'false';
+        const isSandbox = !isProduction;
+
+        console.log('🔍 Fiuu Mode Check (API Adapter):');
+        console.log('NEXT_PUBLIC_FIUU_SANDBOX:', process.env.NEXT_PUBLIC_FIUU_SANDBOX);
+        console.log('isProduction:', isProduction);
+        console.log('isSandbox:', isSandbox);
+        console.log('Final Mode:', isProduction ? 'PRODUCTION' : 'SANDBOX');
         return {
           success: true,
           data: {
@@ -452,7 +462,17 @@ export class MockApiAdapter implements ApiAdapter {
       }
     } catch (error) {
       // Fallback to mock on network error
-      const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
+      // NEXT_PUBLIC_FIUU_SANDBOX=false means we're in PRODUCTION mode
+    // If NEXT_PUBLIC_FIUU_SANDBOX=true, then we use SANDBOX mode
+    // If NEXT_PUBLIC_FIUU_SANDBOX is anything else, default to SANDBOX for safety
+    const isProduction = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'false';
+    const isSandbox = !isProduction;
+
+    console.log('🔍 Fiuu Mode Check (API Adapter - Fallback):');
+    console.log('NEXT_PUBLIC_FIUU_SANDBOX:', process.env.NEXT_PUBLIC_FIUU_SANDBOX);
+    console.log('isProduction:', isProduction);
+    console.log('isSandbox:', isSandbox);
+    console.log('Final Mode:', isProduction ? 'PRODUCTION' : 'SANDBOX');
       return {
         success: true,
         data: {

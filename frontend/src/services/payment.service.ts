@@ -113,7 +113,17 @@ export class PaymentService {
   }
 
   private getMockFiuuConfig(orderNumber: string, amount: number, billName: string, billEmail: string, billMobile: string, billDesc: string): FiuuConfig {
-    const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
+    // NEXT_PUBLIC_FIUU_SANDBOX=false means we're in PRODUCTION mode
+    // If NEXT_PUBLIC_FIUU_SANDBOX=true, then we use SANDBOX mode
+    // If NEXT_PUBLIC_FIUU_SANDBOX is anything else, default to SANDBOX for safety
+    const isProduction = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'false';
+    const isSandbox = !isProduction;
+
+    console.log('🔍 Fiuu Mode Check:');
+    console.log('NEXT_PUBLIC_FIUU_SANDBOX:', process.env.NEXT_PUBLIC_FIUU_SANDBOX);
+    console.log('isProduction:', isProduction);
+    console.log('isSandbox:', isSandbox);
+    console.log('Final Mode:', isProduction ? 'PRODUCTION' : 'SANDBOX');
 
     return {
       mpsmerchantid: 'MERCHANT_ID', // This should come from backend API
