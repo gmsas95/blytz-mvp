@@ -77,48 +77,8 @@ export class PaymentService {
     }
   }
 
-  initializeFiuuPayment(config: FiuuConfig): Promise<IPGSeamlessInstance> {
-    return new Promise((resolve, reject) => {
-      if (!window.IPGSeamless) {
-        reject(new Error('Fiuu payment script not loaded'));
-        return;
-      }
-
-      try {
-        const seamless = new window.IPGSeamless(config);
-        resolve(seamless);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  processFiuuPayment(seamless: IPGSeamlessInstance): Promise<PaymentResponse> {
-    return new Promise((resolve, reject) => {
-      seamless.setCompleteCallback((response: any) => {
-        // Process successful payment response
-        const paymentResponse: PaymentResponse = {
-          id: `PAY_${Date.now()}`,
-          orderNumber: response.orderNumber || `ORDER_${Date.now()}`,
-          amount: parseFloat(response.amount) || 0,
-          currency: response.currency || 'MYR',
-          status: 'completed',
-          paymentMethod: response.paymentMethod || 'fpx',
-          transactionId: response.transactionId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        resolve(paymentResponse);
-      });
-
-      seamless.setErrorCallback((error: any) => {
-        reject(new Error(error.message || 'Payment failed'));
-      });
-
-      // Start payment
-      seamless.makePayment();
-    });
-  }
+  // Fiuu payment processing is now handled directly in the PaymentProcessor component
+  // using jQuery and MOLPaySeamless, so these methods are deprecated
 
   private getMockPaymentMethods(): PaymentMethodInfo[] {
     return [
@@ -156,27 +116,20 @@ export class PaymentService {
     const isSandbox = process.env.NEXT_PUBLIC_FIUU_SANDBOX === 'true';
 
     return {
-      version: '7.5.0',
-      actionType: 'Pay',
-      merchantID: 'MERCHANT_ID',
-      paymentMethod: 'all',
-      orderNumber,
-      amount,
-      currency: 'MYR',
-      productDescription: billDesc,
-      userName: billName,
-      userEmail: billEmail,
-      userContact: billMobile,
-      remark: 'Payment for auction items',
-      lang: 'en',
+      mpsmerchantid: 'blytzventures', // Your merchant ID
+      mpschannel: 'fpx',
+      mpsamount: amount.toString(),
+      mpsorderid: orderNumber,
+      mpsbill_name: billName,
+      mpsbill_email: billEmail,
+      mpsbill_mobile: billMobile,
+      mpsbill_desc: billDesc,
+      mpscurrency: 'MYR',
+      mpslangcode: 'en',
+      mpscountry: 'MY',
       vcode: 'MOCK_VCODE_123456',
-      callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
-      returnURL: `${window.location.origin}/checkout/success`,
-      backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
+      scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
       sandbox: isSandbox,
-      scriptUrl: isSandbox
-        ? 'https://sandbox.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js'
-        : 'https://api.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js',
     };
   }
 

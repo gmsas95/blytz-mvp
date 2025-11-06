@@ -1,23 +1,18 @@
 export interface FiuuConfig {
-  version: string;
-  actionType: string;
-  merchantID: string;
-  paymentMethod: string;
-  orderNumber: string;
-  amount: number;
-  currency: string;
-  productDescription: string;
-  userName: string;
-  userEmail: string;
-  userContact: string;
-  remark: string;
-  lang: string;
+  mpsmerchantid: string;
+  mpschannel: string;
+  mpsamount: string;
+  mpsorderid: string;
+  mpsbill_name: string;
+  mpsbill_email: string;
+  mpsbill_mobile: string;
+  mpsbill_desc: string;
+  mpscurrency: string;
+  mpslangcode: string;
+  mpscountry: string;
   vcode: string;
-  callbackURL: string;
-  returnURL: string;
-  backgroundUrl: string;
-  sandbox: boolean;
   scriptUrl: string;
+  sandbox: boolean;
 }
 
 export interface PaymentMethodInfo {
@@ -103,18 +98,10 @@ export interface IPGSeamlessConfig {
 
 declare global {
   interface Window {
-    IPGSeamless: IPGSeamlessConstructor;
+    jQuery: any;
+    $: any;
+    MOLPaySeamless: any;
   }
-}
-
-export interface IPGSeamlessConstructor {
-  new(config: IPGSeamlessConfig): IPGSeamlessInstance;
-}
-
-export interface IPGSeamlessInstance {
-  setCompleteCallback(callback: (response: any) => void): void;
-  setErrorCallback(callback: (error: any) => void): void;
-  makePayment(): void;
 }
 
 export type PaymentStatus = 'idle' | 'loading' | 'processing' | 'success' | 'error';

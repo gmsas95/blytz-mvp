@@ -433,27 +433,20 @@ export class MockApiAdapter implements ApiAdapter {
         return {
           success: true,
           data: {
-            version: '7.5.0',
-            actionType: 'Pay',
-            merchantID: 'MERCHANT_ID',
-            paymentMethod: 'all',
-            orderNumber: `ORDER_${Date.now()}`,
-            amount: 100.0,
-            currency: 'MYR',
-            productDescription: 'Blytz Auction Purchase',
-            userName: 'John Doe',
-            userEmail: 'john@example.com',
-            userContact: '+60123456789',
-            remark: 'Payment for auction items',
-            lang: 'en',
+            mpsmerchantid: 'blytzventures',
+            mpschannel: 'fpx',
+            mpsamount: '10000', // Amount in cents
+            mpsorderid: `ORDER_${Date.now()}`,
+            mpsbill_name: 'John Doe',
+            mpsbill_email: 'john@example.com',
+            mpsbill_mobile: '+60123456789',
+            mpsbill_desc: 'Blytz Auction Purchase',
+            mpscurrency: 'MYR',
+            mpslangcode: 'en',
+            mpscountry: 'MY',
             vcode: 'MOCK_VCODE_123456',
-            callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
-            returnURL: 'https://blytz.app/checkout/success',
-            backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
             sandbox: isSandbox,
-            scriptUrl: isSandbox
-              ? 'https://sandbox.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js'
-              : 'https://api.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js',
+            scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
           },
         };
       }
@@ -463,27 +456,20 @@ export class MockApiAdapter implements ApiAdapter {
       return {
         success: true,
         data: {
-          version: '7.5.0',
-          actionType: 'Pay',
-          merchantID: 'MERCHANT_ID',
-          paymentMethod: 'all',
-          orderNumber: `ORDER_${Date.now()}`,
-          amount: 100.0,
-          currency: 'MYR',
-          productDescription: 'Blytz Auction Purchase',
-          userName: 'John Doe',
-          userEmail: 'john@example.com',
-          userContact: '+60123456789',
-          remark: 'Payment for auction items',
-          lang: 'en',
+          mpsmerchantid: 'blytzventures',
+          mpschannel: 'fpx',
+          mpsamount: '10000', // Amount in cents
+          mpsorderid: `ORDER_${Date.now()}`,
+          mpsbill_name: 'John Doe',
+          mpsbill_email: 'john@example.com',
+          mpsbill_mobile: '+60123456789',
+          mpsbill_desc: 'Blytz Auction Purchase',
+          mpscurrency: 'MYR',
+          mpslangcode: 'en',
+          mpscountry: 'MY',
           vcode: 'MOCK_VCODE_123456',
-          callbackURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
-          returnURL: 'https://blytz.app/checkout/success',
-          backgroundUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/webhooks/fiuu`,
           sandbox: isSandbox,
-          scriptUrl: isSandbox
-            ? 'https://sandbox.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js'
-            : 'https://api.merchant.fiuu.com.my/RMS2/IPGSeamless/IPGSeamless.js',
+          scriptUrl: 'https://pay.fiuu.com/RMS/API/seamless/3.28/js/MOLPay_seamless.deco.js',
         },
       };
     }
